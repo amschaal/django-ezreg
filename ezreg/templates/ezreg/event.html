@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>{{event.title}}</h1>
+{{event.description|safe}}
+{% if event.open_until %}
+<i>Registration closes on: {{event.open_until}}</i>
+{% endif %}
+<a href="{% url 'register' slug_or_id=event.id %}" class="btn btn-primary">Register</a>
+{% endblock %}

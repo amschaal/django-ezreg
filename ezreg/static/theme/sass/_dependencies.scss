@@ -1,0 +1,59 @@
+
+
+// Typography
+	$futura:			"futura-pt", Futura Std, Futura, Arial, sans-serif;
+	$sans-serif:		Helvetica Neue, Helvetica Std, Helvetica, Univers, Arial, sans-serif;
+	$serif:				Georgia, Berkeley, serif;
+
+
+	// [Compass] Vertical rhythm set up
+	// Change these values to whatever you want for your proj
+	// $base-font-size:				16px;
+	// $base-line-height:				24px;
+	// $default-rhythm-border-style:	solid;
+	// $relative-font-sizing:			true;
+
+// Colors
+	// The UC Davis standard colors
+	$ucdavis-blue: 		#002855;
+	$ucdavis-gold:		#c99700;
+
+
+	// Supplemental bright color palette for UC Davis
+	$unitrans-red: 		#ba0c2f;
+	$western-redbud:	#c6007e;
+	$california-poppy:	#ed8800;
+	$golden-lupine:		#ffcd00;
+	$sunny-grass:		#78be20;
+	$sky-blue:			#00b5e2;
+	$recpool-blue:		#008eaa;
+	$wine-grape:		#642667;
+
+	// Supplemental neutral color palette for UC Davis
+	$mu-brick:			#c26e60;
+	$harthall-stucco: 	#e6a65d;
+	$sage-green:		#9caf88;
+	$evergreen:			#00573f;
+	$wintersky-gray:	#5b7f95;
+	$cenwalk-gray:		#b1b3b3;
+	$cork-oak:			#aca39a;
+	$shingle-brown:		#4f2c1d;
+
+	$dark-gray:			#333433; // p,li color in main content
+	$middle-gray: 		#515151; // p,li color in portlet/sidebar
+	$light-gray:		#9b9b9b; // summary, discreet
+
+	$background-color:	#ebebeb; // background
+	$boxcolor:			#ffffff; //	content boxs
+	$borders:			#dddddd; // border color
+
+
+
+
+
+@mixin transformers {
+	transition-delay: 0s;
+    transition-duration: 0.25s;
+    transition-property: all;
+    transition-timing-function: ease;
+}

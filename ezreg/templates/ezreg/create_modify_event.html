@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block 'headend' %}
+{{ form.media }}
+<script src="/static/ezreg/js/pages/event.js"></script>
+{% endblock %}
+    
+{% block content %}
+<div class="page-header"><h1>Create/Modify Event</h1></div>
+<tabset>
+<tab heading="Event">
+<form method="POST" action=".">
+{% csrf_token %}
+{{form|crispy}}
+<button class="btn btn-primary">Submit</button>
+</form>
+</tab>
+{% if event %}
+<tab heading="Prices">
+<div ng-controller="PriceController" ng-init="init({'event_id':'{{event.id}}'})">
+	<h3>Prices</h3>
+	<table class="table" ng-if="prices.length > 0">
+		<tr><th>Name</th><th>Amount</th><th>Description</th><th>Hidden</th><th></th></tr>
+		<tr ng-repeat="price in prices">
+			<td ng-class="{'has-error':price.errors.name}">
+				<ul ng-if="price.errors.name"><li ng-repeat="error in price.errors.name">{[error]}</li></ul>
+				<input title="{[price.errors.name]}" class="form-control" ng-model="price.name"/>
+			</td>
+			<td ng-class="{'has-error':price.errors.amount}">
+				<ul ng-if="price.errors.amount"><li ng-repeat="error in price.errors.amount">{[error]}</li></ul>
+				<input title="{[price.errors.amount]}" class="form-control" ng-model="price.amount"/>
+			</td>
+			<td ng-class="{'has-error':price.errors.description}">
+				<ul ng-if="price.errors.description"><li ng-repeat="error in price.errors.description">{[error]}</li></ul>	
+				<textarea title="{[price.errors.description]}" class="form-control" ng-model="price.description"></textarea>
+			</td>
+			<td ng-class="{'has-error':price.errors.hidden}">
+				<input type="checkbox" ng-model="price.hidden"/> 
+			</td>
+			<td>
+				<button ng-click="deletePrice(price,$index)" class="btn btn-danger btn-sm">Delete</button>
+			</td>
+		</tr>
+	</table>
+	<button class="btn btn-primary" ng-click="addPrice()">Add</button> <button class="btn btn-success" ng-click="savePrices()">Save</button>
+</div>
+</tab>
+{% endif %}
+</tabset>
+
+
+{% endblock %}

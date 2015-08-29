@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+
+    <title>UC Davis Template for Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/theme/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/static/theme/css/caes.css" rel="stylesheet">
+    <link href="/static/theme/css/animations.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+        <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="/static/theme/js/bootstrap.min.js"></script>
+    
+        <!-- Angular
+    ================================================== -->
+	<script src="/static/vendor/angular/angular.js"></script>
+	<script src="/static/vendor/angular/angular-resource.min.js"></script>
+	<script src="/static/vendor/angular-cookies/angular-cookies.js"></script>
+	<script src="/static/vendor/angular-bootstrap/ui-bootstrap.js"></script>
+	<script src="/static/vendor/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+	<script src="/static/vendor/angular-ui-router/angular-ui-router.js"></script>
+	<script src="/static/ezreg/js/resources/models.js"></script>
+	<link href="/static/vendor/angular-growl/angular-growl.min.css" rel="stylesheet">
+    <script src="/static/vendor/angular-growl/angular-growl.min.js"></script>
+    
+    <script>
+	    var ezreg = angular.module('ezreg', ['ui.bootstrap', 'ui.router', 'ngCookies', 'ngResource', 'ezregModels','angular-growl']);
+	    ezreg.config(['$httpProvider', function($httpProvider) {
+		    $httpProvider.defaults.headers.common['X-CSRFToken'] = '{{ csrf_token|escapejs }}';
+		}]);
+	    ezreg.config(function($interpolateProvider) {
+		  $interpolateProvider.startSymbol('{[');
+		  $interpolateProvider.endSymbol(']}');
+		});
+	    ezreg.config(['$resourceProvider', function($resourceProvider) {
+		  // Don't strip trailing slashes from calculated URLs
+		  $resourceProvider.defaults.stripTrailingSlashes = false;
+		}]);
+    </script>
+    {% block 'headend' %}
+    {% endblock %}
+  </head>
+
+  <body role="document" ng-app="ezreg">
+
+    <!-- Fixed navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Genome Center Registration</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="{% url 'events' %}">Events</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="{% url 'events' %}">Events</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+      <!-- Main jumbotron for a primary marketing message or call to action -->
+      <div class="jumbotron">
+        <div class="container">
+          <div class="col-lg-8"><h1>UC Davis Registration Engine</h1>
+        <p>Different groups will be able to run there own registration here.<p>
+        <p><a href="#" class="btn btn-warning btn-lg" role="button">Learn more &raquo;</a></p></div>
+        </div>
+    </div>
+    
+
+	<div class="container theme-showcase" role="main">
+	{% block content %}
+	{% endblock %}
+	</div>
+
+
+  </body>
+</html>

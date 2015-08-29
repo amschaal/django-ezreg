@@ -1,0 +1,170 @@
+// Components
+// Modular components and their states. 
+// These pieces should be able to be used anywhere. Things like: icons, buttons, messages, etc.
+
+img {
+  max-width:100%;
+}
+
+// Swatches
+.swatch {display: block; width: 80px; height: 80px; background: #ccc; overflow: hidden; clear:both;}
+dl {display: block; clear: both; margin-bottom: 1em;}
+dt, dd {float: left; padding: 5px;}
+dt {font-weight: bold; font-size: .9em; width: 80px; text-align: right;}
+dd {margin-left: 0;}
+
+  .ucdavis-blue {background: $ucdavis-blue;}
+  .ucdavis-gold {background: $ucdavis-gold;}
+
+  .unitrans-red {background: $unitrans-red;}
+  .western-redbud {background: $western-redbud;}
+  .california-poppy {background: $california-poppy;}
+  .golden-lupine {background: $golden-lupine;}
+  .sunny-grass {background: $sunny-grass;}
+  .sky-blue {background: $sky-blue;}
+  .recpool-blue {background: $recpool-blue;}
+  .wine-grape {background: $wine-grape;}
+
+  .mu-brick {background: $mu-brick;}
+  .harthall-stucco {background: $harthall-stucco;}
+  .sage-green {background: $sage-green;}
+  .evergreen {background: $evergreen;}
+  .wintersky-gray {background: $wintersky-gray;}
+  .cenwalk-gray {background: $cenwalk-gray;}
+  .cork-oak {background: $cork-oak;}
+  .shingle-brown {background: $shingle-brown;}
+
+
+// panels & list groups
+
+
+.alert, .list-group-item:first-child, .list-group-item:last-child, .panel, .panel-title, .panel-heading, .well {
+  border-radius:0px;
+}
+a.list-group-item.active, a.list-group-item.active:hover, a.list-group-item.active:focus {
+  background-color:lighten( $ucdavis-blue, .15 );
+  border:1px solid lighten( $ucdavis-blue, .15 );
+}
+.panel-primary {
+  border:1px solid $ucdavis-blue;
+  .panel-heading {
+    background-color:$ucdavis-blue;
+    border:1px solid $ucdavis-blue;
+  }
+}
+.panel-success {
+  border:1px solid $ucdavis-gold;
+  .panel-heading {
+    background-color:$ucdavis-gold;
+    border:1px solid $ucdavis-gold;
+    color:#fff;
+  }
+}
+ // buttons
+ .btn {
+  @include transformers;
+ }
+ 
+ .btn-primary {
+  background-color:$ucdavis-blue;
+  background-image:none;
+  border:1px solid $ucdavis-blue;
+  border-radius:5px;
+  box-shadow: 0 -2px 0 rgba(0, 0, 0, 0.1) inset;
+ }
+ .btn-primary:hover {
+  background-color:$ucdavis-gold;
+  background-image:none;
+  border:1px solid $ucdavis-gold;
+  border-radius:5px;
+ }
+
+ .btn-default {
+  background-color:#fff;
+  background-image:none;
+  border:1px solid $cenwalk-gray;
+  border-radius:5px;
+  box-shadow: 0 -2px 0 rgba(0, 0, 0, 0.1) inset;
+
+ }
+ .btn-default:hover {
+  background-color:$cenwalk-gray;
+  background-image:none;
+  border:1px solid $cenwalk-gray;
+  border-radius:5px;
+ }
+
+ .btn-success {
+  background-color:$sunny-grass;
+  background-image:none;
+  border:1px solid $sunny-grass;
+  border-radius:5px;
+  box-shadow: 0 -2px 0 rgba(0, 0, 0, 0.1) inset;
+ }
+ .btn-success:hover {
+  background-color:darken( $sunny-grass, 5% );
+  background-image:none;
+  border:1px solid darken( $sunny-grass, 5% );
+  border-radius:5px;
+ }
+
+  .btn-info {
+  background-color:$sky-blue;
+  background-image:none;
+  border:1px solid $sky-blue;
+  border-radius:5px;
+  box-shadow: 0 -2px 0 rgba(0, 0, 0, 0.1) inset;
+ }
+ .btn-info:hover {
+  background-color:darken( $sky-blue, 5% );
+  background-image:none;
+  border:1px solid darken( $sky-blue, 5% );
+  border-radius:5px;
+ }
+
+  .btn-warning {
+  background-color:$ucdavis-gold;
+  background-image:none;
+  border:1px solid $ucdavis-gold;
+  border-radius:5px;
+    box-shadow: 0 -2px 0 rgba(0, 0, 0, 0.1) inset;
+ }
+ .btn-warning:hover {
+  background-color:darken( $ucdavis-gold, 5% );
+  background-image:none;
+  border:1px solid darken( $ucdavis-gold, 5% );
+  border-radius:5px;
+    box-shadow: 0 -2px 0 rgba(0, 0, 0, 0.1) inset;
+ }
+
+  .btn-danger {
+  background-color:$unitrans-red;
+  background-image:none;
+  border:1px solid $unitrans-red;
+  border-radius:5px;
+    box-shadow: 0 -2px 0 rgba(0, 0, 0, 0.1) inset;
+ }
+ .btn-danger:hover {
+  background-color:darken( $unitrans-red, 5% );
+  background-image:none;
+  border:1px solid darken( $unitrans-red, 5% );
+  border-radius:5px;
+    box-shadow: 0 -2px 0 rgba(0, 0, 0, 0.1) inset;
+ }
+
+ // alerts
+ .alert-info {
+  background-color:transparentize( $ucdavis-blue, .8);
+  border:1px solid transparentize( $ucdavis-blue, .6);
+ }
+ .alert-success {
+  border:1px solid #b2d5a3;
+ }
+.alert-warning {
+  background-color:transparentize( $ucdavis-gold, .8);
+  border:1px solid transparentize( $ucdavis-gold, .6);
+ }
+ .alert-danger {
+  background-color:transparentize( $unitrans-red, .8);
+  border:1px solid transparentize( $unitrans-red, .6);
+ }

@@ -1,0 +1,202 @@
+
+// Foundation
+// Styles for setting up the structure of the entire website
+
+// Normalize gets pulled in Bootstrap
+// @import 'normalize';
+
+// Border-box-sizing
+@import 'border-box-sizing';
+
+html {
+}
+body {
+	// font-size:16px;
+	font-family:$futura;
+}
+.container {
+	padding:1.6rem;
+	.jumbotron {
+		border-radius:0px;
+	}
+}
+
+.page-header {
+	border-bottom:2px solid $wintersky-gray;
+	h1 {
+		margin-bottom:.5rem;
+	}
+}
+
+// jumbotron 
+.jumbotron {
+    background-attachment: scroll;
+    background-clip: border-box;
+    background-color: $ucdavis-blue;
+    background-image: none;
+    background-origin: padding-box;
+    background-position: 0 0;
+    background-repeat: repeat;
+    background-size: auto auto;
+    border-bottom:solid 1px #ddd;
+    border-top:solid 1px #ddd;
+    margin-bottom: 1.5em;
+   	padding:8rem 0px 2rem 0px;
+   	background-image: url("../media/banner.svg");
+    background-position: 100% 50%;
+    background-repeat: no-repeat;
+   	.container {
+   		padding-top:5rem;
+   		color:#fff;
+   	}
+}
+// Custom random function
+// To allow a minimum value
+// ------------------------------------------------------------
+// @param $min: minimum value
+// @param $max: maximum value
+// ------------------------------------------------------------
+// @return random number
+
+@function rand($min, $max) {
+  @return random($max - $min) + $min;
+}
+
+// Private function for custom stops
+// ------------------------------------------------------------
+// @param $colors: list of color + associated stop
+//     ex: (red 10%, blue 50%, green 65%)
+// ------------------------------------------------------------
+// @return list to be used as a gradient
+
+@function _stripes-custom-stops($colors) {
+  $gradients: ();
+  
+  @for $i from 1 to length($colors) {
+    @if length(nth($colors, $i)) > 1 {
+      $color: nth(nth($colors, $i), 1);
+      $stop:  nth(nth($colors, $i), 2);
+
+      $gradients: append($gradients, $color $stop, comma);
+      @if $i < length($colors) {
+        $gradients: append($gradients, nth(nth($colors, $i + 1), 1) $stop);
+      }
+    }
+    
+    @else {
+      @warn '`#{nth($colors, $i)}` skipped because it is only one item long while it should be 2: (color, color-stop).';
+    }
+  }
+  
+  @return $gradients;
+}
+
+// Private function for random stops
+// ------------------------------------------------------------
+// @param $colors: list of color
+//     ex: (red, blue, green)
+// ------------------------------------------------------------
+// @return two dimensional list
+
+@function _stripes-random-stops($colors) {
+  @if length(nth($colors, 1)) > 1 {
+    @return _stripes-custom-stops($colors);
+  }
+  
+  $n: length($colors);
+  $gradients: ();
+  $variation: 10;
+  $median: 100 / $n;
+   
+  @for $i from 1 to $n {
+    $stop: $median * $i; 
+    $random: rand($stop - $variation, $stop + $variation) * 1%;
+    $gradients: append($gradients, nth($colors, $i) $random, comma);
+    @if $i < length($colors) {
+      $gradients: append($gradients, nth(nth($colors, $i + 1), 1) $random);
+    } 
+  }
+  
+  @return $gradients;
+}
+
+// Private function for equal stops
+// ------------------------------------------------------------
+// @param $colors: list of color
+//     ex: (red, blue, green)
+// ------------------------------------------------------------
+// @return two dimensional list
+
+@function _stripes-equal-stops($colors) {
+  $gradients: ();
+  $stops: 100% / length($colors); 
+  
+  // Loop through colors
+  @for $i from 1 to length($colors) {
+    $gradients: append($gradients, nth($colors, $i) $i * $stops, comma);
+    @if $i < length($colors) {
+      $gradients: append($gradients, nth($colors, $i + 1) $i * $stops);
+    }
+  }
+  
+  // Return gradient
+  @return $gradients;
+}
+
+// Function turning a list of colors (and if specified stops)
+// into a stripes gradient
+// ------------------------------------------------------------
+// @param $colors: list of color or color + color stop
+//     ex: (red blue green) 
+//     ex: (red 10%, blue 50%, green 65%)
+// @param $direction: gradient direction in keyword or degrees
+// @param $random: should color-stops be randomly generated
+// ------------------------------------------------------------
+// @return gradient
+
+@function stripes($colors, $direction: 90deg, $random: false) {
+  // If lonely color
+  @if length($colors) == 1 { @return $colors; }
+  
+  // Else
+  $type: if($random, 'random', if(length(nth($colors, 1)) > 1, 'custom', 'equal'));
+  @return linear-gradient($direction, call('_stripes-#{$type}-stops', $colors));
+}
+
+.navbar {
+  position: relative;
+  height: 100%;
+  background: #333;
+  
+  &:before,
+  &:after {
+    position: absolute;
+    content: '';
+    height: 1em;
+    top: 0;
+    left: 0;
+    right: 0;
+  }
+  
+  &:after {
+    top: auto;
+    bottom: 0;
+  }
+  
+  &:before {
+    $equal-stops: #1abc9c #2ecc71 #3498db #9b59b6 #34495e #f1c40f #e67e22 #e74c3c #ecf0f1 #95a5a6;
+  
+    // Equal stops
+    // background: stripes($equal-stops, $direction);
+  
+    // Random stops
+    background: stripes($equal-stops, 90deg, $random: true); 
+  }
+  
+  &:after {
+    $custom-stops: #1abc9c 10%, #2ecc71 12.5%, #3498db 28%, #9b59b6 35%, #34495e 60%, #f1c40f 69%, #e67e22 83%, #e74c3c 88%, #ecf0f1 96%, #95a5a6 100%;
+    
+    // Custom stops
+    background: stripes($custom-stops, 90deg);
+  }
+}

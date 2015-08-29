@@ -1,0 +1,65 @@
+// Regions
+// Page regions, named after their class and role names.
+// i.e. Banner, navigation, etc.
+
+// If you want more separation, you can set up an include per region, i.e.
+// @include 'region/banner';		// and then add region/_banner.scss
+ul.dropdown-menu {
+	padding-left:.5rem;
+	padding-right:.5rem;
+}
+// default navigation
+.navbar-default{
+	background-color:rgba(255,255,255,.95);
+}
+.navbar-default .navbar-brand {
+	color:$ucdavis-blue;
+	font-size:2.4rem;
+	margin-right:4rem;
+	&:hover {
+		color:$ucdavis-gold;
+	}
+}
+.navbar-default {
+	font-size:1.8rem;
+	li {
+		padding:0px .5rem 0px .5rem;
+		a {
+			padding: 1.5rem .5rem 1rem .5rem;
+		}
+	}
+	li.active a {
+		border-bottom:solid 5px $ucdavis-gold;
+	}
+}
+.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus{
+	background-color:rgba(255,255,255,0.01);
+}
+// inverse navigation
+.navbar-inverse{
+	background-color:rgba(0,40,85,.95);
+	border-bottom:1px solid $ucdavis-blue;
+}
+.navbar-inverse .navbar-brand {
+	color:$ucdavis-gold;
+	font-size:2.4rem;
+	margin-right:4rem;
+	&:hover {
+		color:#fff;
+	}
+}
+.navbar-inverse {
+	font-size:1.8rem;
+	li {
+		padding:0px .5rem 0px .5rem;
+		a {
+			padding: 1.5rem .5rem 1rem .5rem;
+		}
+	}
+	li.active a {
+		border-bottom:solid 5px $ucdavis-gold;
+	}
+}
+.navbar-inverse .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .active > a:hover, .navbar-inverse .navbar-nav > .active > a:focus{
+	background-color:rgba(255,255,255,0.01);
+}
