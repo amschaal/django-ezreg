@@ -139,3 +139,7 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
 }
+
+PAYMENT_PROCESSORS = [
+    'ezreg.payment.dafis.processor.DafisPaymentProcessor',
+]

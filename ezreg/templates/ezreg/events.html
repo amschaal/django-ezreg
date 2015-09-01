@@ -6,11 +6,16 @@
   <thead>
     <tr>
     	<th>Title</th>
+    	<th>Registered</th>
     </tr>
   </thead>
   <tbody>
   {% for event in events %}
-	<tr><td>{{event.title}}</td><td><span class="pull-right"><a href="{% url 'event' slug_or_id=event.id %}">Page</a> <a href="{% url 'modify_event' id=event.id %}">Modify</a></span> </td></tr>
+	<tr>
+		<td><a href="{% url 'event' slug_or_id=event.id %}">{{event.title}}</a></td>
+		<td><a href="{% url 'registrations' slug_or_id=event.id %}">{{event.registrations.count}}</a></td>
+		<td><span class="pull-right"><a href="{% url 'modify_event' id=event.id %}">Modify</a></span> </td>
+	</tr>
   {% endfor %}
   </tbody>
 </table>

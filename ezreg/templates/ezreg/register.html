@@ -7,7 +7,10 @@
 {% endblock %}
 
 {% block content %}
-<p>Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</p>
+<h1>Register</h1>
+<h2>{{event.title}}</h2>
+<p>{{event.description}}</p>
+<p><i>Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</i></p>
 <form action="" method="post">{% csrf_token %}
 {{ wizard.management_form }}
 {% if wizard.form.forms %}

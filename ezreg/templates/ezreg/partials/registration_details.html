@@ -1,0 +1,15 @@
+<h1>{{registration.event.title}}</h1>
+
+<h2>Registration details</h2>
+<table class="table">
+<tr><th>First name:</th><td>{{registration.first_name}}</td></tr>
+<tr><th>Last name:</th><td>{{registration.last_name}}</td></tr>
+<tr><th>Email:</th><td>{{registration.email}}</td></tr>
+<tr><th>Institution:</th><td>{{registration.institution}}</td></tr>
+<tr><th>Group:</th><td>{{registration.group_name}}</td></tr>
+<tr><th>Special requests:</th><td>{{registration.special_requests}}</td></tr>
+<tr><th>Registered:</th><td>{{registration.registered}}</td></tr>
+<tr><th>Amount:</th><td>${{registration.price}}</td></tr>
+</table>
+
+<a href="{% url 'registration' id=registration.id%}">Registration details</a>

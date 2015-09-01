@@ -1,27 +1,37 @@
 from django import forms
 from django.forms.models import inlineformset_factory
-from ezreg.models import Event, Price, Registration
+from ezreg.models import Event, Price, Registration, PaymentProcessor
 from django.forms import widgets
 from tinymce.widgets import TinyMCE
 from django.contrib.auth.models import Group
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout
+from ezreg.payment import PaymentProcessors
 
 class EventForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
         super(EventForm,self).__init__(*args, **kwargs)
         self.fields['group'].queryset = user.groups.all()
-    def set_user(self,user):
-        self.fields['group'].queryset = user.groups.all()
-    description = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
+    body = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     cancellation_policy = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     class Meta:
         model=Event
         exclude = ('id',)
 
+class PaymentProcessorForm(forms.ModelForm):
+    def __init__(self, user, *args, **kwargs):
+        super(PaymentProcessorForm,self).__init__(*args, **kwargs)
+        self.fields['group'].queryset = user.groups.all()
+        self.PaymentProcessors = PaymentProcessors()
+        processor_choices = self.PaymentProcessors.get_choices()
+        self.fields['processor_id'].widget = forms.widgets.Select(choices=processor_choices)
+    class Meta:
+        model= PaymentProcessor
+        fields = ('processor_id','group','name','description','hidden')
+
 class RegistrationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        event = kwargs.pop('event')
+        self.event = kwargs.pop('event',None)
         super(RegistrationForm,self).__init__(*args, **kwargs)
     class Meta:
         model=Registration

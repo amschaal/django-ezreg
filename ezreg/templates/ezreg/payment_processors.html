@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-header"><h1>Payment Processors <a class="btn btn-primary pull-right" href="{% url 'create_payment_processor'%}">Create</a></h1></div>
+<div class="table-responsive">
+<table class="table table-striped">
+  <thead>
+    <tr>
+    	<th>Name</th>
+    	<th>Type</th>
+    	<th>Group</th>
+    	<th>Description</th>
+    	<th></th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for processor in payment_processors %}
+	<tr>
+		<td>{{processor.name}}</td>
+		<td>{{processor.type}}</td>
+		<td>{{processor.group}}</td>
+		<td>{{processor.description}}</td>
+		<td><span class="pull-right"><a href="{% url 'modify_payment_processor' id=processor.id %}">Modify</a></span> </td>
+	</tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

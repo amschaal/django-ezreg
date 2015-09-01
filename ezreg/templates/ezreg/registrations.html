@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Registrations: {{event.title}}</h1>
+<div class="table-responsive">
+<table class="table table-striped">
+  <thead>
+    <tr>
+    	<th>Registered</th>
+    	<th>First name</th>
+    	<th>Last name</th>
+    	<th>Email</th>
+    	<th>Status</th>
+    	<th>Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for registration in event.registrations.all %}
+	<tr>
+		<td>{{registration.registered}}</td>
+		<td>{{registration.first_name}}</td>
+		<td>{{registration.last_name}}</td>
+		<td>{{registration.email}}</td>
+		<td>{{registration.status}}</td>
+		<td>{{registration.price}}</td>
+	</tr>  
+	{% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

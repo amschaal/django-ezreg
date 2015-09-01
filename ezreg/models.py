@@ -3,6 +3,8 @@ import string
 import random
 from django.contrib.auth.models import Group
 from django.utils.safestring import mark_safe
+from distutils.command.config import config
+from jsonfield import JSONField
 
 def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -13,14 +15,16 @@ class Event(models.Model):
 #     STATUSES = ((STATUS_OPEN,'Open'),(STATUS_CLOSED,'Closed'))
     id = models.CharField(max_length=10,default=id_generator,primary_key=True)
     group = models.ForeignKey(Group)
-    slug = models.CharField(max_length=100,unique=True,blank=True)
+    slug = models.SlugField(max_length=100,unique=True,blank=True)
     title = models.CharField(max_length=100,blank=False)
     description = models.TextField(blank=False)
+    body = models.TextField(blank=False)
     active = models.BooleanField(default=False)
     capacity = models.IntegerField(blank=True,null=True)
     cancellation_policy = models.TextField(blank=True,null=True)
     open_until = models.DateField(blank=True,null=True)
     advertise = models.BooleanField(default=False)
+    payment_processors = models.ManyToManyField('PaymentProcessor',through='EventProcessor')
     def __unicode__(self):
         return self.title
     class Meta:
@@ -28,7 +32,9 @@ class Event(models.Model):
             ('admin_event', 'Can modify event'),
             ('view_event', 'Can view event details and registrations'),
         )
-        
+
+
+
 class Price(models.Model):
     event = models.ForeignKey(Event,related_name='prices')
     name = models.CharField(max_length=50)
@@ -39,7 +45,8 @@ class Price(models.Model):
         return mark_safe('<span title="%s"><b>$%s</b> - %s</span>' % (self.description,str(self.amount),self.name))
     
 class Registration(models.Model):
-    event = models.ForeignKey(Event)
+    id = models.CharField(max_length=10,default=id_generator,primary_key=True)
+    event = models.ForeignKey(Event,related_name='registrations')
     registered = models.DateTimeField(auto_now=True)
     first_name = models.CharField(max_length=50,blank=False)
     last_name = models.CharField(max_length=50,blank=False)
@@ -61,4 +68,16 @@ class Payment(models.Model):
     registration = models.ForeignKey(Registration)
     amount = models.DecimalField(decimal_places=2,max_digits=7)
     
-    
+class PaymentProcessor(models.Model):
+    processor_id = models.CharField(max_length=30)
+    group = models.ForeignKey(Group)
+    name = models.CharField(max_length=50)
+    description = models.TextField(blank=True)
+    hidden = models.BooleanField(default=False)
+    config = JSONField()
+    def __unicode__(self):
+        return self.name
+
+class EventProcessor(models.Model):
+    event = models.ForeignKey(Event)
+    processor = models.ForeignKey(PaymentProcessor)
