@@ -1,0 +1,18 @@
+<h2>Payment</h2>
+<table class="table">
+<tr><th>Processor:</th><td>{{registration.payment.processor}}</td></tr>
+<tr><th>Status:</th><td>{{registration.payment.status}}</td></tr>
+<tr><th>Amount:</th><td>${{registration.payment.amount}}</td></tr>
+{% for field, value in registration.payment.data.items %}
+<tr><th>{{field}}:</th><td>{{value}}</td></tr>
+{% endfor %}
+</table>
+{% with post_form=registration.payment.get_post_form %}
+{{post_form}}
+{% if post_form  %}
+<form method="POST" action="{{post_form.action}}">
+{{registration.payment.get_post_form}}
+<button class="btn btn-primary">Pay</button>
+</form>
+{% endif %}
+{% endwith%}

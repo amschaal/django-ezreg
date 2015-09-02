@@ -5,6 +5,8 @@ from django.contrib.auth.models import Group
 from django.utils.safestring import mark_safe
 from distutils.command.config import config
 from jsonfield import JSONField
+from django.db.models.signals import pre_save
+from ezreg.payment import PaymentProcessorManager
 
 def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -63,10 +65,15 @@ class Payment(models.Model):
     STATUS_PENDING = 'PENDING'
     STATUS_PAID = 'PAID'
     STATUS_CHOICES = ((STATUS_UNPAID,'Unpaid'),(STATUS_PENDING,'Pending'),(STATUS_PAID,'Paid'))
+    processor = models.ForeignKey('PaymentProcessor',null=True,blank=True)
     status = models.CharField(max_length=10,default=STATUS_UNPAID,choices=STATUS_CHOICES)
     paid_at = models.DateTimeField(blank=True,null=True)
-    registration = models.ForeignKey(Registration)
+    registration = models.OneToOneField(Registration,related_name='payment')
     amount = models.DecimalField(decimal_places=2,max_digits=7)
+    data = JSONField(null=True,blank=True)
+    def get_post_form(self):
+        processor = self.processor.get_processor()
+        return processor.get_post_form(self)
     
 class PaymentProcessor(models.Model):
     processor_id = models.CharField(max_length=30)
@@ -75,9 +82,22 @@ class PaymentProcessor(models.Model):
     description = models.TextField(blank=True)
     hidden = models.BooleanField(default=False)
     config = JSONField()
+    def get_processor(self):
+        manager = PaymentProcessorManager()
+        return manager.get_processor(self.processor_id)
+    def get_configuration_form(self):
+        processor = self.get_processor()
+        return processor.get_configuration_form()
     def __unicode__(self):
         return self.name
 
 class EventProcessor(models.Model):
     event = models.ForeignKey(Event)
     processor = models.ForeignKey(PaymentProcessor)
+    
+def save_event_processor(sender,instance,**kwargs):
+    print '!!!!!!!!!!!!!!!!!!!'
+    if instance.processor.group != instance.event.group:
+        raise Exception("Attempted to use a payment processor for a group that was different than the event group.")
+pre_save.connect(save_event_processor, sender=EventProcessor)
+

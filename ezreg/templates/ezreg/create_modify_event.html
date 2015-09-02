@@ -16,8 +16,8 @@
 </form>
 </tab>
 {% if event %}
-<tab heading="Prices">
-<div ng-controller="PriceController" ng-init="init({'event_id':'{{event.id}}'})">
+<tab heading="Payment">
+<div ng-controller="PriceController" ng-init="init({'event_id':'{{event.id}}','group':'{{event.group_id}}','event_processors_url':'{% url 'event_payment_processors' event_id=event.id %}'})">
 	<h3>Prices</h3>
 	<table class="table" ng-if="prices.length > 0">
 		<tr><th>Name</th><th>Amount</th><th>Description</th><th>Hidden</th><th></th></tr>
@@ -43,6 +43,16 @@
 		</tr>
 	</table>
 	<button class="btn btn-primary" ng-click="addPrice()">Add</button> <button class="btn btn-success" ng-click="savePrices()">Save</button>
+	<h3>Payment Processors</h3>
+	<table class="table" ng-if="processors.length > 0">
+		<tr><th>Enable</th><th>Name</th><th>Description</th></tr>
+			<tr ng-repeat="processor in processors" ng-if="!processor.hidden">
+				<td><input type="checkbox" ng-model="selected_processors[processor.id].enabled"/></td>
+				<td>{[processor.name]}</td>
+				<td>{[processor.description]}</td>
+			</tr>
+	</table>
+	<button ng-click="saveProcessors()" class="btn btn-primary">Update</button>
 </div>
 </tab>
 {% endif %}

@@ -1,13 +1,21 @@
 from rest_framework import serializers
-from ezreg.models import Price
+from ezreg.models import Price, PaymentProcessor, EventProcessor
 
 class PriceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Price
         fields = ('id','event','name','amount','description','hidden')
-        
-        
-        
+
+class PaymentProcessorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentProcessor
+        fields = ('id','processor_id','group','name','description','hidden','config')
+
+# class EventProcessorSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = EventProcessor
+#         fields = ('id','processor_id','group','name','description','hidden','config')
+
 # class ProjectSerializer(serializers.ModelSerializer):
 #     lab__name = serializers.Field(source='lab.name')
 #     type = serializers.RelatedField(many=False)

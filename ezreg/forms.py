@@ -6,7 +6,7 @@ from tinymce.widgets import TinyMCE
 from django.contrib.auth.models import Group
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout
-from ezreg.payment import PaymentProcessors
+from ezreg.payment import PaymentProcessorManager
 
 class EventForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
@@ -16,13 +16,13 @@ class EventForm(forms.ModelForm):
     cancellation_policy = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     class Meta:
         model=Event
-        exclude = ('id',)
+        exclude = ('id','payment_processors')
 
 class PaymentProcessorForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
         super(PaymentProcessorForm,self).__init__(*args, **kwargs)
         self.fields['group'].queryset = user.groups.all()
-        self.PaymentProcessors = PaymentProcessors()
+        self.PaymentProcessors = PaymentProcessorManager()
         processor_choices = self.PaymentProcessors.get_choices()
         self.fields['processor_id'].widget = forms.widgets.Select(choices=processor_choices)
     class Meta:
@@ -42,7 +42,9 @@ class PriceForm(forms.Form):
         event = kwargs.pop('event')
         super(PriceForm,self).__init__(*args, **kwargs)
         self.fields['price'].queryset = event.prices.filter(hidden=False)
+        self.fields['payment_method'].queryset = event.payment_processors.filter(hidden=False)
     price = forms.ModelChoiceField(Price,required=True,empty_label=None,widget=forms.widgets.RadioSelect)
+    payment_method = forms.ModelChoiceField(PaymentProcessor,required=True,empty_label=None,widget=forms.widgets.RadioSelect)
 
 # class PriceForm(forms.ModelForm):
 #     class Meta:
@@ -64,5 +66,7 @@ class PriceFormsetHelper(FormHelper):
         )
         self.render_required_fields = True
         
-        
+#Dummy form for skipping/replacing in registration wizard (because we can't dynamically set forms based on previous form input)
+class DummyForm(forms.Form):
+    pass
     

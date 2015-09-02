@@ -9,7 +9,7 @@
 <tr><th>Group:</th><td>{{registration.group_name}}</td></tr>
 <tr><th>Special requests:</th><td>{{registration.special_requests}}</td></tr>
 <tr><th>Registered:</th><td>{{registration.registered}}</td></tr>
-<tr><th>Amount:</th><td>${{registration.price}}</td></tr>
+<tr><th>Amount:</th><td>{{registration.price}}</td></tr>
 </table>
 
 <a href="{% url 'registration' id=registration.id%}">Registration details</a>

@@ -29,5 +29,14 @@ angular.module('ezregModels', ['ngResource'])
     remove : { method : 'DELETE' }
   });
 }])
+.factory('PaymentProcessor', ['$resource', function ($resource) {
+  return $resource('/api/payment_processors/:id/', {id:'@id'}, {
+    query: { method: 'GET', isArray:true }, //, transformResponse:transformDjangoRestResponse
+//    save : { method : 'PUT'},
+//    create : { method : 'POST'},
+//    remove : { method : 'DELETE' }
+  });
+}])
+
 ;
 

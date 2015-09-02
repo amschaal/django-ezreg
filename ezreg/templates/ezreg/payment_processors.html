@@ -19,7 +19,7 @@
 		<td>{{processor.type}}</td>
 		<td>{{processor.group}}</td>
 		<td>{{processor.description}}</td>
-		<td><span class="pull-right"><a href="{% url 'modify_payment_processor' id=processor.id %}">Modify</a></span> </td>
+		<td><span class="pull-right"> {% if processor.get_configuration_form %}<a href="{% url 'configure_payment_processor' id=processor.id %}">Configure</a>{% endif %} <a href="{% url 'modify_payment_processor' id=processor.id %}">Modify</a></span> </td>
 	</tr>
   {% endfor %}
   </tbody>

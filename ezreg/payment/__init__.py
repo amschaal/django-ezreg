@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.utils.module_loading import import_string
-class PaymentProcessors:
+class PaymentProcessorManager:
     def __init__(self):
         processors = getattr(settings,'PAYMENT_PROCESSORS')
         self.payment_processors = {}    
