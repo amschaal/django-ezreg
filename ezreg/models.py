@@ -35,7 +35,13 @@ class Event(models.Model):
             ('view_event', 'Can view event details and registrations'),
         )
 
-
+class EventPage(models.Model):
+    event = models.ForeignKey(Event,related_name='pages')
+    slug = models.SlugField(max_length=50,unique=True,blank=True)
+    heading = models.CharField(max_length=40)
+    body = models.TextField()
+    class Meta:
+        unique_together = (('event','slug'))
 
 class Price(models.Model):
     event = models.ForeignKey(Event,related_name='prices')

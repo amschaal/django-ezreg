@@ -1,3 +1,4 @@
+{% if registration.payment %}
 <h2>Payment</h2>
 <table class="table">
 <tr><th>Processor:</th><td>{{registration.payment.processor}}</td></tr>
@@ -7,4 +8,4 @@
 <tr><th>{{field}}:</th><td>{{value}}</td></tr>
 {% endfor %}
 </table>
-
+{% endif %}

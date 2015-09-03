@@ -1,6 +1,8 @@
 from rest_framework import viewsets, status
-from ezreg.api.serializers import PriceSerializer, PaymentProcessorSerializer
-from ezreg.models import Price, PaymentProcessor, Event, EventProcessor
+from ezreg.api.serializers import PriceSerializer, PaymentProcessorSerializer,\
+    EventPageSerializer
+from ezreg.models import Price, PaymentProcessor, Event, EventProcessor,\
+    EventPage
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -14,6 +16,11 @@ class PaymentProcessorViewset(viewsets.ReadOnlyModelViewSet):
     queryset = PaymentProcessor.objects.all()
     serializer_class = PaymentProcessorSerializer
     filter_fields = ('group',)
+
+class EventPageViewset(viewsets.ModelViewSet):
+    queryset = EventPage.objects.all()
+    serializer_class = EventPageSerializer
+    filter_fields = ('event',)
 
 
 """

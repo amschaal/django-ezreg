@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if event.pages.all.count > 0%}
+<div class="navbar-collapse collapse navbar-default ">
+	<ul class="nav navbar-nav">
+    	<li><a href="{% url 'event' slug_or_id=event.id %}">Event</a></li>
+		{% for p in event.pages.all %}
+		<li{% if p.slug == page.slug %} class="active"{% endif %}><a href="{% url 'event_page' slug_or_id=event.id page_slug=p.slug %}">{{p.heading}}</a></li> 
+		{% endfor %}
+	</ul>
+</div>
+{% endif %}
+
+{{page.body|safe}}
+{% endblock %}

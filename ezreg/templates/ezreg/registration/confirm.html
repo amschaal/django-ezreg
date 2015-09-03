@@ -12,7 +12,7 @@
 <p>{{event.description}}</p>
 <p><i>Please confirm your registration details</i></p>
 {% include 'ezreg/partials/registration_details.html' %}
-
+{% if price %}
 <h2>Payment</h2>
 <table class="table">
 <tr><th>Processor:</th><td>{{price.payment_method}}</td></tr>
@@ -21,9 +21,8 @@
 <tr><th>{{k}}</th><td>{{v}}</td></tr>
 {% endfor %}
 </table>
+{% endif%}
 
-<table>
-</table>
 <form action="" method="post">{% csrf_token %}
 {{ wizard.management_form }}
 {% if wizard.form.forms %}

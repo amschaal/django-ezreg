@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.template.context import RequestContext
-from ezreg.models import Event, Price, Registration, PaymentProcessor, Payment
+from ezreg.models import Event, Price, Registration, PaymentProcessor, Payment,\
+    EventPage
 from guardian.shortcuts import get_objects_for_user
 from ezreg.forms import EventForm, PriceFormsetHelper, RegistrationForm,\
     PaymentProcessorForm, PriceForm, ConfirmationForm
@@ -50,6 +51,12 @@ def event(request,slug_or_id):
     event = Event.objects.get(Q(id=slug_or_id)|Q(slug=slug_or_id))
     return render(request, 'ezreg/event.html', {'event':event},context_instance=RequestContext(request))
 
+def event_page(request,slug_or_id,page_slug):
+    event = Event.objects.get(Q(id=slug_or_id)|Q(slug=slug_or_id))
+    page = EventPage.objects.get(event=event,slug=page_slug)
+    return render(request, 'ezreg/page.html', {'event':event,'page':page},context_instance=RequestContext(request))
+
+
 @login_required
 def registrations(request,slug_or_id):
     event = Event.objects.get(Q(id=slug_or_id)|Q(slug=slug_or_id))
@@ -96,11 +103,12 @@ class RegistrationWizard(SessionWizardView):
     def done(self, form_list, **kwargs):
         registration = RegistrationForm(form_list[0].cleaned_data).save(commit=False)
         registration.event = self.event
-        registration.price = form_list[1].cleaned_data['price']
         registration.save()
         
         price_data = self.get_cleaned_data_for_step('price_form') or None
         if price_data:
+            registration.price = price_data['price']
+            registration.save()
             payment = Payment.objects.create(registration=registration,amount=registration.price.amount,processor=form_list[1].cleaned_data['payment_method'])
             payment_data = self.get_cleaned_data_for_step('payment_form') or None
             if payment_data:

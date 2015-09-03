@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 {% block 'headend' %}
-{{ form.media }}
+
 <script src="/static/ezreg/js/pages/event.js"></script>
 {% endblock %}
     
@@ -54,6 +54,42 @@
 	</table>
 	<button ng-click="saveProcessors()" class="btn btn-primary">Update</button>
 </div>
+</tab>
+<tab heading="Pages">
+<div ng-controller="EventPageController" ng-init="init({'event_id':'{{event.id}}'})">
+<button class="btn btn-primary pull-right" ng-click="addPage()">Add page</button>
+<tabset>
+
+<tab ng-repeat="page in pages" heading="{[page.heading]}">
+
+<form class="form-horizontal">
+<fieldset>
+<!-- Text input-->
+<div class="form-group">
+  <label class="col-md-1 control-label" for="textinput">Heading</label>  
+  <div class="col-md-10">
+  <input id="textinput" name="textinput" type="text" placeholder="placeholder" class="form-control input-md" ng-model="page.heading">
+  <span class="help-block">Enter the name of the menu item</span>  
+  </div>
+</div>
+<div class="form-group">
+  <label class="col-md-1 control-label" for="textinput">Slug</label>  
+  <div class="col-md-10">
+  <input id="textinput" name="textinput" type="text" placeholder="placeholder" class="form-control input-md" ng-model="page.slug">
+  <span class="help-block">Enter the slug to be used in the URL</span>  
+  </div>
+</div>
+</fieldset>
+</form>
+<textarea style="width:100%;height:800px;" ui-tinymce ng-model="page.body"></textarea>
+<button class="btn btn-success" ng-click="savePage(page)">Save</button> <button class="btn btn-danger" ng-click="deletePage(page,$index)">Delete</button> 
+
+</tab>
+
+</tabset>
+
+</div>
+
 </tab>
 {% endif %}
 </tabset>

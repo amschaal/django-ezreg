@@ -1,6 +1,9 @@
 
-angular.module('ezreg')
-.controller('PriceController', ['$scope','$http','growl','Price','PaymentProcessor', PriceController])
+var app = angular.module('ezreg');
+app.requires.push('ui.tinymce');
+app.controller('PriceController', ['$scope','$http','growl','Price','PaymentProcessor', PriceController])
+.controller('EventPageController', ['$scope','$http','growl','EventPage', EventPageController])
+
 function PriceController($scope,$http,growl,Price,PaymentProcessor) {
 	var defaults={};
 	var event_processors_url = null;
@@ -58,6 +61,34 @@ function PriceController($scope,$http,growl,Price,PaymentProcessor) {
 				},
 				errorMessageHandler
 		);
+	}
+
+}
+
+function EventPageController($scope,$http,growl,EventPage) {
+	$scope.init = function(params){
+		$scope.event_id = params.event_id;
+		$scope.pages = EventPage.query({event:$scope.event_id});
+	}	
+	$scope.addPage = function(){
+		$scope.pages.push(new EventPage({event:$scope.event_id,heading:'New page'}));
+	}
+	$scope.savePage = function(page){
+		if (page.id)
+			page.$save()
+		else
+			page.$create()
+	}
+	$scope.deletePage = function(page,index){
+		if(!confirm('Are you sure you want to delete this page?'))
+			return;
+		if(!page.id){
+			$scope.pages.splice(index,1);
+			return;
+		}
+		page.$delete(function(){
+			$scope.pages.splice(index,1);
+		});
 	}
 
 }
