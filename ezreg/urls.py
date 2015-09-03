@@ -36,6 +36,7 @@ urlpatterns = [
     url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/register/$', RegistrationWizard.as_view(), name="register"),
     url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/registrations/$', 'ezreg.views.registrations', name="registrations"),
     url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/$', 'ezreg.views.registration', name="registration"),
+    url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/pay/$', 'ezreg.views.pay', name="pay"),
     url(r'^payment_processors/$', 'ezreg.views.payment_processors',name='payment_processors'),
     url(r'^payment_processors/create/$', 'ezreg.views.create_modify_payment_processor',name='create_payment_processor'),
     url(r'^payment_processors/(?P<id>\d+)/modify/$', 'ezreg.views.create_modify_payment_processor',name='modify_payment_processor'),

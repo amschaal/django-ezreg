@@ -3,4 +3,6 @@
 {{message}}
 {% include 'ezreg/partials/registration_details.html' %}
 {% include 'ezreg/partials/payment.html' %}
+
+<a href="{% url 'registration' id=registration.id%}">Registration details</a>
 {% endblock %}

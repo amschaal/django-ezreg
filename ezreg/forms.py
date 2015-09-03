@@ -30,6 +30,7 @@ class PaymentProcessorForm(forms.ModelForm):
         fields = ('processor_id','group','name','description','hidden')
 
 class RegistrationForm(forms.ModelForm):
+    template = 'ezreg/registration/form.html'
     def __init__(self, *args, **kwargs):
         self.event = kwargs.pop('event',None)
         super(RegistrationForm,self).__init__(*args, **kwargs)
@@ -38,6 +39,7 @@ class RegistrationForm(forms.ModelForm):
         exclude = ('id','event','price')
 
 class PriceForm(forms.Form):
+    template = 'ezreg/registration/price.html'
     def __init__(self, *args, **kwargs):
         event = kwargs.pop('event')
         super(PriceForm,self).__init__(*args, **kwargs)
@@ -67,6 +69,9 @@ class PriceFormsetHelper(FormHelper):
         self.render_required_fields = True
         
 #Dummy form for skipping/replacing in registration wizard (because we can't dynamically set forms based on previous form input)
-class DummyForm(forms.Form):
-    pass
+class ConfirmationForm(forms.Form):
+    template = 'ezreg/registration/confirm.html'
+    def __init__(self, *args, **kwargs):
+        event = kwargs.pop('event')
+        super(ConfirmationForm,self).__init__(*args, **kwargs)
     

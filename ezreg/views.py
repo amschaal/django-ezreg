@@ -3,7 +3,7 @@ from django.template.context import RequestContext
 from ezreg.models import Event, Price, Registration, PaymentProcessor, Payment
 from guardian.shortcuts import get_objects_for_user
 from ezreg.forms import EventForm, PriceFormsetHelper, RegistrationForm,\
-    PaymentProcessorForm, PriceForm, DummyForm
+    PaymentProcessorForm, PriceForm, ConfirmationForm
 from django.contrib.auth.decorators import login_required
 from django.db.models.query_utils import Q
 from django.forms.formsets import formset_factory
@@ -12,6 +12,7 @@ from django.http import HttpResponseRedirect
 from formtools.wizard.views import SessionWizardView
 from django.core.urlresolvers import reverse
 from ezreg.payment import PaymentProcessorManager
+from ezreg.payment.base import BasePaymentForm
 
 def home(request):
     return render(request, 'ezreg/home.html', {},context_instance=RequestContext(request))
@@ -68,74 +69,78 @@ def registration(request,id):
     registration = Registration.objects.get(id=id)
     return render(request, 'ezreg/registration.html', {'registration':registration},context_instance=RequestContext(request))
 
-
+def pay(request,id):
+    registration = Registration.objects.get(id=id)
+    return render(request, 'ezreg/pay.html', {'registration':registration},context_instance=RequestContext(request))
 
 
 def show_payment_form_condition(wizard):
-    # try to get the cleaned data of step 1
-    cleaned_data = wizard.get_cleaned_data_for_step('1') or {}
-    # check if the field ``leave_message`` was checked.
+    cleaned_data = wizard.get_cleaned_data_for_step('price_form') or None
+    if not cleaned_data:
+        return False
     processor_method = cleaned_data.get('payment_method')
     if not processor_method:
         return False
-    processors  = PaymentProcessorManager()
-    processor = processors.get_processor(processor_method.processor_id)
+    manager  = PaymentProcessorManager()
+    processor = manager.get_processor(processor_method.processor_id)
     return processor.get_form()
 #     return cleaned_data.get('payment_method', True)
 
-
+def show_price_form_condition(wizard):
+    return wizard.event.prices.count() > 0
+    
 
 class RegistrationWizard(SessionWizardView):
-    form_list = [RegistrationForm, PriceForm,PriceForm] #second PriceForm is ignored or replaced depending on payment method
-    template_name="ezreg/register.html"
-    condition_dict={'2': show_payment_form_condition}
+    form_list = [('registration_form',RegistrationForm), ('price_form',PriceForm),('payment_form',BasePaymentForm),('confirmation_form',ConfirmationForm)] #first ConfirmationForm is ignored or replaced depending on payment method
+    condition_dict={'payment_form': show_payment_form_condition,'price_form':show_price_form_condition}
     def done(self, form_list, **kwargs):
         registration = RegistrationForm(form_list[0].cleaned_data).save(commit=False)
         registration.event = self.event
-        print registration
         registration.price = form_list[1].cleaned_data['price']
         registration.save()
-        print registration
         
-#         for form in form_list:
-#             print form.cleaned_data
-#         print form_list[1].cleaned_data['price'].amount
-        payment = Payment.objects.create(registration=registration,amount=registration.price.amount,processor=form_list[1].cleaned_data['payment_method'])
-        if len(form_list) == 3:
-            payment.data = form_list[2].cleaned_data
-            payment.save()
+        price_data = self.get_cleaned_data_for_step('price_form') or None
+        if price_data:
+            payment = Payment.objects.create(registration=registration,amount=registration.price.amount,processor=form_list[1].cleaned_data['payment_method'])
+            payment_data = self.get_cleaned_data_for_step('payment_form') or None
+            if payment_data:
+                payment.data = payment_data
+                payment.save()
+            if payment.get_post_form():
+                return HttpResponseRedirect(reverse('pay',kwargs={'id':registration.id}))
         
         return HttpResponseRedirect(reverse('registration',kwargs={'id':registration.id}))
+    def get_template_names(self):
+        form = self.get_form()
+        if hasattr(form, 'template'):
+            return form.template
+        return 'ezreg/register.html'
     def get_form_kwargs(self, step):
-#         event = Event.objects.get(Q(id=self.kwargs['slug_or_id'])|Q(slug=self.kwargs['slug_or_id']))
-#         print self.kwargs
-#         if str(step) == '1':
-#             return {'event':event}
         return {'event':self.event}
     def get_context_data(self, form, **kwargs):
         context = super(RegistrationWizard, self).get_context_data(form=form, **kwargs)
         context.update({'event': self.event})
+        context['registration'] = self.get_cleaned_data_for_step('registration_form') or None
+        context['price'] = self.get_cleaned_data_for_step('price_form') or None
+        context['payment'] = self.get_cleaned_data_for_step('payment_form') or None
         return context
     def dispatch(self, request, *args, **kwargs):
         self.event = Event.objects.get(Q(id=self.kwargs['slug_or_id'])|Q(slug=self.kwargs['slug_or_id']))
         return SessionWizardView.dispatch(self, request, *args, **kwargs)
     def get_form(self, step=None, data=None, files=None):
-        form = super(RegistrationWizard, self).get_form(step, data, files)
-        
-#         form = forms[int(step)]
         # determine the step if not given
         if step is None:
             step = self.steps.current
-        if step == '2':
-            cleaned_data = self.get_cleaned_data_for_step('1') or {}
-            # check if the field ``leave_message`` was checked.
-            processor_method = cleaned_data.get('payment_method')
-            processors  = PaymentProcessorManager()
-            processor = processors.get_processor(processor_method.processor_id)
-            form = processor.get_form()(data)
-            
-#         if step == '1':
-#             form.user = self.request.user
+        form = super(RegistrationWizard, self).get_form(step, data, files)
+        if step == 'payment_form':
+            cleaned_data = self.get_cleaned_data_for_step('price_form') or None
+            if cleaned_data:
+                processor_method = cleaned_data.get('payment_method')
+                manager  = PaymentProcessorManager()
+                processor = manager.get_processor(processor_method.processor_id)
+                form_class = processor.get_form()
+                if form_class:
+                    form = form_class(data,event=self.event)
         return form
 
 @login_required
