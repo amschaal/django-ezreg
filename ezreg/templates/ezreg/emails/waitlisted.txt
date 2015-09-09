@@ -1,0 +1,7 @@
+Dear {{registration.first_name}} {{registration.last_name}},
+
+You have successfully been waitlisted for the event, "{{event.title}}".  Your registration details are below:
+
+{% include 'ezreg/partials/registration_details.html' %}
+
+If a spot opens up from the waitlist, you will be emailed a link to confirm your reservation.

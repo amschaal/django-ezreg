@@ -12,6 +12,8 @@
     	<th>Status</th>
     	<th>Amount</th>
     	<th>Processor</th>
+    	<th></th>
+    	<th></th>
     </tr>
   </thead>
   <tbody>
@@ -24,6 +26,8 @@
 		<td>{{registration.status}}</td>
 		<td>{{registration.price}}</td>
 		<td>{{registration.payment.processor}}</td>
+		<td><a href="{% url 'modify_registration' id=registration.id %}">Modify</a></td>
+		<td><a href="{% url 'update_registration_status' id=registration.id %}">Update status</a></td>
 	</tr>  
 	{% endfor %}
   </tbody>

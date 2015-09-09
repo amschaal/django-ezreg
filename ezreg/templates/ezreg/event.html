@@ -3,9 +3,9 @@
 {% if event.pages.all.count > 0%}
 <div class="navbar-collapse collapse navbar-default ">
 	<ul class="nav navbar-nav">
-    	<li class="active"><a href="{% url 'event' slug_or_id=event.id %}">Event</a></li>
+    	<li class="active"><a href="{% url 'event' slug_or_id=event.slug_or_id %}">Event</a></li>
 		{% for page in event.pages.all %}
-		<li><a href="{% url 'event_page' slug_or_id=event.id page_slug=page.slug %}">{{page.heading}}</a></li> 
+		<li><a href="{% url 'event_page' slug_or_id=event.slug_or_id page_slug=page.slug %}">{{page.heading}}</a></li> 
 		{% endfor %}
 	</ul>
 </div>
@@ -13,7 +13,11 @@
 <h1>{{event.title}}</h1>
 {{event.body|safe}}
 {% if event.open_until %}
-<i>Registration closes on: {{event.open_until}}</i>
+<p><i>Registration closes on: {{event.open_until}}</i></p>
 {% endif %}
-<a href="{% url 'register' slug_or_id=event.id %}" class="btn btn-primary">Register</a>
+{% if event.registration_open %}
+<a href="{% url 'register' slug_or_id=event.slug_or_id %}" class="btn btn-warning btn">Register</a>
+{% elif event.waitlist_open %}
+<a href="{% url 'waitlist' slug_or_id=event.slug_or_id %}" class="btn btn-warning btn">Waitlist</a>
+{% endif %}
 {% endblock %}

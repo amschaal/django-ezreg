@@ -7,16 +7,10 @@
 {% endblock %}
 
 {% block content %}
-{% if registration.is_waitlisted %}
-<h1>Waitlist</h1>
-{{event.waitlist_message}}
-{% else %}
 <h1>Register</h1>
-{% endif %}
-
 <h2>{{event.title}}</h2>
 <p>{{event.description}}</p>
-<p><i>Please enter registration information</i></p>
+<p><i>Enter payment information</i></p>
 <form action="" method="post">{% csrf_token %}
 {{ wizard.management_form }}
 {% if wizard.form.forms %}
@@ -27,7 +21,9 @@
 {% else %}
     {{ wizard.form|crispy }}
 {% endif %}
+{% if wizard.steps.prev %}
+<button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}" class="btn btn-primary">{% trans "Back" %}</button>
+{% endif %}
 <input type="submit" value="{% trans "Continue" %}" class="btn btn-primary"/>
-<button name="wizard_goto_step" type="submit" value="cancel" class="btn btn-danger pull-right">{% trans "Cancel" %}</button>
 </form>
 {% endblock %}

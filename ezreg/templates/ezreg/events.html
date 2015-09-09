@@ -7,13 +7,19 @@
     <tr>
     	<th>Title</th>
     	<th>Registered</th>
+    	<th>Waitlisted</th>
+    	<th>Pending</th>
+    	<th>Cancelled</th>
     </tr>
   </thead>
   <tbody>
   {% for event in events %}
 	<tr>
-		<td><a href="{% url 'event' slug_or_id=event.id %}">{{event.title}}</a></td>
-		<td><a href="{% url 'registrations' slug_or_id=event.id %}">{{event.registrations.count}}</a></td>
+		<td><a href="{% url 'event' slug_or_id=event.slug_or_id %}">{{event.title}}</a></td>
+		<td><a href="{% url 'registrations' slug_or_id=event.id %}">{{event.registered}}</a></td>
+		<td><a href="{% url 'registrations' slug_or_id=event.id %}">{{event.waitlisted}}</a></td>
+		<td><a href="{% url 'registrations' slug_or_id=event.id %}">{{event.pending}}</a></td>
+		<td><a href="{% url 'registrations' slug_or_id=event.id %}">{{event.cancelled}}</a></td>
 		<td><span class="pull-right"><a href="{% url 'modify_event' id=event.id %}">Modify</a></span> </td>
 	</tr>
   {% endfor %}

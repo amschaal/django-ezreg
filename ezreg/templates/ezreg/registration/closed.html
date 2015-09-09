@@ -1,0 +1,4 @@
+{% extends 'base.html' %}
+{% block content %}
+Sorry, the event, "<a href="{% url 'event' slug_or_id=event.slug_or_id%}">{{event.title}}</a>" is closed.
+{% endblock %}

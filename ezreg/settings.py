@@ -144,3 +144,6 @@ PAYMENT_PROCESSORS = [
     'ezreg.payment.dafis.processor.DafisPaymentProcessor',
     'ezreg.payment.touchnet.processor.TouchnetPaymentProcessor',
 ]
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.ucdavis.edu'

@@ -7,6 +7,8 @@ from distutils.command.config import config
 from jsonfield import JSONField
 from django.db.models.signals import pre_save
 from ezreg.payment import PaymentProcessorManager
+from datetime import datetime
+from django.db.models.query_utils import Q
 
 def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -24,9 +26,32 @@ class Event(models.Model):
     active = models.BooleanField(default=False)
     capacity = models.IntegerField(blank=True,null=True)
     cancellation_policy = models.TextField(blank=True,null=True)
-    open_until = models.DateField(blank=True,null=True)
+    open_until = models.DateField()
     advertise = models.BooleanField(default=False)
     payment_processors = models.ManyToManyField('PaymentProcessor',through='EventProcessor')
+    enable_waitlist = models.BooleanField(default=False)
+    waitlist_message = models.TextField(blank=True,null=True)
+    @property
+    def slug_or_id(self):
+        return self.slug if self.slug else self.id
+    @property
+    def registered(self):
+        return self.registrations.filter(status=Registration.STATUS_REGISTERED).count()
+    @property
+    def waitlisted(self):
+        return self.registrations.filter(status=Registration.STATUS_WAITLISTED).count()
+    @property
+    def cancelled(self):
+        return self.registrations.filter(status=Registration.STATUS_CANCELLED).count()
+    @property
+    def pending(self):
+        return self.registrations.filter(Q( status=Registration.STATUS_PENDING_INCOMPLETE)|Q( status=Registration.STATUS_WAITLIST_PENDING)).count()
+    @property
+    def registration_open(self):
+        return self.active and str(self.open_until) >= str(datetime.now()) and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() < self.capacity
+    @property
+    def waitlist_open(self):
+        return self.active and self.enable_waitlist and str(self.open_until) >= str(datetime.now()) and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() >= self.capacity
     def __unicode__(self):
         return self.title
     class Meta:
@@ -53,16 +78,32 @@ class Price(models.Model):
         return mark_safe('<span title="%s"><b>$%s</b> - %s</span>' % (self.description,str(self.amount),self.name))
     
 class Registration(models.Model):
+    STATUS_REGISTERED = 'REGISTERED'
+    STATUS_PENDING_INCOMPLETE = 'PENDING_INCOMPLETE'
+    STATUS_WAITLISTED = 'WAITLISTED'
+    STATUS_WAITLIST_INCOMPLETE = 'WAITLIST_INCOMPLETE'
+    STATUS_WAITLIST_PENDING = 'WAITLIST_PENDING'
+    STATUS_CANCELLED = 'CANCELLED'
+    STATUSES = ((STATUS_REGISTERED,'Registered'),(STATUS_PENDING_INCOMPLETE,'Pending'),(STATUS_WAITLIST_PENDING,'Pending from waitlist'),(STATUS_WAITLISTED,'Waitlisted'),(STATUS_WAITLIST_INCOMPLETE,'Waitlist- incomplete'),(STATUS_CANCELLED,'Cancelled'))
     id = models.CharField(max_length=10,default=id_generator,primary_key=True)
+    status = models.CharField(max_length=25,choices=STATUSES,null=True,blank=True)
     event = models.ForeignKey(Event,related_name='registrations')
     registered = models.DateTimeField(auto_now=True)
-    first_name = models.CharField(max_length=50,blank=False)
-    last_name = models.CharField(max_length=50,blank=False)
-    email = models.EmailField(blank=False)
-    institution = models.CharField(max_length=100)
-    group_name = models.CharField(max_length=100)
-    special_requests = models.TextField()
+    first_name = models.CharField(max_length=50,null=True,blank=True)
+    last_name = models.CharField(max_length=50,null=True,blank=True)
+    email = models.EmailField(null=True,blank=True)
+    institution = models.CharField(max_length=100,null=True,blank=True)
+    group_name = models.CharField(max_length=100,null=True,blank=True)
+    special_requests = models.TextField(null=True,blank=True)
     price = models.ForeignKey(Price,null=True,blank=True)
+    @property
+    def waitlist_place(self):
+        if self.status != Registration.STATUS_WAITLISTED:
+            return None
+        return self.event.registrations.filter(status=Registration.STATUS_WAITLISTED,registered__lte=self.registered).count() + 1
+    @property
+    def is_waitlisted(self):
+        return self.status in [Registration.STATUS_WAITLIST_PENDING, Registration.STATUS_WAITLISTED,Registration.STATUS_WAITLIST_INCOMPLETE]
     class Meta:
         unique_together = (('email','event'))
    

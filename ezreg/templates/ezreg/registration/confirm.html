@@ -7,11 +7,17 @@
 {% endblock %}
 
 {% block content %}
+
+{% if registration.is_waitlist %}
+<h1>Waitlist</h1>
+{% else %}
 <h1>Register</h1>
+{% endif %}
+
 <h2>{{event.title}}</h2>
 <p>{{event.description}}</p>
 <p><i>Please confirm your registration details</i></p>
-{% include 'ezreg/partials/registration_details.html' %}
+{% include 'ezreg/partials/registration_details.html' with registration=registration_form%}
 {% if price %}
 <h2>Payment</h2>
 <table class="table">
@@ -38,5 +44,6 @@
 <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}" class="btn btn-primary">{% trans "Back" %}</button>
 {% endif %}
 <input type="submit" value="{% trans "Confirm" %}" class="btn btn-primary"/>
+<button name="wizard_goto_step" type="submit" value="cancel" class="btn btn-danger pull-right">{% trans "Cancel" %}</button>
 </form>
 {% endblock %}

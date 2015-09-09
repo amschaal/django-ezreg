@@ -66,6 +66,9 @@ function PriceController($scope,$http,growl,Price,PaymentProcessor) {
 }
 
 function EventPageController($scope,$http,growl,EventPage) {
+	var errorMessageHandler = function(response){
+		growl.error(response.data.error ,{ttl: 5000});
+	}
 	$scope.init = function(params){
 		$scope.event_id = params.event_id;
 		$scope.pages = EventPage.query({event:$scope.event_id});
@@ -75,19 +78,31 @@ function EventPageController($scope,$http,growl,EventPage) {
 	}
 	$scope.savePage = function(page){
 		if (page.id)
-			page.$save()
+			page.$save(function(){
+				growl.success("Page saved",{ttl: 5000});
+			},function(response){
+				growl.error('Unable to save page.  Please ensure that all fields are filled out.' ,{ttl: 5000});
+			});
 		else
-			page.$create()
+			page.$create(function(){
+				growl.success("Page created",{ttl: 5000});
+			},function(response){
+				growl.error('Unable to create page.  Please ensure that all fields are filled out.' ,{ttl: 5000});
+			});
 	}
 	$scope.deletePage = function(page,index){
 		if(!confirm('Are you sure you want to delete this page?'))
 			return;
 		if(!page.id){
 			$scope.pages.splice(index,1);
+			growl.success("Page deleted",{ttl: 5000});
 			return;
 		}
 		page.$delete(function(){
+			growl.success("Page deleted",{ttl: 5000});
 			$scope.pages.splice(index,1);
+		},function(response){
+			growl.error('Unable to delete page.' ,{ttl: 5000});
 		});
 	}
 

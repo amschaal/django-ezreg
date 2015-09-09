@@ -7,6 +7,7 @@ from django.contrib.auth.models import Group
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout
 from ezreg.payment import PaymentProcessorManager
+from django.core.exceptions import ValidationError
 
 class EventForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
@@ -34,10 +35,33 @@ class RegistrationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.event = kwargs.pop('event',None)
         super(RegistrationForm,self).__init__(*args, **kwargs)
+        for field in ['first_name','last_name','email']:
+            self.fields[field].required=True
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if email:
+            try:
+                Registration.objects.get(email=email, event=self.event)
+            except Registration.DoesNotExist:
+                pass
+            else:
+                raise ValidationError('A registration with that email already exists.')
+        return email
     class Meta:
         model=Registration
-        exclude = ('id','event','price')
+        exclude = ('id','event','price','status')
+        
+class AdminRegistrationForm(forms.ModelForm):
+    class Meta:
+        model=Registration
+        exclude = ('id','event','price','status')
 
+class AdminRegistrationStatusForm(forms.ModelForm):
+    email = forms.CheckboxInput()
+    class Meta:
+        model=Registration
+        fields = ('status',)
+        
 class PriceForm(forms.Form):
     template = 'ezreg/registration/price.html'
     def __init__(self, *args, **kwargs):
