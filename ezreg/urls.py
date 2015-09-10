@@ -13,15 +13,16 @@ Including another URLconf
     1. Add an import:  from blog import urls as blog_urls
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
-from django.conf.urls import include, url
-from django.contrib import admin
 from django.conf import settings
+from django.conf.urls import include, url
 from django.conf.urls.static import static
+from django.contrib import admin
 from rest_framework import routers
-from ezreg.api.views import PriceViewset, PaymentProcessorViewset,\
+
+from ezreg.api.views import PriceViewset, PaymentProcessorViewset, \
     EventPageViewset
 from ezreg.registration import RegistrationWizard
-from ezreg.forms import RegistrationForm, PriceForm
+
 
 router = routers.DefaultRouter()
 router.register(r'prices', PriceViewset)
@@ -38,6 +39,7 @@ urlpatterns = [
     url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/page/(?P<page_slug>[\w-]+)/$', 'ezreg.views.event_page',name='event_page'),
     url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/register/$', RegistrationWizard.as_view(), name="register",kwargs={'waitlist':False}),
     url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/waitlist/$', RegistrationWizard.as_view(), name="waitlist",kwargs={'waitlist':True}),
+    url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/complete_registration/(?P<registration_id>[A-Za-z0-9_\-]{10})/$', RegistrationWizard.as_view(), name="complete_registration",kwargs={'complete':True}),
     url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/registrations/$', 'ezreg.views.registrations', name="registrations"),
     url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/$', 'ezreg.views.registration', name="registration"),
     url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/modify/$', 'ezreg.views.modify_registration', name="modify_registration"),

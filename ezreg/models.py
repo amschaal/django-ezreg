@@ -45,13 +45,13 @@ class Event(models.Model):
         return self.registrations.filter(status=Registration.STATUS_CANCELLED).count()
     @property
     def pending(self):
-        return self.registrations.filter(Q( status=Registration.STATUS_PENDING_INCOMPLETE)|Q( status=Registration.STATUS_WAITLIST_PENDING)).count()
+        return self.registrations.filter(Q( status=Registration.STATUS_PENDING_INCOMPLETE)|Q( status=Registration.STATUS_WAITLIST_PENDING)|Q( status=Registration.STATUS_WAITLIST_INCOMPLETE)).count()
     @property
     def registration_open(self):
-        return self.active and str(self.open_until) >= str(datetime.now()) and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() < self.capacity
+        return self.active and str(self.open_until)[:10] >= str(datetime.today())[:10] and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() < self.capacity
     @property
     def waitlist_open(self):
-        return self.active and self.enable_waitlist and str(self.open_until) >= str(datetime.now()) and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() >= self.capacity
+        return self.active and self.enable_waitlist and str(self.open_until)[:10] >= str(datetime.today())[:10] and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() >= self.capacity
     def __unicode__(self):
         return self.title
     class Meta:
@@ -59,9 +59,9 @@ class Event(models.Model):
             ('admin_event', 'Can modify event'),
             ('view_event', 'Can view event details and registrations'),
         )
-
+        
 class EventPage(models.Model):
-    event = models.ForeignKey(Event,related_name='pages')
+    event = models.ForeignKey('Event',related_name='pages')
     slug = models.SlugField(max_length=50,unique=True,blank=True)
     heading = models.CharField(max_length=40)
     body = models.TextField()
@@ -69,7 +69,7 @@ class EventPage(models.Model):
         unique_together = (('event','slug'))
 
 class Price(models.Model):
-    event = models.ForeignKey(Event,related_name='prices')
+    event = models.ForeignKey('Event',related_name='prices')
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=250,blank=True)
     amount = models.DecimalField(decimal_places=2,max_digits=7)
@@ -87,7 +87,7 @@ class Registration(models.Model):
     STATUSES = ((STATUS_REGISTERED,'Registered'),(STATUS_PENDING_INCOMPLETE,'Pending'),(STATUS_WAITLIST_PENDING,'Pending from waitlist'),(STATUS_WAITLISTED,'Waitlisted'),(STATUS_WAITLIST_INCOMPLETE,'Waitlist- incomplete'),(STATUS_CANCELLED,'Cancelled'))
     id = models.CharField(max_length=10,default=id_generator,primary_key=True)
     status = models.CharField(max_length=25,choices=STATUSES,null=True,blank=True)
-    event = models.ForeignKey(Event,related_name='registrations')
+    event = models.ForeignKey('Event',related_name='registrations')
     registered = models.DateTimeField(auto_now=True)
     first_name = models.CharField(max_length=50,null=True,blank=True)
     last_name = models.CharField(max_length=50,null=True,blank=True)
@@ -95,7 +95,7 @@ class Registration(models.Model):
     institution = models.CharField(max_length=100,null=True,blank=True)
     group_name = models.CharField(max_length=100,null=True,blank=True)
     special_requests = models.TextField(null=True,blank=True)
-    price = models.ForeignKey(Price,null=True,blank=True)
+    price = models.ForeignKey('Price',null=True,blank=True)
     @property
     def waitlist_place(self):
         if self.status != Registration.STATUS_WAITLISTED:
@@ -103,7 +103,11 @@ class Registration(models.Model):
         return self.event.registrations.filter(status=Registration.STATUS_WAITLISTED,registered__lte=self.registered).count() + 1
     @property
     def is_waitlisted(self):
-        return self.status in [Registration.STATUS_WAITLIST_PENDING, Registration.STATUS_WAITLISTED,Registration.STATUS_WAITLIST_INCOMPLETE]
+        print self.id
+        return self.status in [Registration.STATUS_WAITLIST_INCOMPLETE, Registration.STATUS_WAITLISTED]
+    @property
+    def is_waitlist_pending(self):
+        return self.status == Registration.STATUS_WAITLIST_PENDING
     class Meta:
         unique_together = (('email','event'))
    
@@ -139,8 +143,8 @@ class PaymentProcessor(models.Model):
         return self.name
 
 class EventProcessor(models.Model):
-    event = models.ForeignKey(Event)
-    processor = models.ForeignKey(PaymentProcessor)
+    event = models.ForeignKey('Event')
+    processor = models.ForeignKey('PaymentProcessor')
     
 def save_event_processor(sender,instance,**kwargs):
     print '!!!!!!!!!!!!!!!!!!!'

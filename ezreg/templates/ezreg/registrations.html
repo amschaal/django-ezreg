@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <h1>Registrations: {{event.title}}</h1>
+<a href="{% url 'event' slug_or_id=event.slug_or_id%}" class="btn btn-primary">View</a> <a href="{% url 'modify_event' id=event.id%}" class="btn btn-primary">Modify</a>
 <div class="table-responsive">
 <table class="table table-striped">
   <thead>

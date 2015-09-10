@@ -10,6 +10,13 @@ class DafisPaymentProcessor(BasePaymentProcessor):
     @staticmethod
     def get_configuration_form():
         return DafisConfigurationForm
+    @staticmethod
+    def post_process_form(payment, data):
+        from ezreg.models import Registration, Payment
+        payment.registration.status = Registration.STATUS_REGISTERED
+        payment.status = Payment.STATUS_PENDING
+        payment.save()
+        payment.registration.save()
     
 #         BasePaymentProcessor.get_form(self, data, request)
     

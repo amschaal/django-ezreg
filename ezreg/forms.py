@@ -1,13 +1,12 @@
-from django import forms
-from django.forms.models import inlineformset_factory
-from ezreg.models import Event, Price, Registration, PaymentProcessor
-from django.forms import widgets
-from tinymce.widgets import TinyMCE
-from django.contrib.auth.models import Group
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout
-from ezreg.payment import PaymentProcessorManager
+from django import forms
 from django.core.exceptions import ValidationError
+from tinymce.widgets import TinyMCE
+
+from ezreg.models import Event, Price, Registration, PaymentProcessor
+from ezreg.payment import PaymentProcessorManager
+
 
 class EventForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
@@ -39,12 +38,9 @@ class RegistrationForm(forms.ModelForm):
             self.fields[field].required=True
     def clean_email(self):
         email = self.cleaned_data['email']
+        print self.instance.id
         if email:
-            try:
-                Registration.objects.get(email=email, event=self.event)
-            except Registration.DoesNotExist:
-                pass
-            else:
+            if Registration.objects.filter(email=email, event=self.event).exclude(id=self.instance.id).count() != 0:
                 raise ValidationError('A registration with that email already exists.')
         return email
     class Meta:

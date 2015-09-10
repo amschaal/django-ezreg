@@ -29,6 +29,11 @@
 </table>
 {% endif%}
 
+{% if event.cancellation_policy %}
+<h3>Cancellation policy</h3>
+{{event.cancellation_policy}}
+{% endif %}
+
 <form action="" method="post">{% csrf_token %}
 {{ wizard.management_form }}
 {% if wizard.form.forms %}

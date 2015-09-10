@@ -6,7 +6,11 @@
 {% endblock %}
     
 {% block content %}
-<div class="page-header"><h1>Create/Modify Event</h1></div>
+{% if event %}
+<a href="{% url 'event' slug_or_id=event.slug_or_id%}" class="btn btn-primary">View</a>
+<a href="{% url 'registrations' slug_or_id=event.slug_or_id%}" class="btn btn-primary">Registrations</a>
+{% endif %}
+<div class="page-header"><h1>{% if event %}Modify{% else %}Create{% endif %} Event</h1></div>
 <tabset>
 <tab heading="Event">
 <form method="POST" action=".">

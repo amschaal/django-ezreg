@@ -6,6 +6,7 @@ from ezreg.forms import EventForm, PaymentProcessorForm,  AdminRegistrationForm,
     AdminRegistrationStatusForm
 from django.contrib.auth.decorators import login_required
 from django.db.models.query_utils import Q
+from ezreg.email import  email_status
 
 def home(request):
     return render(request, 'ezreg/home.html', {},context_instance=RequestContext(request))
@@ -36,7 +37,7 @@ def create_modify_event(request,id=None):
 #             for price in prices:
 #                 price.event = event
 #                 price.save()
-            return redirect('events') #event.get_absolute_url()
+#             return redirect('events') #event.get_absolute_url()
     return render(request, 'ezreg/create_modify_event.html', {'form':form,'event':instance} ,context_instance=RequestContext(request))
 
 def event(request,slug_or_id):
@@ -56,7 +57,7 @@ def modify_registration(request,id=None):
     elif request.method == 'POST':
         form = AdminRegistrationForm(request.POST,instance=registration)
         if form.is_valid():
-            event = form.save()
+            registration = form.save()
             return redirect('registrations',slug_or_id=registration.event_id) #event.get_absolute_url()
     return render(request, 'ezreg/modify_registration.html', {'form':form,'registration':registration} ,context_instance=RequestContext(request))
 
@@ -68,7 +69,8 @@ def update_registration_status(request,id):
     elif request.method == 'POST':
         form = AdminRegistrationStatusForm(request.POST,instance=registration)
         if form.is_valid():
-            event = form.save()
+            registration = form.save()
+            email_status(registration,'no-reply@genomecenter.ucdavis.edu')
             return redirect('registrations',slug_or_id=registration.event_id) #event.get_absolute_url()
     return render(request, 'ezreg/update_registration_status.html', {'form':form,'registration':registration} ,context_instance=RequestContext(request))
 
