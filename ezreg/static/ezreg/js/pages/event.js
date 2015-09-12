@@ -62,7 +62,6 @@ function PriceController($scope,$http,growl,Price,PaymentProcessor) {
 				errorMessageHandler
 		);
 	}
-
 }
 
 function EventPageController($scope,$http,growl,EventPage) {

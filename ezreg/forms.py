@@ -3,20 +3,48 @@ from crispy_forms.layout import Layout
 from django import forms
 from django.core.exceptions import ValidationError
 from tinymce.widgets import TinyMCE
+from datetime import datetime
 
 from ezreg.models import Event, Price, Registration, PaymentProcessor
 from ezreg.payment import PaymentProcessorManager
+from django.forms.widgets import  TextInput
+from django.db.models.query_utils import Q
+
+class AngularDatePickerInput(TextInput):
+    def render(self, name, value, attrs={}):
+        attrs.update({
+                      'datepicker-popup':"yyyy-MM-dd", 
+                      'is-open':"datepicker."+name, 
+                    'ng-click':"datepicker.%s=true"%name, 
+                      'ng-model':name,
+                      }
+                     )
+        if value:
+            attrs['ng-init']="%s='%s'"%(name,str(value))
+        html =  super(AngularDatePickerInput,self).render(name, value, attrs)
+        html += """
+              <span class="input-group-btn">
+                <button type="button" class="btn btn-default" ng-click="datepicker.%(name)s=true"><i class="glyphicon glyphicon-calendar"></i></button>
+              </span></p>
+              """%{'name':name}
+        return '<p class="input-group">'+html
 
 
 class EventForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
         super(EventForm,self).__init__(*args, **kwargs)
         self.fields['group'].queryset = user.groups.all()
+#         self.fields['open_until'].widget.attrs['ng-init']="dt='%s';"% self.instance.open_until
     body = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     cancellation_policy = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     class Meta:
         model=Event
         exclude = ('id','payment_processors')
+        widgets = {
+#                     'open_until':forms.TextInput(attrs={'datepicker-popup':"yyyy-MM-dd", 'is-open':"blah", 'ng-click':"blah=true", 'ng-model':"dt"})
+                      'open_until':AngularDatePickerInput()
+                   
+                   }
 
 class PaymentProcessorForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
@@ -63,7 +91,7 @@ class PriceForm(forms.Form):
     def __init__(self, *args, **kwargs):
         event = kwargs.pop('event')
         super(PriceForm,self).__init__(*args, **kwargs)
-        self.fields['price'].queryset = event.prices.filter(hidden=False)
+        self.fields['price'].queryset = event.prices.exclude(start_date__isnull=False,start_date__gt=datetime.today()).exclude(end_date__isnull=False,end_date__lt=datetime.today())
         self.fields['payment_method'].queryset = event.payment_processors.filter(hidden=False)
     price = forms.ModelChoiceField(Price,required=True,empty_label=None,widget=forms.widgets.RadioSelect)
     payment_method = forms.ModelChoiceField(PaymentProcessor,required=True,empty_label=None,widget=forms.widgets.RadioSelect)

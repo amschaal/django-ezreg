@@ -4,7 +4,7 @@ from ezreg.models import Price, PaymentProcessor, EventProcessor, EventPage
 class PriceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Price
-        fields = ('id','event','name','amount','description','hidden')
+        fields = ('id','event','name','amount','description','start_date','end_date')
 
 class PaymentProcessorSerializer(serializers.ModelSerializer):
     class Meta:

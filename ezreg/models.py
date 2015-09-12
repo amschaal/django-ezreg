@@ -27,6 +27,8 @@ class Event(models.Model):
     capacity = models.IntegerField(blank=True,null=True)
     cancellation_policy = models.TextField(blank=True,null=True)
     open_until = models.DateField()
+#     start_date = models.DateTimeField()
+#     end_date = models.DateTimeField()
     advertise = models.BooleanField(default=False)
     payment_processors = models.ManyToManyField('PaymentProcessor',through='EventProcessor')
     enable_waitlist = models.BooleanField(default=False)
@@ -73,7 +75,8 @@ class Price(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=250,blank=True)
     amount = models.DecimalField(decimal_places=2,max_digits=7)
-    hidden = models.BooleanField(default=False)
+    start_date = models.DateField(null=True,blank=True)
+    end_date = models.DateField(null=True,blank=True)
     def __unicode__(self):
         return mark_safe('<span title="%s"><b>$%s</b> - %s</span>' % (self.description,str(self.amount),self.name))
     
