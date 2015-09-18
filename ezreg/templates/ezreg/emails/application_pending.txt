@@ -1,0 +1,6 @@
+Dear {{registration.first_name}} {{registration.last_name}},
+
+Your application has been accepted for the event, "{{registration.event.title}}".  Please complete your registration using the following link:
+
+
+If you do not complete registration within the next 24 hours, your registration will be cancelled in order to offer the place to another applicant.

@@ -8,6 +8,7 @@
     	<th>Title</th>
     	<th>Registered</th>
     	<th>Waitlisted</th>
+    	<th>Applied</th>
     	<th>Pending</th>
     	<th>Cancelled</th>
     </tr>
@@ -18,6 +19,7 @@
 		<td><a href="{% url 'event' slug_or_id=event.slug_or_id %}">{{event.title}}</a></td>
 		<td><a href="{% url 'registrations' slug_or_id=event.id %}">{{event.registered}}</a></td>
 		<td><a href="{% url 'registrations' slug_or_id=event.id %}">{{event.waitlisted}}</a></td>
+		<td><a href="{% url 'registrations' slug_or_id=event.id %}">{{event.applied}}</a></td>
 		<td><a href="{% url 'registrations' slug_or_id=event.id %}">{{event.pending}}</a></td>
 		<td><a href="{% url 'registrations' slug_or_id=event.id %}">{{event.cancelled}}</a></td>
 		<td><span class="pull-right"><a href="{% url 'modify_event' id=event.id %}">Modify</a></span> </td>

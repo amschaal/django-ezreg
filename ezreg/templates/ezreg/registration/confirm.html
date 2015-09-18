@@ -10,6 +10,8 @@
 
 {% if registration.is_waitlist %}
 <h1>Waitlist</h1>
+{% elif event.enable_application %}
+<h1>Apply</h1>
 {% else %}
 <h1>Register</h1>
 {% endif %}

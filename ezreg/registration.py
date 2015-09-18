@@ -14,7 +14,7 @@ from ezreg.payment.base import BasePaymentForm
 
 def show_payment_form_condition(wizard):
     if wizard.registration:
-        if wizard.registration.is_waitlisted:
+        if wizard.registration.is_waitlisted or wizard.registration.is_application:
             return False
     processor = wizard.get_payment_processor()
     if processor:
@@ -25,7 +25,7 @@ def show_payment_form_condition(wizard):
 
 def show_price_form_condition(wizard):
     if wizard.registration:
-        if wizard.registration.is_waitlisted:
+        if wizard.registration.is_waitlisted or wizard.registration.is_application:
             return False
     return wizard.event.prices.count() > 0
     
@@ -38,26 +38,27 @@ class RegistrationWizard(SessionWizardView):
         registration = RegistrationForm(form_list[0].cleaned_data,instance=self.registration).save(commit=False)
         if registration.status == Registration.STATUS_WAITLIST_INCOMPLETE:
             registration.status = Registration.STATUS_WAITLISTED
-        
+        elif registration.status == Registration.STATUS_APPLY_INCOMPLETE:
+            registration.status = Registration.STATUS_APPLIED
 #         registration.status = Registration.STATUS_WAITLISTED if self.registration.is_waitlisted else Registration.STATUS_REGISTERED 
         
-        
-        price_data = self.get_cleaned_data_for_step('price_form') or None
-        if price_data:
-            registration.price = price_data['price']
-            payment = Payment.objects.create(registration=registration,amount=registration.price.amount,processor=price_data['payment_method'])
-            payment_data = self.get_cleaned_data_for_step('payment_form') or None
-            if payment_data:
-                payment.data = payment_data
-                payment.save()
-                processor = self.get_payment_processor()
-                if processor:
-                    processor.post_process_form(payment, payment_data)
-            if payment.get_post_form():
-                registration.save()
-                return HttpResponseRedirect(reverse('pay',kwargs={'id':registration.id}))
         else:
-            registration.status = Registration.STATUS_REGISTERED
+            price_data = self.get_cleaned_data_for_step('price_form') or None
+            if price_data:
+                registration.price = price_data['price']
+                payment = Payment.objects.create(registration=registration,amount=registration.price.amount,processor=price_data['payment_method'])
+                payment_data = self.get_cleaned_data_for_step('payment_form') or None
+                if payment_data:
+                    payment.data = payment_data
+                    payment.save()
+                    processor = self.get_payment_processor()
+                    if processor:
+                        processor.post_process_form(payment, payment_data)
+                if payment.get_post_form():
+                    registration.save()
+                    return HttpResponseRedirect(reverse('pay',kwargs={'id':registration.id}))
+            else:
+                registration.status = Registration.STATUS_REGISTERED
         registration.save()
         email_status(registration, from_addr='no-reply@genomecenter.ucdavis.edu')
         return HttpResponseRedirect(reverse('registration',kwargs={'id':registration.id}))
@@ -76,7 +77,7 @@ class RegistrationWizard(SessionWizardView):
         if self.kwargs.has_key('registration_id'):
             print self.kwargs['registration_id']
             try:
-                self.registration_instance = Registration.objects.get(id=self.kwargs['registration_id'],status=Registration.STATUS_WAITLIST_PENDING)
+                self.registration_instance = Registration.objects.get(id=self.kwargs['registration_id'],status__in=[Registration.STATUS_WAITLIST_PENDING,Registration.STATUS_APPLIED_ACCEPTED])
             except Registration.DoesNotExist, e:
                 raise Exception("No registration was found that was eligible for completion.")
         elif not self.storage.data.has_key('registration_id'):
@@ -95,7 +96,10 @@ class RegistrationWizard(SessionWizardView):
     def start_registration(self):
         self.storage.reset()
         if self.event.registration_open:
-            status = Registration.STATUS_PENDING_INCOMPLETE
+            if self.event.enable_application:
+                status = Registration.STATUS_APPLY_INCOMPLETE
+            else:
+                status = Registration.STATUS_PENDING_INCOMPLETE
         else:
             status = Registration.STATUS_WAITLIST_INCOMPLETE
         registration = Registration.objects.create(event=self.event,status=status)
@@ -142,10 +146,15 @@ class RegistrationWizard(SessionWizardView):
                         return HttpResponseRedirect(reverse('waitlist',kwargs={'slug_or_id':self.event.slug_or_id}))
                 else:
                     return render(request, 'ezreg/registration/closed.html', {'event':self.event},context_instance=RequestContext(request))
+            elif self.event.enable_application:
+                if not kwargs['apply']:
+                    return HttpResponseRedirect(reverse('apply',kwargs={'slug_or_id':self.event.slug_or_id}))
             self.start_registration()
         else:
             if self.registration.status == Registration.STATUS_WAITLIST_INCOMPLETE and not kwargs.get('waitlist',False):
                 return HttpResponseRedirect(reverse('waitlist',kwargs={'slug_or_id':self.event.slug_or_id}))
+            elif self.registration.status == Registration.STATUS_APPLY_INCOMPLETE and not kwargs.get('apply',False):
+                return HttpResponseRedirect(reverse('apply',kwargs={'slug_or_id':self.event.slug_or_id}))
         # reset the current step to the first step.
         self.storage.current_step = self.steps.first
         

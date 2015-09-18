@@ -7,6 +7,8 @@ from ezreg.forms import EventForm, PaymentProcessorForm,  AdminRegistrationForm,
 from django.contrib.auth.decorators import login_required
 from django.db.models.query_utils import Q
 from ezreg.email import  email_status
+from django.http.response import HttpResponse
+from icalendar import Calendar, Event as CalendarEvent
 
 def home(request):
     return render(request, 'ezreg/home.html', {},context_instance=RequestContext(request))
@@ -37,7 +39,7 @@ def create_modify_event(request,id=None):
 #             for price in prices:
 #                 price.event = event
 #                 price.save()
-#             return redirect('events') #event.get_absolute_url()
+            return redirect('modify_event',id=event.id) #event.get_absolute_url()
     return render(request, 'ezreg/create_modify_event.html', {'form':form,'event':instance} ,context_instance=RequestContext(request))
 
 def event(request,slug_or_id):
@@ -48,6 +50,18 @@ def event_page(request,slug_or_id,page_slug):
     event = Event.objects.get(Q(id=slug_or_id)|Q(slug=slug_or_id))
     page = EventPage.objects.get(event=event,slug=page_slug)
     return render(request, 'ezreg/page.html', {'event':event,'page':page},context_instance=RequestContext(request))
+
+def registration_ical(request,id):
+    registration = Registration.objects.get(id=id)
+    event = CalendarEvent()
+    event.add('dtstart', registration.event.start_date)
+    event.add('summary', registration.event.title)
+    response = HttpResponse(event.to_ical(), content_type='text/calendar')
+    response['Filename'] = 'event.ics'
+    response['Content-Disposition'] = 'inline; filename=event.ics'
+    return response
+
+    
 
 @login_required
 def modify_registration(request,id=None):

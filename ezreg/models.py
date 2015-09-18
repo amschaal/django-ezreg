@@ -27,11 +27,13 @@ class Event(models.Model):
     capacity = models.IntegerField(blank=True,null=True)
     cancellation_policy = models.TextField(blank=True,null=True)
     open_until = models.DateField()
-#     start_date = models.DateTimeField()
-#     end_date = models.DateTimeField()
+    start_time = models.DateTimeField(blank=True,null=True)
+    end_time = models.DateTimeField(blank=True,null=True)
+    address = models.TextField(blank=True,null=True)
     advertise = models.BooleanField(default=False)
     payment_processors = models.ManyToManyField('PaymentProcessor',through='EventProcessor')
     enable_waitlist = models.BooleanField(default=False)
+    enable_application = models.BooleanField(default=False)
     waitlist_message = models.TextField(blank=True,null=True)
     @property
     def slug_or_id(self):
@@ -43,6 +45,9 @@ class Event(models.Model):
     def waitlisted(self):
         return self.registrations.filter(status=Registration.STATUS_WAITLISTED).count()
     @property
+    def applied(self):
+        return self.registrations.filter(status=Registration.STATUS_APPLIED).count()
+    @property
     def cancelled(self):
         return self.registrations.filter(status=Registration.STATUS_CANCELLED).count()
     @property
@@ -50,6 +55,8 @@ class Event(models.Model):
         return self.registrations.filter(Q( status=Registration.STATUS_PENDING_INCOMPLETE)|Q( status=Registration.STATUS_WAITLIST_PENDING)|Q( status=Registration.STATUS_WAITLIST_INCOMPLETE)).count()
     @property
     def registration_open(self):
+        if self.enable_application:
+            return self.active and str(self.open_until)[:10] >= str(datetime.today())[:10]
         return self.active and str(self.open_until)[:10] >= str(datetime.today())[:10] and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() < self.capacity
     @property
     def waitlist_open(self):
@@ -86,8 +93,21 @@ class Registration(models.Model):
     STATUS_WAITLISTED = 'WAITLISTED'
     STATUS_WAITLIST_INCOMPLETE = 'WAITLIST_INCOMPLETE'
     STATUS_WAITLIST_PENDING = 'WAITLIST_PENDING'
+    STATUS_APPLIED = 'APPLIED'
+    STATUS_APPLY_INCOMPLETE = 'APPLY_INCOMPLETE'
+    STATUS_APPLIED_ACCEPTED = 'APPLIED_ACCEPTED'
     STATUS_CANCELLED = 'CANCELLED'
-    STATUSES = ((STATUS_REGISTERED,'Registered'),(STATUS_PENDING_INCOMPLETE,'Pending'),(STATUS_WAITLIST_PENDING,'Pending from waitlist'),(STATUS_WAITLISTED,'Waitlisted'),(STATUS_WAITLIST_INCOMPLETE,'Waitlist- incomplete'),(STATUS_CANCELLED,'Cancelled'))
+    STATUSES = ((STATUS_REGISTERED,'Registered'),
+                (STATUS_PENDING_INCOMPLETE,'Pending'),
+                (STATUS_WAITLIST_PENDING,'Pending from waitlist'),
+                (STATUS_WAITLISTED,'Waitlisted'),
+                (STATUS_WAITLIST_INCOMPLETE,'Waitlist- incomplete'),
+                (STATUS_APPLIED_ACCEPTED,'Application accepted'),
+                (STATUS_APPLIED,'Applied'),
+                (STATUS_APPLY_INCOMPLETE,'Application- incomplete'),
+                (STATUS_CANCELLED,'Cancelled')
+                
+                )
     id = models.CharField(max_length=10,default=id_generator,primary_key=True)
     status = models.CharField(max_length=25,choices=STATUSES,null=True,blank=True)
     event = models.ForeignKey('Event',related_name='registrations')
@@ -96,7 +116,7 @@ class Registration(models.Model):
     last_name = models.CharField(max_length=50,null=True,blank=True)
     email = models.EmailField(null=True,blank=True)
     institution = models.CharField(max_length=100,null=True,blank=True)
-    group_name = models.CharField(max_length=100,null=True,blank=True)
+    department = models.CharField(max_length=100,null=True,blank=True)
     special_requests = models.TextField(null=True,blank=True)
     price = models.ForeignKey('Price',null=True,blank=True)
     @property
@@ -106,11 +126,16 @@ class Registration(models.Model):
         return self.event.registrations.filter(status=Registration.STATUS_WAITLISTED,registered__lte=self.registered).count() + 1
     @property
     def is_waitlisted(self):
-        print self.id
         return self.status in [Registration.STATUS_WAITLIST_INCOMPLETE, Registration.STATUS_WAITLISTED]
+    @property
+    def is_application(self):
+        return self.status in [Registration.STATUS_APPLY_INCOMPLETE, Registration.STATUS_APPLIED]
     @property
     def is_waitlist_pending(self):
         return self.status == Registration.STATUS_WAITLIST_PENDING
+    @property
+    def is_accepted(self):
+        return self.status == Registration.STATUS_APPLIED_ACCEPTED
     class Meta:
         unique_together = (('email','event'))
    

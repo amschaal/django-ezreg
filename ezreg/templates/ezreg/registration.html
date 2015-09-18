@@ -6,7 +6,7 @@
 
 <a href="{% url 'registration' id=registration.id%}">Registration details</a>
 
-{% if registration.is_waitlist_pending %}
+{% if registration.is_waitlist_pending or registration.is_accepted %}
 <a class="btn btn-primary" href="{% url 'complete_registration' slug_or_id=registration.event.slug_or_id registration_id=registration.id%}">Complete registration</a>
 {% endif %}
 {% endblock %}

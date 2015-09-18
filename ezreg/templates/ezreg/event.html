@@ -16,7 +16,11 @@
 <p><i>Registration closes on: {{event.open_until}}</i></p>
 {% endif %}
 {% if event.registration_open %}
-<a href="{% url 'register' slug_or_id=event.slug_or_id %}" class="btn btn-warning btn">Register</a>
+	{% if event.enable_application %}
+		<a href="{% url 'apply' slug_or_id=event.slug_or_id %}" class="btn btn-warning btn">Apply</a>
+	{% else %}
+		<a href="{% url 'register' slug_or_id=event.slug_or_id %}" class="btn btn-warning btn">Register</a>
+	{% endif %}
 {% elif event.waitlist_open %}
 <a href="{% url 'waitlist' slug_or_id=event.slug_or_id %}" class="btn btn-warning btn">Waitlist</a>
 {% endif %}

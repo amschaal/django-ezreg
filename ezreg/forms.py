@@ -9,6 +9,7 @@ from ezreg.models import Event, Price, Registration, PaymentProcessor
 from ezreg.payment import PaymentProcessorManager
 from django.forms.widgets import  TextInput
 from django.db.models.query_utils import Q
+from datetimewidget.widgets import DateTimeWidget, DateWidget
 
 class AngularDatePickerInput(TextInput):
     def render(self, name, value, attrs={}):
@@ -42,8 +43,10 @@ class EventForm(forms.ModelForm):
         exclude = ('id','payment_processors')
         widgets = {
 #                     'open_until':forms.TextInput(attrs={'datepicker-popup':"yyyy-MM-dd", 'is-open':"blah", 'ng-click':"blah=true", 'ng-model':"dt"})
-                      'open_until':AngularDatePickerInput()
-                   
+                      'open_until':DateWidget(attrs={'id':"open_until"}, usel10n = True, bootstrap_version=3),
+                        #Use localization and bootstrap 3
+                        'start_date': DateTimeWidget(attrs={'id':"start_date"}, usel10n = True, bootstrap_version=3),
+                        'end_date': DateTimeWidget(attrs={'id':"end_date"}, usel10n = True, bootstrap_version=3)
                    }
 
 class PaymentProcessorForm(forms.ModelForm):
