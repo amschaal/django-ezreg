@@ -1,9 +1,75 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>Registrations: {{event.title}}</h1>
-<a href="{% url 'event' slug_or_id=event.slug_or_id%}" class="btn btn-primary">View</a> <a href="{% url 'modify_event' id=event.id%}" class="btn btn-primary">Modify</a>
-<div class="table-responsive">
-<table class="table table-striped">
+<script src="//cdn.datatables.net/1.10.9/js/jquery.dataTables.min.js"></script>
+<script src="/static/ezreg/js/pages/event_registrations.js"></script>
+<link rel="stylesheet" href="//cdn.datatables.net/1.10.9/css/jquery.dataTables.min.css"/>
+<link rel="stylesheet" href="//cdn.datatables.net/1.10.9/js/dataTables.bootstrap.min.js">
+<style>
+tfoot {
+    display: table-header-group;
+}
+input.search-box{
+	max-width:100px;
+}
+</style>
+<div class="row">
+<h1>Registrations: {{event.title}} <a href="{% url 'event' slug_or_id=event.slug_or_id%}" class="btn btn-primary">View</a> <a href="{% url 'modify_event' id=event.id%}" class="btn btn-primary">Modify</a></h1>
+
+
+
+<div ng-controller="RegistrationController" ng-init="checked={}">
+	<div class="btn-group pull-right" dropdown is-open="status.isopen">
+	  <button type="button" class="btn btn-default" dropdown-toggle ng-disabled="disabled">
+	    Action<span class="caret"></span>
+	  </button>
+	  <ul class="dropdown-menu" role="menu" aria-labelledby="Action">
+	    <li role="menuitem" ng-click="update_statuses()"><a href="#">Update Statuses</a></li>
+	  </ul>
+	</div>
+    <table ng-table="tableParams" show-filter="true" class="table table-bordered table-striped">
+      <tr ng-repeat="row in $data track by row.id">
+        <td data-title="'Registered'" sortable="'registered'" style="width:170px"><label><input type="checkbox" ng-model="checked[row.email]"/> {[row.registered | date:'short']}</label></td>
+        <td data-title="'First Name'" filter="{first_name__icontains: 'text'}" sortable="'first_name'">{[row.first_name]}</td>
+        <td data-title="'Last Name'" filter="{last_name__icontains: 'text'}" sortable="'last_name'">{[row.last_name]}</td>
+        <td data-title="'Email'" filter="{email__icontains: 'text'}" sortable="'email'">{[row.email]}</td>
+        <td data-title="'Status'" filter="{status__icontains: 'text'}" sortable="'status'">{[row.status]}</td>
+        <td data-title="'Amount'" filter="{amount: 'text'}" sortable="'amount'">{[row.amount]}</td>
+        <td data-title="'Processor'" filter="{processor: 'text'}" sortable="'processor'">{[row.processor]}</td>
+      </tr>
+    </table>
+      
+
+    
+    <script type="text/ng-template" id="updateStatus.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Update statuses (<span title="{[selected.join(', ')]}">{[selected.length]}</span>)</h3>
+        </div>
+        <div class="modal-body">
+            <div class="form-group form-inline">
+   				<label><input type="checkbox" ng-model="options.send_email"/>Send email</label><br>
+			    <select class="form-control">
+					{% for value,label in Registration.STATUSES %}
+						<option value="{{value}}">{{label}}</option>
+					{% endfor %}
+				</select> <button ng-click="update_statuses()" class="btn btn-default">Update Statuses</button>
+    		</div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
+            <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+        </div>
+    </script>
+    
+    
+    
+  </div>
+
+
+
+
+<!-- 
+<div class="col-lg-4">
+<table class="table table-bordered table-condensed compact" cellspacing="0" width="100%" id="registrations">
   <thead>
     <tr>
     	<th>Registered</th>
@@ -14,9 +80,20 @@
     	<th>Amount</th>
     	<th>Processor</th>
     	<th></th>
-    	<th></th>
     </tr>
   </thead>
+  <tfoot>
+    <tr>
+    	<th></th>
+    	<th class="searchable">First name</th>
+    	<th class="searchable">Last name</th>
+    	<th class="searchable">Email</th>
+    	<th>Status</th>
+    	<th class="searchable">Amount</th>
+    	<th class="searchable">Processor</th>
+    	<th></th>
+    </tr>
+  </tfoot>
   <tbody>
   {% for registration in event.registrations.all %}
 	<tr>
@@ -27,11 +104,15 @@
 		<td>{{registration.status}}</td>
 		<td>{{registration.price}}</td>
 		<td>{{registration.payment.processor}}</td>
-		<td><a href="{% url 'modify_registration' id=registration.id %}">Modify</a></td>
-		<td><a href="{% url 'update_registration_status' id=registration.id %}">Update status</a></td>
+		<td><a href="{% url 'modify_registration' id=registration.id %}">Modify</a><br>
+		<a href="{% url 'update_registration_status' id=registration.id %}">Update status</a></td>
 	</tr>  
 	{% endfor %}
   </tbody>
 </table>
+<button id="updateStatusesButton">Update Statuses</button>
 </div>
+ -->
+</div>
+
 {% endblock %}

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from ezreg.models import Price, PaymentProcessor, EventProcessor, EventPage
+from ezreg.models import Price, PaymentProcessor, EventProcessor, EventPage, Registration
 
 class PriceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,6 +15,11 @@ class EventPageSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventPage
         fields = ('id','event','slug','heading','body')
+
+class RegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Registration
+        fields = ('id','status','event','registered','first_name','last_name','email','institution','department','special_requests')
 
 # class EventProcessorSerializer(serializers.ModelSerializer):
 #     class Meta:

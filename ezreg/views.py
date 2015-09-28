@@ -91,7 +91,7 @@ def update_registration_status(request,id):
 @login_required
 def registrations(request,slug_or_id):
     event = Event.objects.get(Q(id=slug_or_id)|Q(slug=slug_or_id))
-    return render(request, 'ezreg/registrations.html', {'event':event},context_instance=RequestContext(request))
+    return render(request, 'ezreg/registrations.html', {'event':event,'Registration':Registration},context_instance=RequestContext(request))
 # def register(request,id=None):
 #     instance = None if not id else Event.objects.get(id=id)
 #     if request.method == 'GET':

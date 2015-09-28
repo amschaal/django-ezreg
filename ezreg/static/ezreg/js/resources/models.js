@@ -1,10 +1,10 @@
 var transformDjangoRestResponse = function(data, headers){
 	try {
-        var jsonObject = JSON.parse(data); // verify that json is valid
+        var jsonObject = angular.fromJson(data); // verify that json is valid
         return jsonObject.results;
     }
     catch (e) {
-        console.log("did not receive a valid Json: " + e)
+        console.log("did not receive valid Json: " + e)
     }
     return {};
 }
@@ -33,7 +33,7 @@ angular.module('ezregModels', ['ngResource'])
 		return angular.toJson(obj);
 	};
   return $resource('/api/prices/:id/', {id:'@id'}, {
-    query: { method: 'GET', isArray:true }, //, transformResponse:transformDjangoRestResponse
+    query: { method: 'GET', isArray:true, transformResponse:transformDjangoRestResponse }, //
     save : { method : 'PUT',transformRequest:transform},
     create : { method : 'POST',transformRequest:transform},
     remove : { method : 'DELETE' }
@@ -41,7 +41,7 @@ angular.module('ezregModels', ['ngResource'])
 }])
 .factory('EventPage', ['$resource', function ($resource) {
   return $resource('/api/event_pages/:id/', {id:'@id'}, {
-    query: { method: 'GET', isArray:true }, //, transformResponse:transformDjangoRestResponse
+    query: { method: 'GET', isArray:true, transformResponse:transformDjangoRestResponse }, //, transformResponse:transformDjangoRestResponse
     save : { method : 'PUT'},
     create : { method : 'POST'},
     remove : { method : 'DELETE' }
@@ -49,12 +49,19 @@ angular.module('ezregModels', ['ngResource'])
 }])
 .factory('PaymentProcessor', ['$resource', function ($resource) {
   return $resource('/api/payment_processors/:id/', {id:'@id'}, {
-    query: { method: 'GET', isArray:true }, //, transformResponse:transformDjangoRestResponse
+    query: { method: 'GET', isArray:true, transformResponse:transformDjangoRestResponse }, //, transformResponse:transformDjangoRestResponse
 //    save : { method : 'PUT'},
 //    create : { method : 'POST'},
 //    remove : { method : 'DELETE' }
   });
 }])
-
+.factory('Registration', ['$resource', function ($resource) {
+  return $resource('/api/registrations/:id/', {id:'@id'}, {
+    query: { method: 'GET', isArray:true, transformResponse:transformDjangoRestResponse }, //, transformResponse:transformDjangoRestResponse
+    save : { method : 'PUT'},
+//    create : { method : 'POST'},
+//    remove : { method : 'DELETE' }
+  });
+}])
 ;
 

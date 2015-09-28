@@ -21,7 +21,7 @@ def show_payment_form_condition(wizard):
         return processor.get_form()
     else:
         return False
-#     return cleaned_data.get('payment_method', True)
+#     return cleaned_data.get('payment_method', True) 
 
 def show_price_form_condition(wizard):
     if wizard.registration:
@@ -95,12 +95,11 @@ class RegistrationWizard(SessionWizardView):
         return self.event_instance
     def start_registration(self):
         self.storage.reset()
-        if self.event.registration_open:
-            if self.event.enable_application:
-                status = Registration.STATUS_APPLY_INCOMPLETE
-            else:
-                status = Registration.STATUS_PENDING_INCOMPLETE
-        else:
+        if self.event.can_register():
+            status = Registration.STATUS_PENDING_INCOMPLETE
+        elif self.event.can_apply():
+            status = Registration.STATUS_APPLY_INCOMPLETE
+        elif self.event.can_waitlist():
             status = Registration.STATUS_WAITLIST_INCOMPLETE
         registration = Registration.objects.create(event=self.event,status=status)
         self.storage.data['registration_id'] = registration.id
@@ -141,14 +140,13 @@ class RegistrationWizard(SessionWizardView):
         #custom crap HERE
         if not self.registration:
             if not self.event.registration_open:
-                if self.event.waitlist_open:
-                    if not kwargs['waitlist']:
-                        return HttpResponseRedirect(reverse('waitlist',kwargs={'slug_or_id':self.event.slug_or_id}))
-                else:
-                    return render(request, 'ezreg/registration/closed.html', {'event':self.event},context_instance=RequestContext(request))
-            elif self.event.enable_application:
-                if not kwargs['apply']:
-                    return HttpResponseRedirect(reverse('apply',kwargs={'slug_or_id':self.event.slug_or_id}))
+                return render(request, 'ezreg/registration/closed.html', {'event':self.event},context_instance=RequestContext(request))
+            elif self.event.can_register():
+                self.start_registration()
+            elif self.event.can_waitlist() and not kwargs['waitlist']:
+                return HttpResponseRedirect(reverse('waitlist',kwargs={'slug_or_id':self.event.slug_or_id}))
+            elif self.event.can_apply() and not kwargs['apply']:
+                return HttpResponseRedirect(reverse('apply',kwargs={'slug_or_id':self.event.slug_or_id}))
             self.start_registration()
         else:
             if self.registration.status == Registration.STATUS_WAITLIST_INCOMPLETE and not kwargs.get('waitlist',False):

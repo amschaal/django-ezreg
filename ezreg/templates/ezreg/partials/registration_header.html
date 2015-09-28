@@ -1,0 +1,8 @@
+{% if registration.is_waitlisted %}
+<h1>Waitlist</h1>
+{{event.waitlist_message}}
+{% elif registration.is_application %}
+<h1>Apply</h1>
+{% else %}
+<h1>Register</h1>
+{% endif %}

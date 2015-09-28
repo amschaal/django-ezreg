@@ -52,15 +52,19 @@ class Event(models.Model):
         return self.registrations.filter(status=Registration.STATUS_CANCELLED).count()
     @property
     def pending(self):
-        return self.registrations.filter(Q( status=Registration.STATUS_PENDING_INCOMPLETE)|Q( status=Registration.STATUS_WAITLIST_PENDING)|Q( status=Registration.STATUS_WAITLIST_INCOMPLETE)).count()
+        return self.registrations.filter(Q( status=Registration.STATUS_PENDING_INCOMPLETE)|Q( status=Registration.STATUS_WAITLIST_PENDING)|Q( status=Registration.STATUS_WAITLIST_INCOMPLETE)|Q( status=Registration.STATUS_APPLY_INCOMPLETE)).count()
+    
     @property
     def registration_open(self):
-        if self.enable_application:
-            return self.active and str(self.open_until)[:10] >= str(datetime.today())[:10]
-        return self.active and str(self.open_until)[:10] >= str(datetime.today())[:10] and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() < self.capacity
-    @property
-    def waitlist_open(self):
-        return self.active and self.enable_waitlist and str(self.open_until)[:10] >= str(datetime.today())[:10] and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() >= self.capacity
+#         if self.enable_application:
+        return self.active and str(self.open_until)[:10] >= str(datetime.today())[:10]
+#         return self.active and str(self.open_until)[:10] >= str(datetime.today())[:10] and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() < self.capacity
+    def can_register(self):
+        return self.registration_open and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() < self.capacity
+    def can_waitlist(self):
+        return self.registration_open and self.enable_waitlist and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() >= self.capacity
+    def can_apply(self):
+        return self.registration_open and self.enable_application
     def __unicode__(self):
         return self.title
     class Meta:

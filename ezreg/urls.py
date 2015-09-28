@@ -20,7 +20,7 @@ from django.contrib import admin
 from rest_framework import routers
 
 from ezreg.api.views import PriceViewset, PaymentProcessorViewset, \
-    EventPageViewset
+    EventPageViewset, RegistrationViewset
 from ezreg.registration import RegistrationWizard
 
 
@@ -28,6 +28,7 @@ router = routers.DefaultRouter()
 router.register(r'prices', PriceViewset)
 router.register(r'payment_processors', PaymentProcessorViewset)
 router.register(r'event_pages', EventPageViewset)
+router.register(r'registrations', RegistrationViewset)
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),

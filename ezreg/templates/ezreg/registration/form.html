@@ -7,14 +7,7 @@
 {% endblock %}
 
 {% block content %}
-{% if registration.is_waitlisted %}
-<h1>Waitlist</h1>
-{{event.waitlist_message}}
-{% elif event.enable_application %}
-<h1>Apply</h1>
-{% else %}
-<h1>Register</h1>
-{% endif %}
+{% include 'ezreg/partials/registration_header.html' %}
 
 <h2>{{event.title}}</h2>
 <p>{{event.description}}</p>

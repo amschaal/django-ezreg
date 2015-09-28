@@ -1,8 +1,8 @@
 from rest_framework import viewsets, status
 from ezreg.api.serializers import PriceSerializer, PaymentProcessorSerializer,\
-    EventPageSerializer
+    EventPageSerializer, RegistrationSerializer
 from ezreg.models import Price, PaymentProcessor, Event, EventProcessor,\
-    EventPage
+    EventPage, Registration
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -11,17 +11,30 @@ class PriceViewset(viewsets.ModelViewSet):
     queryset = Price.objects.all()
     serializer_class = PriceSerializer
     filter_fields = ('event',)
+    search_fields = ('event',)
 
 class PaymentProcessorViewset(viewsets.ReadOnlyModelViewSet):
     queryset = PaymentProcessor.objects.all()
     serializer_class = PaymentProcessorSerializer
     filter_fields = ('group',)
-
+    search_fields = ('group',)
+    
 class EventPageViewset(viewsets.ModelViewSet):
     queryset = EventPage.objects.all()
     serializer_class = EventPageSerializer
     filter_fields = ('event',)
-
+    search_fields = ('event',)
+    
+class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
+    queryset = Registration.objects.all()
+    serializer_class = RegistrationSerializer
+#     filter_fields = ('status','event','email','first_name','last_name')
+    filter_fields = {'status':['exact', 'icontains'],'event':['exact'],'email':['exact', 'icontains'],'first_name':['exact', 'icontains'],'last_name':['exact', 'icontains']} 
+#     {'name': ['exact', 'icontains'],
+#                   'price': ['exact', 'gte', 'lte'],
+#                  }
+    ordering_fields = ('status','first_name','last_name','email','registered')
+    search_fields = ('status','email',)
 
 """
 POST {"processors":{3:{"enabled":true},5:{"enabled":true}}}  where JSON object keys are PaymentProcessor ids

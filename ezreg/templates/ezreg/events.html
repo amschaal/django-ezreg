@@ -6,6 +6,7 @@
   <thead>
     <tr>
     	<th>Title</th>
+    	<th>Capacity</th>
     	<th>Registered</th>
     	<th>Waitlisted</th>
     	<th>Applied</th>
@@ -17,6 +18,7 @@
   {% for event in events %}
 	<tr>
 		<td><a href="{% url 'event' slug_or_id=event.slug_or_id %}">{{event.title}}</a></td>
+		<td><a href="{% url 'registrations' slug_or_id=event.id %}">{{event.capacity}}</a></td>
 		<td><a href="{% url 'registrations' slug_or_id=event.id %}">{{event.registered}}</a></td>
 		<td><a href="{% url 'registrations' slug_or_id=event.id %}">{{event.waitlisted}}</a></td>
 		<td><a href="{% url 'registrations' slug_or_id=event.id %}">{{event.applied}}</a></td>
