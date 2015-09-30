@@ -20,7 +20,7 @@ from django.contrib import admin
 from rest_framework import routers
 
 from ezreg.api.views import PriceViewset, PaymentProcessorViewset, \
-    EventPageViewset, RegistrationViewset
+    EventPageViewset, RegistrationViewset, MailerMessageViewset
 from ezreg.registration import RegistrationWizard
 
 
@@ -29,6 +29,7 @@ router.register(r'prices', PriceViewset)
 router.register(r'payment_processors', PaymentProcessorViewset)
 router.register(r'event_pages', EventPageViewset)
 router.register(r'registrations', RegistrationViewset)
+router.register(r'emails', MailerMessageViewset)
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
@@ -43,6 +44,10 @@ urlpatterns = [
     url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/apply/$', RegistrationWizard.as_view(), name="apply",kwargs={'apply':True}),
     url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/complete_registration/(?P<registration_id>[A-Za-z0-9_\-]{10})/$', RegistrationWizard.as_view(), name="complete_registration",kwargs={'complete':True}),
     url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/registrations/$', 'ezreg.views.registrations', name="registrations"),
+    url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/emails/$', 'ezreg.views.event_emails', name="event_emails"),
+    url(r'^events/(?P<event_id>[A-Za-z0-9_\-]{5,100})/update_statuses/$', 'ezreg.api.views.update_event_statuses', name="update_event_statuses"),
+    url(r'^events/(?P<event_id>[A-Za-z0-9_\-]{5,100})/send_event_emails/$', 'ezreg.api.views.send_event_emails', name="send_event_emails"),
+    
     url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/$', 'ezreg.views.registration', name="registration"),
     url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/modify/$', 'ezreg.views.modify_registration', name="modify_registration"),
     url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/update_status/$', 'ezreg.views.update_registration_status', name="update_registration_status"),
@@ -52,10 +57,7 @@ urlpatterns = [
     url(r'^payment_processors/create/$', 'ezreg.views.create_modify_payment_processor',name='create_payment_processor'),
     url(r'^payment_processors/(?P<id>\d+)/modify/$', 'ezreg.views.create_modify_payment_processor',name='modify_payment_processor'),
     url(r'^payment_processors/(?P<id>\d+)/configure/$', 'ezreg.views.configure_payment_processor',name='configure_payment_processor'),
-    
     url(r'^tinymce/', include('tinymce.urls')),
-    
     url(r'^api/', include(router.urls)),
-    url(r'^api/event/(?P<event_id>[A-Za-z0-9_\-]{10})/payment_processors/$', 'ezreg.api.views.event_payment_processors', name="event_payment_processors"),
-    
+    url(r'^jsurls.js$', 'ezreg.jsutils.jsurls', {}, 'jsurls'), 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

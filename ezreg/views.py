@@ -9,6 +9,7 @@ from django.db.models.query_utils import Q
 from ezreg.email import  email_status
 from django.http.response import HttpResponse
 from icalendar import Calendar, Event as CalendarEvent
+import json
 
 def home(request):
     return render(request, 'ezreg/home.html', {},context_instance=RequestContext(request))
@@ -91,7 +92,14 @@ def update_registration_status(request,id):
 @login_required
 def registrations(request,slug_or_id):
     event = Event.objects.get(Q(id=slug_or_id)|Q(slug=slug_or_id))
-    return render(request, 'ezreg/registrations.html', {'event':event,'Registration':Registration},context_instance=RequestContext(request))
+    statuses = json.dumps({status[0]:status[1] for status in Registration.STATUSES})
+    processors = json.dumps({processor.name:processor.name for processor in event.payment_processors.all()})
+    return render(request, 'ezreg/registrations.html', {'event':event,'Registration':Registration,'statuses':statuses,'processors':processors},context_instance=RequestContext(request))
+
+@login_required
+def event_emails(request,slug_or_id):
+    event = Event.objects.get(Q(id=slug_or_id)|Q(slug=slug_or_id))
+    return render(request, 'ezreg/event_emails.html', {'event':event},context_instance=RequestContext(request))
 # def register(request,id=None):
 #     instance = None if not id else Event.objects.get(id=id)
 #     if request.method == 'GET':

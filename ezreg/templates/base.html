@@ -47,6 +47,9 @@
     <script src="/static/vendor/ng-table/ng-table.js"></script>
     <!--<script src="{% static 'vendor/angular-remote-table/angular-remote-table.js'%}"></script>-->
         
+    <script src="/static/vendor/django_js_utils.js"></script>
+    <script src="{% url 'jsurls'%}"></script>
+        
     <script>
 	    var ezreg = angular.module('ezreg', ['ui.bootstrap', 'ui.router', 'ngCookies', 'ngResource', 'ezregModels','angular-growl']);
 	    ezreg.config(['$httpProvider', function($httpProvider) {

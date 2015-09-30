@@ -12,29 +12,50 @@ input.search-box{
 	max-width:100px;
 }
 </style>
+
 <div class="row">
-<h1>Registrations: {{event.title}} <a href="{% url 'event' slug_or_id=event.slug_or_id%}" class="btn btn-primary">View</a> <a href="{% url 'modify_event' id=event.id%}" class="btn btn-primary">Modify</a></h1>
+<h1>Registrations: {{event.title}} 
+	<a href="{% url 'event' slug_or_id=event.slug_or_id%}" class="btn btn-primary">View</a> 
+	<a href="{% url 'modify_event' id=event.id%}" class="btn btn-primary">Modify</a> 
+	<a href="{% url 'event_emails' slug_or_id=event.id%}" class="btn btn-primary">Emails</a>
+</h1>
 
 
 
-<div ng-controller="RegistrationController" ng-init="checked={}">
-	<div class="btn-group pull-right" dropdown is-open="status.isopen">
-	  <button type="button" class="btn btn-default" dropdown-toggle ng-disabled="disabled">
-	    Action<span class="caret"></span>
-	  </button>
-	  <ul class="dropdown-menu" role="menu" aria-labelledby="Action">
-	    <li role="menuitem" ng-click="update_statuses()"><a href="#">Update Statuses</a></li>
-	  </ul>
-	</div>
-    <table ng-table="tableParams" show-filter="true" class="table table-bordered table-striped">
+<div ng-controller="RegistrationController" ng-init='init("{{event.id}}",{{statuses|safe}},{{processors|safe}} );'>
+	<span class="pull-right">
+	{[getSelected().length]} selected
+		<div class="btn-group" dropdown is-open="status.isopen">
+		  <button type="button" class="btn btn-default" dropdown-toggle ng-disabled="disabled">
+		    Action<span class="caret"></span>
+		  </button>
+		  <ul class="dropdown-menu" role="menu" aria-labelledby="Action">
+		    <li role="menuitem" ng-click="update_statuses()"><a href="#">Update Statuses</a></li>
+		  </ul>
+		</div>
+	</span>
+	
+    <table ng-table="tableParams" show-filter="true" class="table table-bordered table-striped table-condensed">
       <tr ng-repeat="row in $data track by row.id">
         <td data-title="'Registered'" sortable="'registered'" style="width:170px"><label><input type="checkbox" ng-model="checked[row.email]"/> {[row.registered | date:'short']}</label></td>
         <td data-title="'First Name'" filter="{first_name__icontains: 'text'}" sortable="'first_name'">{[row.first_name]}</td>
         <td data-title="'Last Name'" filter="{last_name__icontains: 'text'}" sortable="'last_name'">{[row.last_name]}</td>
         <td data-title="'Email'" filter="{email__icontains: 'text'}" sortable="'email'">{[row.email]}</td>
-        <td data-title="'Status'" filter="{status__icontains: 'text'}" sortable="'status'">{[row.status]}</td>
-        <td data-title="'Amount'" filter="{amount: 'text'}" sortable="'amount'">{[row.amount]}</td>
-        <td data-title="'Processor'" filter="{processor: 'text'}" sortable="'processor'">{[row.processor]}</td>
+        <td data-title="'Amount'" sortable="'payment__amount'">{[row.payment__amount]}</td>
+        <td data-title="'Processor'" filter="{payment__processor__name: 'select'}" filter-data="processors_filter_choices" >{[row.payment__processor]}</td>
+		<td data-title="'Status'" filter="{status: 'select'}" filter-data="statuses_filter_choices">{[statuses[row.status]]}</td>
+		<td data-title="'Actions'">
+			<div class="btn-group" dropdown is-open="isopen[row.id]">
+			  <button type="button" class="btn btn-default" dropdown-toggle ng-disabled="disabled">
+			    Action<span class="caret"></span>
+			  </button>
+			  <ul class="dropdown-menu" role="menu" aria-labelledby="Action">
+			    <li role="menuitem"><a href="{[registrationLink(row)]}">View details</a></li>
+			    <li role="menuitem"><a href="{[modifyRegistrationLink(row)]}">Modify</a></li>
+			    <li role="menuitem"><a href="{[updateRegistrationStatusLink(row)]}">Update status</a></li>
+			  </ul>
+			</div>
+		</td>
       </tr>
     </table>
       
@@ -42,12 +63,12 @@ input.search-box{
     
     <script type="text/ng-template" id="updateStatus.html">
         <div class="modal-header">
-            <h3 class="modal-title">Update statuses (<span title="{[selected.join(', ')]}">{[selected.length]}</span>)</h3>
+            <h3 class="modal-title">Update statuses (<span title="{[params.selected.join(', ')]}">{[params.selected.length]}</span>)</h3>
         </div>
         <div class="modal-body">
             <div class="form-group form-inline">
-   				<label><input type="checkbox" ng-model="options.send_email"/>Send email</label><br>
-			    <select class="form-control">
+   				<label><input type="checkbox" ng-model="params.send_email"/>Send email</label><br>
+			    <select class="form-control" ng-model="params.status">
 					{% for value,label in Registration.STATUSES %}
 						<option value="{{value}}">{{label}}</option>
 					{% endfor %}
@@ -55,7 +76,6 @@ input.search-box{
     		</div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
             <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
         </div>
     </script>

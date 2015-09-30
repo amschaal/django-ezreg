@@ -9,6 +9,10 @@ from django.db.models.signals import pre_save
 from ezreg.payment import PaymentProcessorManager
 from datetime import datetime
 from django.db.models.query_utils import Q
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
+import os
+from mailqueue.models import MailerMessage
 
 def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -35,6 +39,7 @@ class Event(models.Model):
     enable_waitlist = models.BooleanField(default=False)
     enable_application = models.BooleanField(default=False)
     waitlist_message = models.TextField(blank=True,null=True)
+    ical = models.FilePathField(path=settings.FILES_ROOT,match='*.ics',blank=True,null=True)
     @property
     def slug_or_id(self):
         return self.slug if self.slug else self.id
@@ -65,6 +70,19 @@ class Event(models.Model):
         return self.registration_open and self.enable_waitlist and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() >= self.capacity
     def can_apply(self):
         return self.registration_open and self.enable_application
+    def generate_event_ical(self):
+        from icalendar import Calendar, Event, vText
+        calendar = Calendar()
+        cevent = Event()
+        if self.start_time:
+            cevent.add('dtstart', self.start_time)
+            if self.end_time:
+                cevent.add('dtend', self.end_time)
+        if self.address:
+            cevent.add('location',vText(self.address))
+        cevent.add('summary', self.title)
+        calendar.add_component(cevent)
+        return calendar.to_ical()
     def __unicode__(self):
         return self.title
     class Meta:
@@ -123,6 +141,7 @@ class Registration(models.Model):
     department = models.CharField(max_length=100,null=True,blank=True)
     special_requests = models.TextField(null=True,blank=True)
     price = models.ForeignKey('Price',null=True,blank=True)
+    email_messages = models.ManyToManyField(MailerMessage,related_name='registrations')
     @property
     def waitlist_place(self):
         if self.status != Registration.STATUS_WAITLISTED:
@@ -184,3 +203,12 @@ def save_event_processor(sender,instance,**kwargs):
         raise Exception("Attempted to use a payment processor for a group that was different than the event group.")
 pre_save.connect(save_event_processor, sender=EventProcessor)
 
+def save_event_ical(sender,instance,**kwargs):
+    path = os.path.join(settings.FILES_ROOT, instance.id, 'event.ics')
+    if not os.path.exists(os.path.dirname(path)):
+        os.makedirs(os.path.dirname(path))
+    ics = open(path,'wb')
+    ics.write(instance.generate_event_ical())
+    ics.close()
+    instance.ical = path
+pre_save.connect(save_event_ical, sender=Event)

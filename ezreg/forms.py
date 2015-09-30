@@ -40,13 +40,13 @@ class EventForm(forms.ModelForm):
     cancellation_policy = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     class Meta:
         model=Event
-        exclude = ('id','payment_processors')
+        exclude = ('id','payment_processors','ical')
         widgets = {
 #                     'open_until':forms.TextInput(attrs={'datepicker-popup':"yyyy-MM-dd", 'is-open':"blah", 'ng-click':"blah=true", 'ng-model':"dt"})
                       'open_until':DateWidget(attrs={'id':"open_until"}, usel10n = True, bootstrap_version=3),
                         #Use localization and bootstrap 3
-                        'start_date': DateTimeWidget(attrs={'id':"start_date"}, usel10n = True, bootstrap_version=3),
-                        'end_date': DateTimeWidget(attrs={'id':"end_date"}, usel10n = True, bootstrap_version=3)
+                        'start_time': DateTimeWidget(attrs={'id':"start_time"}, usel10n = True, bootstrap_version=3),
+                        'end_time': DateTimeWidget(attrs={'id':"end_time"}, usel10n = True, bootstrap_version=3)
                    }
 
 class PaymentProcessorForm(forms.ModelForm):
