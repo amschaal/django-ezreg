@@ -76,7 +76,8 @@ class RegistrationForm(forms.ModelForm):
         return email
     class Meta:
         model=Registration
-        exclude = ('id','event','price','status')
+#         exclude = ('id','event','price','status')
+        fields = ('first_name','last_name','email','institution','department','special_requests')
         
 class AdminRegistrationForm(forms.ModelForm):
     class Meta:

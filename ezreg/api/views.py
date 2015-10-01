@@ -41,7 +41,7 @@ class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
 class MailerMessageViewset(viewsets.ReadOnlyModelViewSet):
     queryset = MailerMessage.objects.all().prefetch_related('registrations')
     serializer_class = MailerMessageSerializer
-    filter_fields = ('registrations__id','registrations__event','sent')
+    filter_fields = {'registrations__id':['exact'],'registrations__event':['exact'],'sent':['exact'],'to_address':['exact','icontains'],'bcc_address':['exact','icontains'],'subject':['exact','icontains']}
     search_fields = ('to_address',)
 
 """

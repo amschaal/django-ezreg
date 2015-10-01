@@ -1,26 +1,4 @@
-{% extends 'base.html' %}
-{% block content %}
-<script src="//cdn.datatables.net/1.10.9/js/jquery.dataTables.min.js"></script>
 <script src="/static/ezreg/js/pages/event_registrations.js"></script>
-<link rel="stylesheet" href="//cdn.datatables.net/1.10.9/css/jquery.dataTables.min.css"/>
-<link rel="stylesheet" href="//cdn.datatables.net/1.10.9/js/dataTables.bootstrap.min.js">
-<style>
-tfoot {
-    display: table-header-group;
-}
-input.search-box{
-	max-width:100px;
-}
-</style>
-
-<div class="row">
-<h1>Registrations: {{event.title}} 
-	<a href="{% url 'event' slug_or_id=event.slug_or_id%}" class="btn btn-primary">View</a> 
-	<a href="{% url 'modify_event' id=event.id%}" class="btn btn-primary">Modify</a> 
-	<a href="{% url 'event_emails' slug_or_id=event.id%}" class="btn btn-primary">Emails</a>
-</h1>
-
-
 
 <div ng-controller="RegistrationController" ng-init='init("{{event.id}}",{{statuses|safe}},{{processors|safe}} );'>
 	<span class="pull-right">
@@ -80,59 +58,6 @@ input.search-box{
         </div>
     </script>
     
-    
-    
   </div>
 
 
-
-
-<!-- 
-<div class="col-lg-4">
-<table class="table table-bordered table-condensed compact" cellspacing="0" width="100%" id="registrations">
-  <thead>
-    <tr>
-    	<th>Registered</th>
-    	<th>First name</th>
-    	<th>Last name</th>
-    	<th>Email</th>
-    	<th>Status</th>
-    	<th>Amount</th>
-    	<th>Processor</th>
-    	<th></th>
-    </tr>
-  </thead>
-  <tfoot>
-    <tr>
-    	<th></th>
-    	<th class="searchable">First name</th>
-    	<th class="searchable">Last name</th>
-    	<th class="searchable">Email</th>
-    	<th>Status</th>
-    	<th class="searchable">Amount</th>
-    	<th class="searchable">Processor</th>
-    	<th></th>
-    </tr>
-  </tfoot>
-  <tbody>
-  {% for registration in event.registrations.all %}
-	<tr>
-		<td><a href="{% url 'registration' id=registration.id %}">{{registration.registered}}</a></td>
-		<td>{{registration.first_name}}</td>
-		<td>{{registration.last_name}}</td>
-		<td>{{registration.email}}</td>
-		<td>{{registration.status}}</td>
-		<td>{{registration.price}}</td>
-		<td>{{registration.payment.processor}}</td>
-		<td><a href="{% url 'modify_registration' id=registration.id %}">Modify</a><br>
-		<a href="{% url 'update_registration_status' id=registration.id %}">Update status</a></td>
-	</tr>  
-	{% endfor %}
-  </tbody>
-</table>
-<button id="updateStatusesButton">Update Statuses</button>
-</div>
- -->
-</div>
-
-{% endblock %}

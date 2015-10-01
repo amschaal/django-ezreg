@@ -20,28 +20,30 @@ def events(request):
     return render(request, 'ezreg/events.html', {'events':events},context_instance=RequestContext(request))
 
 @login_required
-def create_modify_event(request,id=None):
-    instance = None if not id else Event.objects.get(id=id)
-#     PriceFormset = formset_factory(PriceForm,extra=4,max_num=10)
-#     if instance:
-#         PriceFormset = modelformset_factory(Price,exclude=('event',),extra=5)
-#     else:
-#         PriceFormset = modelformset_factory(Price,exclude=('event',),extra=5)
-    
+def create_event(request):
     if request.method == 'GET':
-        form = EventForm(request.user,instance=instance)
-#         price_formset = PriceFormset(queryset=Price.objects.filter(event=instance))
+        form = EventForm(request.user)
     elif request.method == 'POST':
-        form = EventForm(request.user,request.POST,instance=instance)
-#         price_formset = PriceFormset(request.POST)
+        form = EventForm(request.user,request.POST)
         if form.is_valid():
             event = form.save()
-#             prices = price_formset.save(commit=False)
-#             for price in prices:
-#                 price.event = event
-#                 price.save()
-            return redirect('modify_event',id=event.id) #event.get_absolute_url()
-    return render(request, 'ezreg/create_modify_event.html', {'form':form,'event':instance} ,context_instance=RequestContext(request))
+            return redirect('manage_event',id=event.id) #event.get_absolute_url()
+    return render(request, 'ezreg/create_event.html', {'form':form} ,context_instance=RequestContext(request))
+
+@login_required
+def manage_event(request,id):
+    event = Event.objects.get(id=id)
+    statuses = json.dumps({status[0]:status[1] for status in Registration.STATUSES})
+    processors = json.dumps({processor.name:processor.name for processor in event.payment_processors.all()})
+    if request.method == 'GET':
+        form = EventForm(request.user,instance=event)
+    elif request.method == 'POST':
+        form = EventForm(request.user,request.POST,instance=event)
+        if form.is_valid():
+            event = form.save()
+            return redirect('manage_event',id=event.id) #event.get_absolute_url()
+    return render(request, 'ezreg/event/manage.html', {'form':form,'event':event,'Registration':Registration,'statuses':statuses,'processors':processors} ,context_instance=RequestContext(request))
+    
 
 def event(request,slug_or_id):
     event = Event.objects.get(Q(id=slug_or_id)|Q(slug=slug_or_id))
@@ -89,27 +91,6 @@ def update_registration_status(request,id):
             return redirect('registrations',slug_or_id=registration.event_id) #event.get_absolute_url()
     return render(request, 'ezreg/update_registration_status.html', {'form':form,'registration':registration} ,context_instance=RequestContext(request))
 
-@login_required
-def registrations(request,slug_or_id):
-    event = Event.objects.get(Q(id=slug_or_id)|Q(slug=slug_or_id))
-    statuses = json.dumps({status[0]:status[1] for status in Registration.STATUSES})
-    processors = json.dumps({processor.name:processor.name for processor in event.payment_processors.all()})
-    return render(request, 'ezreg/registrations.html', {'event':event,'Registration':Registration,'statuses':statuses,'processors':processors},context_instance=RequestContext(request))
-
-@login_required
-def event_emails(request,slug_or_id):
-    event = Event.objects.get(Q(id=slug_or_id)|Q(slug=slug_or_id))
-    return render(request, 'ezreg/event_emails.html', {'event':event},context_instance=RequestContext(request))
-# def register(request,id=None):
-#     instance = None if not id else Event.objects.get(id=id)
-#     if request.method == 'GET':
-#         form = EventForm(request.user,instance=instance)
-#     elif request.method == 'POST':
-#         form = EventForm(request.user,request.POST,instance=instance)
-#         if form.is_valid():
-#             event = form.save()
-#             return redirect('events') #event.get_absolute_url()
-#     return render(request, 'ezreg/create_modify_event.html', {'form':form} ,context_instance=RequestContext(request))
 
 def registration(request,id):
     registration = Registration.objects.get(id=id)

@@ -18,13 +18,13 @@
   {% for event in events %}
 	<tr>
 		<td><a href="{% url 'event' slug_or_id=event.slug_or_id %}">{{event.title}}</a></td>
-		<td><a href="{% url 'registrations' slug_or_id=event.id %}">{{event.capacity}}</a></td>
-		<td><a href="{% url 'registrations' slug_or_id=event.id %}">{{event.registered}}</a></td>
-		<td><a href="{% url 'registrations' slug_or_id=event.id %}">{{event.waitlisted}}</a></td>
-		<td><a href="{% url 'registrations' slug_or_id=event.id %}">{{event.applied}}</a></td>
-		<td><a href="{% url 'registrations' slug_or_id=event.id %}">{{event.pending}}</a></td>
-		<td><a href="{% url 'registrations' slug_or_id=event.id %}">{{event.cancelled}}</a></td>
-		<td><span class="pull-right"><a href="{% url 'modify_event' id=event.id %}">Modify</a></span> </td>
+		<td>{{event.capacity}}</td>
+		<td>{{event.registered}}</td>
+		<td>{{event.waitlisted}}</td>
+		<td>{{event.applied}}</td>
+		<td>{{event.pending}}</td>
+		<td>{{event.cancelled}}</td>
+		<td><span class="pull-right"><a href="{% url 'manage_event' id=event.id %}">Manage</a></span> </td>
 	</tr>
   {% endfor %}
   </tbody>

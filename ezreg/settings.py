@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     'crispy_forms',
     'rest_framework',
     'datetimewidget',
+    'mailqueue',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -118,7 +119,7 @@ STATIC_ROOT = os.path.join(BASE_DIR,'static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 
-
+FILES_ROOT = os.path.join(BASE_DIR,'files')
 
 
 TINYMCE_DEFAULT_CONFIG = {
@@ -138,8 +139,11 @@ ANONYMOUS_USER_ID = None
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend','rest_framework.filters.OrderingFilter','rest_framework.filters.SearchFilter',),
+    'DEFAULT_PAGINATION_CLASS': 'ezreg.api.pagination.ResultsSetPagination',
 }
+
+
 
 PAYMENT_PROCESSORS = [
     'ezreg.payment.dafis.processor.DafisPaymentProcessor',

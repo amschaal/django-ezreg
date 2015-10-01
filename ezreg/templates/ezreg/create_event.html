@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block 'headend' %}
+
+<script src="/static/ezreg/js/pages/event.js"></script>
+<style>
+.datepicker{
+	max-width:200px;
+}
+</style>
+{% endblock %}
+    
+{% block content %}
+
+<div class="page-header"><h1>Create Event</h1></div>
+
+<form method="POST" action=".">
+{% csrf_token %}
+{{form|crispy}}
+<button class="btn btn-primary">Submit</button>
+</form>
+
+{% endblock %}

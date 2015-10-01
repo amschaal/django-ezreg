@@ -11,11 +11,7 @@
 {% endblock %}
     
 {% block content %}
-{% if event %}
-<a href="{% url 'event' slug_or_id=event.slug_or_id%}" class="btn btn-primary">View</a>
-<a href="{% url 'registrations' slug_or_id=event.slug_or_id%}" class="btn btn-primary">Registrations</a>
-{% endif %}
-<div class="page-header"><h1>{% if event %}Modify{% else %}Create{% endif %} Event</h1></div>
+<div class="page-header"><h1>Manage Event</h1></div>
 <tabset>
 <tab heading="Event">
 
@@ -25,7 +21,6 @@
 <button class="btn btn-primary">Submit</button>
 </form>
 </tab>
-{% if event %}
 <tab heading="Payment">
 <div ng-controller="PriceController" ng-init="init({'event_id':'{{event.id}}','group':'{{event.group_id}}','event_processors_url':'{% url 'event_payment_processors' event_id=event.id %}'})">
 	<h3>Prices</h3>
@@ -110,13 +105,17 @@
 <button class="btn btn-success" ng-click="savePage(page)">Save</button> <button class="btn btn-danger" ng-click="deletePage(page,$index)">Delete</button> 
 
 </tab>
-
 </tabset>
 
 </div>
 
 </tab>
-{% endif %}
+<tab heading="Registrations">
+{% include 'ezreg/event/registrations.html'%}
+</tab>
+<tab heading="Emails">
+{% include 'ezreg/event/emails.html'%}
+</tab>
 </tabset>
 
 

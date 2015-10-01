@@ -1,19 +1,4 @@
-{% extends 'base.html' %}
-{% block content %}
 <script src="/static/ezreg/js/pages/event_emails.js"></script>
-<style>
-tfoot {
-    display: table-header-group;
-}
-input.search-box{
-	max-width:100px;
-}
-</style>
-
-<div class="row">
-<h1>Emails- {{event.title}} <a href="{% url 'event' slug_or_id=event.slug_or_id%}" class="btn btn-primary">View</a> <a href="{% url 'modify_event' id=event.id%}" class="btn btn-primary">Modify</a></h1>
-
-
 
 <div ng-controller="EventEmailsController" ng-init='init("{{event.id}}");'>
 	<span class="pull-right">
@@ -31,10 +16,10 @@ input.search-box{
     <table ng-table="tableParams" show-filter="true" class="table table-bordered table-striped table-condensed">
       <tr ng-repeat="row in $data track by row.id">
         <td data-title="'Last attempt'" sortable="'last_attempt'" style="width:170px"><label><input type="checkbox" ng-model="checked[row.id]"/> {[row.last_attempt | date:'short']}</label></td>
-        <td data-title="'To address'" filter="{to_address__icontains: 'text'}">{[row.to_address]}</td>
-        <td data-title="'BCC'" filter="{bcc_address__icontains: 'text'}">{[row.bcc_address]}</td>
-        <td data-title="'Subject'" filter="{subject__icontains: 'text'}">{[row.subject]}</td>
-		<td data-title="'Sent'" filter="{sent: 'select'}" filter-data="sent_choices"><i ng-class="{'glyphicon-ok':row.sent,'glyphicon-remove':!row.sent}" class="glyphicon"/></td>
+        <td data-title="'To address'" sortable="'to_address'" filter="{to_address__icontains: 'text'}">{[row.to_address]}</td>
+        <td data-title="'BCC'" sortable="'bcc_address'" filter="{bcc_address__icontains: 'text'}">{[row.bcc_address]}</td>
+        <td data-title="'Subject'" sortable="'subject'" filter="{subject__icontains: 'text'}">{[row.subject]}</td>
+		<td data-title="'Sent'" sortable="'sent_attempt'" filter="{sent: 'select'}" filter-data="sent_choices"><i ng-class="{'glyphicon-ok':row.sent,'glyphicon-remove':!row.sent}" class="glyphicon"/></td>
 		<td data-title="'Actions'">
 			<div class="btn-group" dropdown is-open="isopen[row.id]">
 			  <button type="button" class="btn btn-default" dropdown-toggle ng-disabled="disabled">
@@ -55,6 +40,4 @@ input.search-box{
 
 
 
-</div>
 
-{% endblock %}
