@@ -80,6 +80,15 @@ def update_event_statuses(request, event_id):
     return Response({'status':'success'})
 
 @api_view(['POST'])
+def update_event_form(request, event_id):
+    event = Event.objects.get(id=event_id)
+    if request.data.get('form_fields'):
+        event.form_fields = request.data.get('form_fields') 
+        event.save()
+    return Response({'status':'success'})
+
+
+@api_view(['POST'])
 def send_event_emails(request, event_id):
 #     event = Event.objects.get(id=event_id)
     emails = MailerMessage.objects.filter(registrations__event_id=event_id,id__in=request.data.get('selected'))

@@ -35,6 +35,7 @@ def manage_event(request,id):
     event = Event.objects.get(id=id)
     statuses = json.dumps({status[0]:status[1] for status in Registration.STATUSES})
     processors = json.dumps({processor.name:processor.name for processor in event.payment_processors.all()})
+    form_fields = json.dumps(event.form_fields) if event.form_fields else '[]'
     if request.method == 'GET':
         form = EventForm(request.user,instance=event)
     elif request.method == 'POST':
@@ -42,7 +43,7 @@ def manage_event(request,id):
         if form.is_valid():
             event = form.save()
             return redirect('manage_event',id=event.id) #event.get_absolute_url()
-    return render(request, 'ezreg/event/manage.html', {'form':form,'event':event,'Registration':Registration,'statuses':statuses,'processors':processors} ,context_instance=RequestContext(request))
+    return render(request, 'ezreg/event/manage.html', {'form':form,'event':event,'Registration':Registration,'statuses':statuses,'processors':processors,'form_fields':form_fields} ,context_instance=RequestContext(request))
     
 
 def event(request,slug_or_id):

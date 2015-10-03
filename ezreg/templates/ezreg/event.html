@@ -12,16 +12,19 @@
 {% endif %}
 <h1>{{event.title}}</h1>
 {{event.body|safe}}
-{% if event.open_until %}
-<p><i>Registration closes on: {{event.open_until}}</i></p>
-{% endif %}
+
 {% if event.registration_open %}
+	{% if event.open_until %}
+	<p><i>Registration closes on: {{event.open_until}}</i></p>
+	{% endif %}
 	{% if event.enable_application %}
 		<a href="{% url 'apply' slug_or_id=event.slug_or_id %}" class="btn btn-warning btn">Apply</a>
-	{% else %}
+	{% elif event.can_register%}
 		<a href="{% url 'register' slug_or_id=event.slug_or_id %}" class="btn btn-warning btn">Register</a>
+	{% elif event.can_waitlist %}
+		<a href="{% url 'waitlist' slug_or_id=event.slug_or_id %}" class="btn btn-warning btn">Waitlist</a>
 	{% endif %}
-{% elif event.waitlist_open %}
-<a href="{% url 'waitlist' slug_or_id=event.slug_or_id %}" class="btn btn-warning btn">Waitlist</a>
+{% else %}
+	<h3>Registration is closed for this event.</h3>
 {% endif %}
 {% endblock %}

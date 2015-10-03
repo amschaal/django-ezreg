@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
-{% block 'headend' %}
+{% block headend %}
 
 <script src="/static/ezreg/js/pages/event.js"></script>
 <style>
@@ -11,7 +11,7 @@
 {% endblock %}
     
 {% block content %}
-<div class="page-header"><h1>Manage Event</h1></div>
+<div class="page-header"><h1>Manage Event<a href="{% url 'event' slug_or_id=event.slug_or_id%}" class="btn btn-primary pull-right">View</a></h1></div>
 <tabset>
 <tab heading="Event">
 
@@ -20,6 +20,9 @@
 {{form|crispy}}
 <button class="btn btn-primary">Submit</button>
 </form>
+</tab>
+<tab heading="Form">
+{% include 'ezreg/event/form_designer.html'%}
 </tab>
 <tab heading="Payment">
 <div ng-controller="PriceController" ng-init="init({'event_id':'{{event.id}}','group':'{{event.group_id}}','event_processors_url':'{% url 'event_payment_processors' event_id=event.id %}'})">

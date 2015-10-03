@@ -40,6 +40,7 @@ class Event(models.Model):
     enable_application = models.BooleanField(default=False)
     waitlist_message = models.TextField(blank=True,null=True)
     ical = models.FilePathField(path=settings.FILES_ROOT,match='*.ics',blank=True,null=True)
+    form_fields = JSONField(null=True, blank=True)
     @property
     def slug_or_id(self):
         return self.slug if self.slug else self.id
@@ -60,16 +61,18 @@ class Event(models.Model):
         return self.registrations.filter(Q( status=Registration.STATUS_PENDING_INCOMPLETE)|Q( status=Registration.STATUS_WAITLIST_PENDING)|Q( status=Registration.STATUS_WAITLIST_INCOMPLETE)|Q( status=Registration.STATUS_APPLY_INCOMPLETE)).count()
     
     @property
-    def registration_open(self):
+    def registration_enabled(self):
 #         if self.enable_application:
         return self.active and str(self.open_until)[:10] >= str(datetime.today())[:10]
 #         return self.active and str(self.open_until)[:10] >= str(datetime.today())[:10] and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() < self.capacity
     def can_register(self):
-        return self.registration_open and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() < self.capacity
+        return self.registration_enabled and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() < self.capacity
     def can_waitlist(self):
-        return self.registration_open and self.enable_waitlist and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() >= self.capacity
+        return self.registration_enabled and self.enable_waitlist and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() >= self.capacity
     def can_apply(self):
-        return self.registration_open and self.enable_application
+        return self.registration_enabled and self.enable_application
+    def registration_open(self):
+        return self.registration_enabled and (self.can_register() or self.can_apply() or self.can_waitlist())
     def generate_event_ical(self):
         from icalendar import Calendar, Event, vText
         calendar = Calendar()

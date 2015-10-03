@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     'rest_framework',
     'datetimewidget',
     'mailqueue',
+    'django_json_forms',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -121,6 +122,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 
 FILES_ROOT = os.path.join(BASE_DIR,'files')
 
+
+DJANGO_JSON_FORMS_UPLOAD_DIRECTORY = os.path.join(FILES_ROOT,'form_files') 
+# DJANGO_JSON_FORMS_GET_UPLOAD_PATH
 
 TINYMCE_DEFAULT_CONFIG = {
     'theme' : 'advanced',
