@@ -9,6 +9,7 @@
 		  </button>
 		  <ul class="dropdown-menu" role="menu" aria-labelledby="Action">
 		    <li role="menuitem" ng-click="update_statuses()"><a href="#">Update Statuses</a></li>
+		    <li role="menuitem" ng-click="export_registrations()"><a href="#">Export</a></li>
 		  </ul>
 		</div>
 	</span>
@@ -36,7 +37,7 @@
 		</td>
       </tr>
     </table>
-      
+
 
     
     <script type="text/ng-template" id="updateStatus.html">
@@ -57,7 +58,31 @@
             <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
         </div>
     </script>
-    
+    <script type="text/ng-template" id="exportRegistrations.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Export registrations (<span title="{[selected.join(', ')]}">{[selected.length]}</span>)</h3>
+        </div>
+        <div class="modal-body">
+            <div class="form-group form-inline">
+   				<form id="exportForm" action="{% url 'export_registrations' event_id=event.id %}" method="POST">
+					{% csrf_token %}
+
+					<fieldset>
+					{% for field in event.form_fields %}
+					{% if field.label %}
+						<label><input type="checkbox" name="fields_{{field.name}}"/> {{field.label}}</label>
+					{% endif %}
+					{% endfor %}
+					</fieldset>
+    				<input ng-repeat="val in selected" type="hidden" name="selection" value="{[val]}"/>
+    			</form>  
+    		</div>
+        </div>
+        <div class="modal-footer">
+			<button class="btn btn-default"  ng-click="export_registrations()">Export</button>
+            <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+        </div>
+    </script>
   </div>
 
 

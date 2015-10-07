@@ -68,6 +68,31 @@ function RegistrationController($scope,$http,$modal,growl,Registration,NgTablePa
 		$scope.update_statuses_old = function(){
 			console.log($scope.getSelected());
 		};
+		
+		$scope.export_registrations = function(){
+			var modalInstance = $modal.open({
+			      animation: $scope.animationsEnabled,
+			      templateUrl: 'exportRegistrations.html',
+			      controller: 'exportCtrl',
+			      size: 'lg',
+			      resolve: {
+			        selected: function () {
+			          return $scope.getSelected();
+			        },
+			        event_id: function () {
+			          return $scope.id;
+			        }
+			      }
+			    });
+
+			    modalInstance.result.then(function () {
+			    	console.log('exported');
+			    }, function () {
+			      $log.info('Modal dismissed at: ' + new Date());
+			    });
+		};
+		
+		
 		$scope.update_statuses = function () {
 
 		    var modalInstance = $modal.open({
@@ -107,6 +132,25 @@ app.controller('updateStatusCtrl', function ($scope, $http, $modalInstance, even
 	    
 	  };
 
+	  $scope.cancel = function () {
+	    $modalInstance.dismiss('cancel');
+	  };
+	});
+app.controller('exportCtrl', function ($scope, $http, $modalInstance, event_id, selected) {
+
+	  $scope.selected = selected;
+
+	  $scope.update_statuses = function () {
+		var url = django_js_utils.urls.resolve('export_registrations', { event_id: event_id });
+		$http.post(url,$scope.params).then(function(response){
+			$modalInstance.close($scope.params.selected);
+	  	});
+	    
+	  };
+	  $scope.export_registrations = function (){
+		  $('#exportForm').submit();
+		  $modalInstance.close();
+	  };
 	  $scope.cancel = function () {
 	    $modalInstance.dismiss('cancel');
 	  };

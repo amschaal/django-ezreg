@@ -40,7 +40,7 @@ class EventForm(forms.ModelForm):
     cancellation_policy = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     class Meta:
         model=Event
-        exclude = ('id','payment_processors','ical')
+        exclude = ('id','payment_processors','ical','form_fields')
         widgets = {
 #                     'open_until':forms.TextInput(attrs={'datepicker-popup':"yyyy-MM-dd", 'is-open':"blah", 'ng-click':"blah=true", 'ng-model':"dt"})
                       'open_until':DateWidget(attrs={'id':"open_until"}, usel10n = True, bootstrap_version=3),
@@ -77,7 +77,7 @@ class RegistrationForm(forms.ModelForm):
     class Meta:
         model=Registration
 #         exclude = ('id','event','price','status')
-        fields = ('first_name','last_name','email','institution','department','special_requests')
+        fields = ('first_name','last_name','email')#,'institution','department','special_requests'
         
 class AdminRegistrationForm(forms.ModelForm):
     class Meta:

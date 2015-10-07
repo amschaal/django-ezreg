@@ -1,4 +1,18 @@
 {% extends 'base.html' %}
 {% block content %}
-Hi
+<div class="panel panel-success">
+            <div class="panel-heading">
+              <h3 class="panel-title">Upcoming events</h3>
+            </div>
+            <div class="panel-body">
+              <div class="list-group">
+              {% for event in upcoming %}
+	            <a href="{% url 'event' slug_or_id=event.slug_or_id %}" class="list-group-item">
+	              <h4 class="list-group-item-heading">{{event.title}}</h4>
+	              <p class="list-group-item-text">{{event.description}}</p>
+	            </a>
+              {% endfor %}
+	          </div>
+            </div>
+          </div>
 {% endblock %}

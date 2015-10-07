@@ -66,7 +66,7 @@ class Event(models.Model):
         return self.active and str(self.open_until)[:10] >= str(datetime.today())[:10]
 #         return self.active and str(self.open_until)[:10] >= str(datetime.today())[:10] and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() < self.capacity
     def can_register(self):
-        return self.registration_enabled and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() < self.capacity
+        return self.registration_enabled and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() < self.capacity and not self.enable_application
     def can_waitlist(self):
         return self.registration_enabled and self.enable_waitlist and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() >= self.capacity
     def can_apply(self):
@@ -96,7 +96,7 @@ class Event(models.Model):
         
 class EventPage(models.Model):
     event = models.ForeignKey('Event',related_name='pages')
-    slug = models.SlugField(max_length=50,unique=True,blank=True)
+    slug = models.SlugField(max_length=50,blank=True)
     heading = models.CharField(max_length=40)
     body = models.TextField()
     class Meta:
@@ -140,11 +140,16 @@ class Registration(models.Model):
     first_name = models.CharField(max_length=50,null=True,blank=True)
     last_name = models.CharField(max_length=50,null=True,blank=True)
     email = models.EmailField(null=True,blank=True)
-    institution = models.CharField(max_length=100,null=True,blank=True)
-    department = models.CharField(max_length=100,null=True,blank=True)
-    special_requests = models.TextField(null=True,blank=True)
+#     institution = models.CharField(max_length=100,null=True,blank=True)
+#     department = models.CharField(max_length=100,null=True,blank=True)
+#     special_requests = models.TextField(null=True,blank=True)
     price = models.ForeignKey('Price',null=True,blank=True)
     email_messages = models.ManyToManyField(MailerMessage,related_name='registrations')
+    data = JSONField(null=True, blank=True)
+    def get_form_value(self,name):
+        if not self.data:
+            return None
+        return self.data[name] if self.data.has_key(name) else None
     @property
     def waitlist_place(self):
         if self.status != Registration.STATUS_WAITLISTED:

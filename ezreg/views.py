@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.template.context import RequestContext
-from ezreg.models import Event,  Registration, PaymentProcessor, EventPage
+from ezreg.models import Event,  Registration, PaymentProcessor, EventPage,\
+    id_generator, EventProcessor
 from guardian.shortcuts import get_objects_for_user
 from ezreg.forms import EventForm, PaymentProcessorForm,  AdminRegistrationForm,\
     AdminRegistrationStatusForm
@@ -10,9 +11,11 @@ from ezreg.email import  email_status
 from django.http.response import HttpResponse
 from icalendar import Calendar, Event as CalendarEvent
 import json
+import csv
 
 def home(request):
-    return render(request, 'ezreg/home.html', {},context_instance=RequestContext(request))
+    upcoming = Event.objects.filter(advertise=True).order_by('start_time')[:5]
+    return render(request, 'ezreg/home.html', {'upcoming':upcoming},context_instance=RequestContext(request))
 
 @login_required
 def events(request):
@@ -30,9 +33,42 @@ def create_event(request):
             return redirect('manage_event',id=event.id) #event.get_absolute_url()
     return render(request, 'ezreg/create_event.html', {'form':form} ,context_instance=RequestContext(request))
 
+
 @login_required
-def manage_event(request,id):
-    event = Event.objects.get(id=id)
+def delete_event(request,event_id):
+    event = Event.objects.get(id=event_id)
+    event.delete()
+    return redirect('events')
+
+@login_required
+def copy_event(request,event_id):
+    copied = Event.objects.get(id=event_id)
+    event = Event.objects.get(id=event_id)
+    event.pk = id_generator() #this will make copy on save
+    event.id = id_generator()
+#     event.pk = 
+    if event.slug:
+        event.slug = 'copy_of_'+event.slug
+    event.title = 'Copy of '+event.title
+    event.save()
+    for processor in copied.payment_processors.all():
+        EventProcessor.objects.create(event=event,processor=processor)
+#     event.save()
+#     for page in copied.pages.all():
+#         EventPage.objects.create(event=event,slug=page.slug,heading=page.heading,body=page.body)
+    for page in copied.pages.all():
+        page.pk = None
+        page.event = event
+        page.save()
+    for price in copied.prices.all():
+        price.pk = None
+        price.event = event
+        price.save()
+    return redirect('manage_event',event_id=event.id)
+
+@login_required
+def manage_event(request,event_id):
+    event = Event.objects.get(id=event_id)
     statuses = json.dumps({status[0]:status[1] for status in Registration.STATUSES})
     processors = json.dumps({processor.name:processor.name for processor in event.payment_processors.all()})
     form_fields = json.dumps(event.form_fields) if event.form_fields else '[]'
@@ -42,7 +78,7 @@ def manage_event(request,id):
         form = EventForm(request.user,request.POST,instance=event)
         if form.is_valid():
             event = form.save()
-            return redirect('manage_event',id=event.id) #event.get_absolute_url()
+            return redirect('manage_event',event_id=event.id) #event.get_absolute_url()
     return render(request, 'ezreg/event/manage.html', {'form':form,'event':event,'Registration':Registration,'statuses':statuses,'processors':processors,'form_fields':form_fields} ,context_instance=RequestContext(request))
     
 
@@ -135,3 +171,24 @@ def configure_payment_processor(request,id):
             return redirect('payment_processors') #event.get_absolute_url()
     return render(request, 'ezreg/configure_payment_processor.html', {'form':form,'processor':processor} ,context_instance=RequestContext(request))
 
+    
+@login_required
+def export_registrations(request, event_id):
+    event = Event.objects.get(id=event_id)
+    print request.POST.getlist('selection')
+    registrations = event.registrations.filter(email__in=request.POST.getlist('selection'))
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+    writer = csv.writer(response)
+    print request.POST
+    form_fields = [field for field in event.form_fields if 'layout' not in field['type'] and request.POST.get('fields_%s'%field['name'],False)]
+    fields = ['First Name', 'Last Name', 'Email']
+    fields += [field['label'] for field in form_fields]
+    
+    writer.writerow(fields)
+    for r in registrations:
+        values = [r.first_name, r.last_name, r.email]
+        values += [r.get_form_value(field['name']) for field in form_fields]
+        writer.writerow(values)
+
+    return response

@@ -10,6 +10,7 @@ from ezreg.forms import PriceForm, ConfirmationForm, RegistrationForm
 from ezreg.models import Event, Registration, Payment, EventPage
 from ezreg.payment import PaymentProcessorManager
 from ezreg.payment.base import BasePaymentForm
+from django_json_forms.forms import JSONForm
 
 
 def show_payment_form_condition(wizard):
@@ -28,14 +29,19 @@ def show_price_form_condition(wizard):
         if wizard.registration.is_waitlisted or wizard.registration.is_application:
             return False
     return wizard.event.prices.count() > 0
-    
+
+def registration_form_custom_condition(wizard):
+    return wizard.event.form_fields
 
 class RegistrationWizard(SessionWizardView):
-    form_list = [('registration_form',RegistrationForm), ('price_form',PriceForm),('payment_form',BasePaymentForm),('confirmation_form',ConfirmationForm)] #first ConfirmationForm is ignored or replaced depending on payment method
-    condition_dict={'payment_form': show_payment_form_condition,'price_form':show_price_form_condition}
+    form_list = [('registration_form',RegistrationForm),('registration_form_custom',RegistrationForm), ('price_form',PriceForm),('payment_form',BasePaymentForm),('confirmation_form',ConfirmationForm)] #first ConfirmationForm is ignored or replaced depending on payment method
+    condition_dict={'payment_form': show_payment_form_condition,'price_form':show_price_form_condition,'registration_form_custom':registration_form_custom_condition}
     
     def done(self, form_list, **kwargs):
         registration = RegistrationForm(form_list[0].cleaned_data,instance=self.registration).save(commit=False)
+        custom_data = self.get_cleaned_data_for_step('registration_form_custom') or None
+        if custom_data:
+            registration.data = custom_data
         if registration.status == Registration.STATUS_WAITLIST_INCOMPLETE:
             registration.status = Registration.STATUS_WAITLISTED
         elif registration.status == Registration.STATUS_APPLY_INCOMPLETE:
@@ -66,7 +72,7 @@ class RegistrationWizard(SessionWizardView):
         form = self.get_form()
         if hasattr(form, 'template'):
             return form.template
-        return 'ezreg/register.html'
+        return 'ezreg/registration/register.html'
     def get_form_kwargs(self, step):
         kwargs = {'event':self.event}
         if step == 'registration_form' and self.registration:
@@ -142,7 +148,7 @@ class RegistrationWizard(SessionWizardView):
             if not self.event.registration_open:
                 return render(request, 'ezreg/registration/closed.html', {'event':self.event},context_instance=RequestContext(request))
             elif self.event.can_register():
-                self.start_registration()
+                pass
             elif self.event.can_waitlist() and not kwargs['waitlist']:
                 return HttpResponseRedirect(reverse('waitlist',kwargs={'slug_or_id':self.event.slug_or_id}))
             elif self.event.can_apply() and not kwargs['apply']:
@@ -167,6 +173,11 @@ class RegistrationWizard(SessionWizardView):
         if step is None:
             step = self.steps.current
         form = super(RegistrationWizard, self).get_form(step, data, files)
+        if step == 'registration_form_custom':
+            if data:
+                form = JSONForm(data,fields=self.event.form_fields)
+            else:
+                form = JSONForm(fields=self.event.form_fields)
         if step == 'payment_form':
             cleaned_data = self.get_cleaned_data_for_step('price_form') or None
             if cleaned_data:

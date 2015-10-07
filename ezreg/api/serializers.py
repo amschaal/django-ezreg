@@ -2,6 +2,13 @@ from rest_framework import serializers
 from ezreg.models import Price, PaymentProcessor, EventProcessor, EventPage, Registration
 from mailqueue.models import MailerMessage
 
+class JSONSerializerField(serializers.Field):
+    """ Serializer for JSONField -- required to make field writable"""
+    def to_internal_value(self, data):
+        return data
+    def to_representation(self, value):
+        return value
+
 class PriceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Price
@@ -20,9 +27,10 @@ class EventPageSerializer(serializers.ModelSerializer):
 class RegistrationSerializer(serializers.ModelSerializer):
     payment__amount = serializers.ReadOnlyField(source='payment.amount')
     payment__processor = serializers.ReadOnlyField(source='payment.processor.name')
+    data = JSONSerializerField()
     class Meta:
         model = Registration
-        fields = ('id','status','event','registered','first_name','last_name','email','institution','department','special_requests','payment__amount','payment__processor')
+        fields = ('id','status','event','registered','first_name','last_name','email','data','payment__amount','payment__processor')
 
 class MailerMessageSerializer(serializers.ModelSerializer):
 #     registrations = serializers.ReadOnlyField(source='registrations',many=True)
