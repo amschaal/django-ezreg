@@ -1,7 +1,7 @@
 from django.db import models
 import string
 import random
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 from django.utils.safestring import mark_safe
 from distutils.command.config import config
 from jsonfield import JSONField
@@ -23,6 +23,7 @@ class Event(models.Model):
 #     STATUSES = ((STATUS_OPEN,'Open'),(STATUS_CLOSED,'Closed'))
     id = models.CharField(max_length=10,default=id_generator,primary_key=True)
     group = models.ForeignKey(Group)
+    
     slug = models.SlugField(max_length=100,unique=True,blank=True)
     title = models.CharField(max_length=100,blank=False)
     description = models.TextField(blank=False)
@@ -204,9 +205,19 @@ class PaymentProcessor(models.Model):
 class EventProcessor(models.Model):
     event = models.ForeignKey('Event')
     processor = models.ForeignKey('PaymentProcessor')
-    
+
+class Organizer(models.Model):
+    name = models.CharField(max_length=50)
+    description = models.TextField()
+
+class OrganizerPermission(models.Model):
+    PERMISSION_ADMIN = 'admin'
+    PERMISSION_VIEW = 'view'
+    PERMISSION_CHOICES=((PERMISSION_ADMIN,'Administer'),(PERMISSION_VIEW,'View registrations'))
+    user = models.ForeignKey(User)
+    permission = models.CharField(max_length=10)
+
 def save_event_processor(sender,instance,**kwargs):
-    print '!!!!!!!!!!!!!!!!!!!'
     if instance.processor.group != instance.event.group:
         raise Exception("Attempted to use a payment processor for a group that was different than the event group.")
 pre_save.connect(save_event_processor, sender=EventProcessor)

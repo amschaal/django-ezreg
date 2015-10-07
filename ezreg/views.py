@@ -10,11 +10,12 @@ from django.db.models.query_utils import Q
 from ezreg.email import  email_status
 from django.http.response import HttpResponse
 from icalendar import Calendar, Event as CalendarEvent
+from datetime import datetime
 import json
 import csv
 
 def home(request):
-    upcoming = Event.objects.filter(advertise=True).order_by('start_time')[:5]
+    upcoming = Event.objects.filter(advertise=True,active=True,open_until__gte=datetime.today()).order_by('start_time')[:5]
     return render(request, 'ezreg/home.html', {'upcoming':upcoming},context_instance=RequestContext(request))
 
 @login_required

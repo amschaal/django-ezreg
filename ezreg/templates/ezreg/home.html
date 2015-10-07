@@ -5,14 +5,23 @@
               <h3 class="panel-title">Upcoming events</h3>
             </div>
             <div class="panel-body">
-              <div class="list-group">
+              <table class="table table-condensed borderless">
+                <tr><th>Date(s)</th><th>Event title</th><th class="pull-right">Registration closes</th></tr>
               {% for event in upcoming %}
-	            <a href="{% url 'event' slug_or_id=event.slug_or_id %}" class="list-group-item">
-	              <h4 class="list-group-item-heading">{{event.title}}</h4>
-	              <p class="list-group-item-text">{{event.description}}</p>
-	            </a>
+	            
+	            <tr>
+	              <td>
+	              	{{event.start_time|date:'M j'}}{% if event.end_time %} - {{event.end_time|date:'M j'}}{%endif%}
+	              </td>
+	              <td>
+	              		<a href="{% url 'event' slug_or_id=event.slug_or_id %}">{{event.title}}</a>
+	              </td>
+	              <td class="pull-right">
+	              		{{event.open_until|date:'M j'}}
+	              </td>
+	            </tr>
               {% endfor %}
-	          </div>
-            </div>
-          </div>
+              </table>
+          	</div>
+</div>
 {% endblock %}
