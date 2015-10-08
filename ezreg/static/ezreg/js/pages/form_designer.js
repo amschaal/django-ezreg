@@ -22,7 +22,7 @@ app.controller('DesignerController', function($scope,$http) {
     	$scope.fields.splice(index+diff, 0, angular.copy($scope.fields.splice(index, 1)[0]));
     };
     $scope.save = function(){
-    	var url = django_js_utils.urls.resolve('update_event_form', { event_id: $scope.event_id })
+    	var url = django_js_utils.urls.resolve('update_event_form', { event: $scope.event_id })
     	console.log('posting: ',$scope.event_id, $scope.fields);
     	$http.post(url,{form_fields:$scope.fields})
     	.success(function(){alert('The form has been updated.')})

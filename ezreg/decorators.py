@@ -31,8 +31,7 @@ class event_access_decorator(object):
                     return redirect(url)
                 else:
                     raise PermissionDenied
-            if not request.user.is_superuser:
-                event.organizer.user_permissions.filter(user=request.user)
+            if True:#not request.user.is_superuser:
                 user_perms = [p.permission for p in event.organizer.user_permissions.filter(user=request.user)]
                 if self.require_all:
                     for perm in self.perms:

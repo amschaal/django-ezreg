@@ -13,7 +13,7 @@ function EventEmailsController($scope,$http,growl,NgTableParams) {
 //	$scope.modifyRegistrationLink = function(registration){return django_js_utils.urls.resolve('modify_registration', { id: registration.id })};
 //	$scope.updateRegistrationStatusLink = function(registration){return django_js_utils.urls.resolve('update_registration_status', { id: registration.id })};
 	$scope.send_event_emails = function (selected) {
-		var url = django_js_utils.urls.resolve('send_event_emails', { event_id: $scope.event_id });
+		var url = django_js_utils.urls.resolve('send_event_emails', { event: $scope.event_id });
 		$http.post(url,{selected:selected}).then(function(response){
 			$scope.tableParams.reload();
 	  	});

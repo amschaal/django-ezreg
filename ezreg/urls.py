@@ -26,11 +26,11 @@ from ezreg.registration import RegistrationWizard
 
 
 router = routers.DefaultRouter()
-router.register(r'prices', PriceViewset)
-router.register(r'payment_processors', PaymentProcessorViewset)
-router.register(r'event_pages', EventPageViewset)
-router.register(r'registrations', RegistrationViewset)
-router.register(r'emails', MailerMessageViewset)
+router.register(r'prices', PriceViewset, 'Price')
+router.register(r'payment_processors', PaymentProcessorViewset, 'PaymentProcessor')
+router.register(r'event_pages', EventPageViewset, 'EventPage')
+router.register(r'registrations', RegistrationViewset, 'Registration')
+router.register(r'emails', MailerMessageViewset, 'Email')
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
@@ -46,10 +46,10 @@ urlpatterns = [
     url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/waitlist/$', RegistrationWizard.as_view(), name="waitlist",kwargs={'waitlist':True}),
     url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/apply/$', RegistrationWizard.as_view(), name="apply",kwargs={'apply':True}),
     url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/complete_registration/(?P<registration_id>[A-Za-z0-9_\-]{10})/$', RegistrationWizard.as_view(), name="complete_registration",kwargs={'complete':True}),
-    url(r'^events/(?P<event_id>[A-Za-z0-9_\-]{5,100})/update_statuses/$', 'ezreg.api.views.update_event_statuses', name="update_event_statuses"),
-    url(r'^events/(?P<event_id>[A-Za-z0-9_\-]{5,100})/export_registrations/$', 'ezreg.views.export_registrations', name="export_registrations"),
-    url(r'^events/(?P<event_id>[A-Za-z0-9_\-]{5,100})/update_event_form/$', 'ezreg.api.views.update_event_form', name="update_event_form"),
-    url(r'^events/(?P<event_id>[A-Za-z0-9_\-]{5,100})/send_event_emails/$', 'ezreg.api.views.send_event_emails', name="send_event_emails"),
+    url(r'^events/(?P<event>[A-Za-z0-9_\-]{5,100})/update_statuses/$', 'ezreg.api.views.update_event_statuses', name="update_event_statuses"),
+    url(r'^events/(?P<event>[A-Za-z0-9_\-]{5,100})/export_registrations/$', 'ezreg.views.export_registrations', name="export_registrations"),
+    url(r'^events/(?P<event>[A-Za-z0-9_\-]{5,100})/update_event_form/$', 'ezreg.api.views.update_event_form', name="update_event_form"),
+    url(r'^events/(?P<event>[A-Za-z0-9_\-]{5,100})/send_event_emails/$', 'ezreg.api.views.send_event_emails', name="send_event_emails"),
     
     url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/$', 'ezreg.views.registration', name="registration"),
     url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/modify/$', 'ezreg.views.modify_registration', name="modify_registration"),
@@ -62,7 +62,7 @@ urlpatterns = [
     url(r'^payment_processors/(?P<id>\d+)/configure/$', 'ezreg.views.configure_payment_processor',name='configure_payment_processor'),
     url(r'^tinymce/', include('tinymce.urls')),
     url(r'^api/', include(router.urls)),
-    url(r'^api/event/(?P<event_id>[A-Za-z0-9_\-]{10})/payment_processors/$', 'ezreg.api.views.event_payment_processors', name="event_payment_processors"),
+    url(r'^api/event/(?P<event>[A-Za-z0-9_\-]{10})/payment_processors/$', 'ezreg.api.views.event_payment_processors', name="event_payment_processors"),
     url(r'^json_forms/', include(json_form_urls.urlpatterns)),
     url(r'^jsurls.js$', 'ezreg.jsutils.jsurls', {}, 'jsurls'), 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

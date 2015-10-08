@@ -64,7 +64,7 @@ def copy_event(request,event):
         price.pk = None
         price.event = event
         price.save()
-    return redirect('manage_event',event_id=event.id)
+    return redirect('manage_event',event=event.id)
 
 @event_access_decorator([OrganizerUserPermission.PERMISSION_ADMIN,OrganizerUserPermission.PERMISSION_VIEW],require_all=False)
 def manage_event(request,event):
@@ -77,7 +77,7 @@ def manage_event(request,event):
         form = EventForm(request.user,request.POST,instance=event)
         if form.is_valid():
             event = form.save()
-            return redirect('manage_event',event_id=event.id) #event.get_absolute_url()
+            return redirect('manage_event',event=event.id) #event.get_absolute_url()
     return render(request, 'ezreg/event/manage.html', {'form':form,'event':event,'Registration':Registration,'statuses':statuses,'processors':processors,'form_fields':form_fields} ,context_instance=RequestContext(request))
     
 
@@ -170,9 +170,8 @@ def configure_payment_processor(request,id):
     return render(request, 'ezreg/configure_payment_processor.html', {'form':form,'processor':processor} ,context_instance=RequestContext(request))
 
     
-@login_required
-def export_registrations(request, event_id):
-    event = Event.objects.get(id=event_id)
+@event_access_decorator([OrganizerUserPermission.PERMISSION_VIEW])
+def export_registrations(request, event):
     print request.POST.getlist('selection')
     registrations = event.registrations.filter(email__in=request.POST.getlist('selection'))
     response = HttpResponse(content_type='text/csv')

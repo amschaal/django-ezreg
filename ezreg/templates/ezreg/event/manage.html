@@ -32,7 +32,7 @@
 {% include 'ezreg/event/form_designer.html'%}
 </tab>
 <tab heading="Payment">
-<div ng-controller="PriceController" ng-init="init({'event_id':'{{event.id}}','organizer':'{{event.organizer_id}}','event_processors_url':'{% url 'event_payment_processors' event_id=event.id %}'})">
+<div ng-controller="PriceController" ng-init="init({'event_id':'{{event.id}}','organizer':'{{event.organizer_id}}','event_processors_url':'{% url 'event_payment_processors' event=event.id %}'})">
 	<h3>Prices</h3>
 	<table class="table" ng-if="prices.length > 0">
 		<tr><th>Name</th><th>Amount</th><th>Description</th><th>Start Date</th><th>End Date</th><th></th></tr>

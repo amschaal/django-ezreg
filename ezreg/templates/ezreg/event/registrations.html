@@ -64,7 +64,7 @@
         </div>
         <div class="modal-body">
             <div class="form-group form-inline">
-   				<form id="exportForm" action="{% url 'export_registrations' event_id=event.id %}" method="POST">
+   				<form id="exportForm" action="{% url 'export_registrations' event=event.id %}" method="POST">
 					{% csrf_token %}
 
 					<fieldset>

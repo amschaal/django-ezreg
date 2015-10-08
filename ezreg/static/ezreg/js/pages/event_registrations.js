@@ -125,7 +125,7 @@ app.controller('updateStatusCtrl', function ($scope, $http, $modalInstance, even
 	  $scope.params = {selected:selected};
 
 	  $scope.update_statuses = function () {
-		var url = django_js_utils.urls.resolve('update_event_statuses', { event_id: event_id });
+		var url = django_js_utils.urls.resolve('update_event_statuses', { event: event_id });
 		$http.post(url,$scope.params).then(function(response){
 			$modalInstance.close($scope.params.selected);
 	  	});
@@ -141,7 +141,7 @@ app.controller('exportCtrl', function ($scope, $http, $modalInstance, event_id, 
 	  $scope.selected = selected;
 
 	  $scope.update_statuses = function () {
-		var url = django_js_utils.urls.resolve('export_registrations', { event_id: event_id });
+		var url = django_js_utils.urls.resolve('export_registrations', { event: event_id });
 		$http.post(url,$scope.params).then(function(response){
 			$modalInstance.close($scope.params.selected);
 	  	});

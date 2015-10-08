@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
+<h1>{{event.title}}</h1>
 {% if event.pages.all.count > 0%}
-<div class="navbar-collapse collapse navbar-default ">
+<div class="navbar-collapse collapse navbar-default">
 	<ul class="nav navbar-nav">
     	<li><a href="{% url 'event' slug_or_id=event.slug_or_id %}">Event</a></li>
 		{% for p in event.pages.all %}
@@ -10,6 +11,7 @@
 	</ul>
 </div>
 {% endif %}
-
+<div class="event-page">
 {{page.body|safe}}
+</div>
 {% endblock %}
