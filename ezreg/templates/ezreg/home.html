@@ -6,7 +6,7 @@
             </div>
             <div class="panel-body">
               <table class="table table-condensed borderless">
-                <tr><th>Date(s)</th><th>Event title</th><th class="pull-right">Registration closes</th></tr>
+                <tr><th>Date(s)</th><th>Event title</th><th>Organizer</th><th class="pull-right">Registration closes</th></tr>
               {% for event in upcoming %}
 	            
 	            <tr>
@@ -15,6 +15,9 @@
 	              </td>
 	              <td>
 	              		<a href="{% url 'event' slug_or_id=event.slug_or_id %}">{{event.title}}</a>
+	              </td>
+	              <td>
+	              		{{event.organizer}}
 	              </td>
 	              <td class="pull-right">
 	              		{{event.open_until|date:'M j'}}

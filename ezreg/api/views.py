@@ -18,8 +18,8 @@ class PriceViewset(viewsets.ModelViewSet):
 class PaymentProcessorViewset(viewsets.ReadOnlyModelViewSet):
     queryset = PaymentProcessor.objects.all()
     serializer_class = PaymentProcessorSerializer
-    filter_fields = ('group',)
-    search_fields = ('group',)
+    filter_fields = ('organizer',)
+    search_fields = ('organizer',)
     
 class EventPageViewset(viewsets.ModelViewSet):
     queryset = EventPage.objects.all()

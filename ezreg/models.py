@@ -17,13 +17,30 @@ from mailqueue.models import MailerMessage
 def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
+class Organizer(models.Model):
+    slug = models.SlugField(max_length=50,unique=True)
+    name = models.CharField(max_length=50)
+    description = models.TextField()
+    def __unicode__(self):
+        return self.name
+
+class OrganizerUserPermission(models.Model):
+    PERMISSION_ADMIN = 'admin'
+    PERMISSION_VIEW = 'view'
+    PERMISSION_CHOICES=((PERMISSION_ADMIN,'Administer'),(PERMISSION_VIEW,'View registrations'))
+    organizer = models.ForeignKey(Organizer,related_name="user_permissions")
+    user = models.ForeignKey(User)
+    permission = models.CharField(max_length=10,choices=PERMISSION_CHOICES)
+    def __unicode__(self):
+        return '%s - %s: %s'%(self.organizer,self.permission,self.user)
+
 class Event(models.Model):
 #     STATUS_OPEN = 'open'
 #     STATUS_CLOSED = 'closed'
 #     STATUSES = ((STATUS_OPEN,'Open'),(STATUS_CLOSED,'Closed'))
     id = models.CharField(max_length=10,default=id_generator,primary_key=True)
-    group = models.ForeignKey(Group)
-    
+#     group = models.ForeignKey(Group)
+    organizer = models.ForeignKey(Organizer)
     slug = models.SlugField(max_length=100,unique=True,blank=True)
     title = models.CharField(max_length=100,blank=False)
     description = models.TextField(blank=False)
@@ -188,7 +205,8 @@ class Payment(models.Model):
     
 class PaymentProcessor(models.Model):
     processor_id = models.CharField(max_length=30)
-    group = models.ForeignKey(Group)
+#     group = models.ForeignKey(Group)
+    organizer = models.ForeignKey(Organizer)
     name = models.CharField(max_length=50)
     description = models.TextField(blank=True)
     hidden = models.BooleanField(default=False)
@@ -206,20 +224,11 @@ class EventProcessor(models.Model):
     event = models.ForeignKey('Event')
     processor = models.ForeignKey('PaymentProcessor')
 
-class Organizer(models.Model):
-    name = models.CharField(max_length=50)
-    description = models.TextField()
 
-class OrganizerPermission(models.Model):
-    PERMISSION_ADMIN = 'admin'
-    PERMISSION_VIEW = 'view'
-    PERMISSION_CHOICES=((PERMISSION_ADMIN,'Administer'),(PERMISSION_VIEW,'View registrations'))
-    user = models.ForeignKey(User)
-    permission = models.CharField(max_length=10)
 
 def save_event_processor(sender,instance,**kwargs):
-    if instance.processor.group != instance.event.group:
-        raise Exception("Attempted to use a payment processor for a group that was different than the event group.")
+    if instance.processor.organizer != instance.event.organizer:
+        raise Exception("Attempted to use a payment processor for an organizer that was different than the event organizer.")
 pre_save.connect(save_event_processor, sender=EventProcessor)
 
 def save_event_ical(sender,instance,**kwargs):

@@ -17,7 +17,7 @@ class PriceSerializer(serializers.ModelSerializer):
 class PaymentProcessorSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaymentProcessor
-        fields = ('id','processor_id','group','name','description','hidden','config')
+        fields = ('id','processor_id','name','description','hidden','config')
         
 class EventPageSerializer(serializers.ModelSerializer):
     class Meta:

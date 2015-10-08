@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.template.context import RequestContext
 from ezreg.models import Event,  Registration, PaymentProcessor, EventPage,\
-    id_generator, EventProcessor
+    id_generator, EventProcessor, OrganizerUserPermission
 from guardian.shortcuts import get_objects_for_user
 from ezreg.forms import EventForm, PaymentProcessorForm,  AdminRegistrationForm,\
     AdminRegistrationStatusForm
@@ -13,6 +13,7 @@ from icalendar import Calendar, Event as CalendarEvent
 from datetime import datetime
 import json
 import csv
+from ezreg.decorators import event_access_decorator
 
 def home(request):
     upcoming = Event.objects.filter(advertise=True,active=True,open_until__gte=datetime.today()).order_by('start_time')[:5]
@@ -35,16 +36,14 @@ def create_event(request):
     return render(request, 'ezreg/create_event.html', {'form':form} ,context_instance=RequestContext(request))
 
 
-@login_required
-def delete_event(request,event_id):
-    event = Event.objects.get(id=event_id)
+@event_access_decorator([OrganizerUserPermission.PERMISSION_ADMIN])
+def delete_event(request,event):
     event.delete()
     return redirect('events')
 
-@login_required
-def copy_event(request,event_id):
-    copied = Event.objects.get(id=event_id)
-    event = Event.objects.get(id=event_id)
+@event_access_decorator([OrganizerUserPermission.PERMISSION_ADMIN])
+def copy_event(request,event):
+    copied = Event.objects.get(id=event.id)
     event.pk = id_generator() #this will make copy on save
     event.id = id_generator()
 #     event.pk = 
@@ -67,9 +66,8 @@ def copy_event(request,event_id):
         price.save()
     return redirect('manage_event',event_id=event.id)
 
-@login_required
-def manage_event(request,event_id):
-    event = Event.objects.get(id=event_id)
+@event_access_decorator([OrganizerUserPermission.PERMISSION_ADMIN,OrganizerUserPermission.PERMISSION_VIEW],require_all=False)
+def manage_event(request,event):
     statuses = json.dumps({status[0]:status[1] for status in Registration.STATUSES})
     processors = json.dumps({processor.name:processor.name for processor in event.payment_processors.all()})
     form_fields = json.dumps(event.form_fields) if event.form_fields else '[]'
@@ -140,10 +138,9 @@ def pay(request,id):
 
 @login_required
 def payment_processors(request):
-    payment_processors = PaymentProcessor.objects.filter(group__in=request.user.groups.all())
+    OUPs = OrganizerUserPermission.objects.filter(user=request.user,permission=OrganizerUserPermission.PERMISSION_ADMIN)
+    payment_processors = PaymentProcessor.objects.filter(organizer_id__in=[oup.organizer_id for oup in OUPs])
     return render(request, 'ezreg/payment_processors.html', {'payment_processors':payment_processors},context_instance=RequestContext(request))
-
-
 
 
 @login_required

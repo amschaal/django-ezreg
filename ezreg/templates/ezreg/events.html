@@ -24,7 +24,7 @@
 		<td>{{event.applied}}</td>
 		<td>{{event.pending}}</td>
 		<td>{{event.cancelled}}</td>
-		<td><span class="pull-right"><a href="{% url 'manage_event' event_id=event.id %}">Manage</a> <a href="{% url 'copy_event' event_id=event.id %}" onClick="return confirm('Are you sure you want to create a copy of this event?')">Copy</a></span> </td>
+		<td><span class="pull-right"><a href="{% url 'manage_event' event=event.id %}">Manage</a> <a href="{% url 'copy_event' event=event.id %}" onClick="return confirm('Are you sure you want to create a copy of this event?')">Copy</a></span> </td>
 	</tr>
   {% endfor %}
   </tbody>

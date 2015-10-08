@@ -5,7 +5,8 @@ from django.core.exceptions import ValidationError
 from tinymce.widgets import TinyMCE
 from datetime import datetime
 
-from ezreg.models import Event, Price, Registration, PaymentProcessor
+from ezreg.models import Event, Price, Registration, PaymentProcessor, Organizer,\
+    OrganizerUserPermission
 from ezreg.payment import PaymentProcessorManager
 from django.forms.widgets import  TextInput
 from django.db.models.query_utils import Q
@@ -34,13 +35,15 @@ class AngularDatePickerInput(TextInput):
 class EventForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
         super(EventForm,self).__init__(*args, **kwargs)
-        self.fields['group'].queryset = user.groups.all()
+#         self.fields['group'].queryset = user.groups.all()
+        OUPs = OrganizerUserPermission.objects.filter(user=user,permission=OrganizerUserPermission.PERMISSION_ADMIN)
+        self.fields['organizer'].queryset = Organizer.objects.filter(id__in=[oup.organizer_id for oup in OUPs])
 #         self.fields['open_until'].widget.attrs['ng-init']="dt='%s';"% self.instance.open_until
     body = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     cancellation_policy = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     class Meta:
         model=Event
-        exclude = ('id','payment_processors','ical','form_fields')
+        exclude = ('id','payment_processors','ical','form_fields','group')
         widgets = {
 #                     'open_until':forms.TextInput(attrs={'datepicker-popup':"yyyy-MM-dd", 'is-open':"blah", 'ng-click':"blah=true", 'ng-model':"dt"})
                       'open_until':DateWidget(attrs={'id':"open_until"}, usel10n = True, bootstrap_version=3),
@@ -52,13 +55,14 @@ class EventForm(forms.ModelForm):
 class PaymentProcessorForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
         super(PaymentProcessorForm,self).__init__(*args, **kwargs)
-        self.fields['group'].queryset = user.groups.all()
+        OUPs = OrganizerUserPermission.objects.filter(user=user,permission=OrganizerUserPermission.PERMISSION_ADMIN)
+        self.fields['organizer'].queryset = Organizer.objects.filter(id__in=[oup.organizer_id for oup in OUPs])
         self.PaymentProcessors = PaymentProcessorManager()
         processor_choices = self.PaymentProcessors.get_choices()
         self.fields['processor_id'].widget = forms.widgets.Select(choices=processor_choices)
     class Meta:
         model= PaymentProcessor
-        fields = ('processor_id','group','name','description','hidden')
+        fields = ('processor_id','organizer','name','description','hidden')
 
 class RegistrationForm(forms.ModelForm):
     template = 'ezreg/registration/form.html'
