@@ -31,7 +31,7 @@ def create_event(request):
         form = EventForm(request.user,request.POST)
         if form.is_valid():
             event = form.save()
-            return redirect('manage_event',id=event.id) #event.get_absolute_url()
+            return redirect('manage_event',event=event.id) #event.get_absolute_url()
     return render(request, 'ezreg/create_event.html', {'form':form} ,context_instance=RequestContext(request))
 
 
