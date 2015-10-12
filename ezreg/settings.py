@@ -39,7 +39,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'tinymce',
     'ezreg',
-    'guardian',
     'crispy_forms',
     'rest_framework',
     'datetimewidget',
@@ -56,10 +55,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-)
-
-AUTHENTICATION_BACKENDS += (
-    'guardian.backends.ObjectPermissionBackend',
 )
 
 ROOT_URLCONF = 'ezreg.urls'
@@ -156,3 +151,22 @@ PAYMENT_PROCESSORS = [
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.ucdavis.edu'
+
+USE_CAS=True
+if USE_CAS:
+    CAS_SERVER_URL = "https://cas.ucdavis.edu/cas/"
+    CAS_VERSION = '2'
+    CAS_LOGOUT_COMPLETELY = True
+    CAS_PROVIDE_URL_TO_LOGOUT = True
+    AUTHENTICATION_BACKENDS = (
+        'django.contrib.auth.backends.ModelBackend',
+        'cas.backends.CASBackend',
+    )
+
+    MIDDLEWARE_CLASSES += (
+#         'cas.middleware.CASMiddleware',
+    )
+    CAS_RESPONSE_CALLBACKS = (
+#         'auth.cas.callbackfunction',
+#         'anotherpath.to.module.callbackfunction2',
+    )
