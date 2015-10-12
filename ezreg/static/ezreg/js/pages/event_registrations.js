@@ -120,7 +120,7 @@ function RegistrationController($scope,$http,$modal,growl,Registration,NgTablePa
 }
 
 
-app.controller('updateStatusCtrl', function ($scope, $http, $modalInstance, event_id, selected) {
+app.controller('updateStatusCtrl', function ($scope, $http, growl, $modalInstance, event_id, selected) {
 
 	  $scope.params = {selected:selected};
 
@@ -128,7 +128,11 @@ app.controller('updateStatusCtrl', function ($scope, $http, $modalInstance, even
 		var url = django_js_utils.urls.resolve('update_event_statuses', { event: event_id });
 		$http.post(url,$scope.params).then(function(response){
 			$modalInstance.close($scope.params.selected);
-	  	});
+	  	}, function(response){
+			if (response.data.detail)
+				growl.error(response.data.detail ,{ttl: 5000});
+		}
+		);
 	    
 	  };
 
@@ -136,7 +140,7 @@ app.controller('updateStatusCtrl', function ($scope, $http, $modalInstance, even
 	    $modalInstance.dismiss('cancel');
 	  };
 	});
-app.controller('exportCtrl', function ($scope, $http, $modalInstance, event_id, selected) {
+app.controller('exportCtrl', function ($scope, $http, growl, $modalInstance, event_id, selected) {
 
 	  $scope.selected = selected;
 
@@ -144,7 +148,10 @@ app.controller('exportCtrl', function ($scope, $http, $modalInstance, event_id, 
 		var url = django_js_utils.urls.resolve('export_registrations', { event: event_id });
 		$http.post(url,$scope.params).then(function(response){
 			$modalInstance.close($scope.params.selected);
-	  	});
+	  	}, function(response){
+			if (response.data.detail)
+				growl.error(response.data.detail ,{ttl: 5000});
+		});
 	    
 	  };
 	  $scope.export_registrations = function (){

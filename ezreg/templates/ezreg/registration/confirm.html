@@ -12,7 +12,15 @@
 <h2>{{event.title}}</h2>
 <p>{{event.description}}</p>
 <p><i>Please confirm your registration details</i></p>
-{% include 'ezreg/partials/registration_details.html' with registration=registration_form%}
+
+<table class="table">
+	<tr><th>First name:</th><td>{{registration_form.first_name}}</td></tr>
+	<tr><th>Last name:</th><td>{{registration_form.last_name}}</td></tr>
+	<tr><th>Email:</th><td>{{registration_form.email}}</td></tr>
+	{% for field in registration_form_custom %}
+	<tr><th>{{field.label}}</th><td>{{field.value}}</td></tr>
+	{% endfor %}
+</table>
 {% if price %}
 <h2>Payment</h2>
 <table class="table">
@@ -26,7 +34,7 @@
 
 {% if event.cancellation_policy %}
 <h3>Cancellation policy</h3>
-{{event.cancellation_policy}}
+{{event.cancellation_policy|safe}}
 {% endif %}
 
 <form action="" method="post">{% csrf_token %}

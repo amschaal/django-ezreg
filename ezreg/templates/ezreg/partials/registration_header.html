@@ -1,3 +1,6 @@
+{% if registration.test %}
+<h1>***Test registration***</h1>
+{% endif %}
 {% if registration.is_waitlisted %}
 <h1>Waitlist</h1>
 {{event.waitlist_message}}

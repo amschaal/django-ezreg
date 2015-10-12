@@ -62,6 +62,8 @@ def email_status(registration,from_addr,cc=[]):
         return send_email(['amschaal@ucdavis.edu'], from_addr, 'You have been waitlisted for "%s"'%registration.event.title, 'ezreg/emails/waitlisted.txt', html_template='ezreg/emails/waitlisted.html', context={'registration':registration}, bcc=cc, registration=registration)
     if registration.status == Registration.STATUS_WAITLIST_PENDING:
         return send_email(['amschaal@ucdavis.edu'], from_addr, 'You may now register for "%s"'%registration.event.title, 'ezreg/emails/waitlist_pending.txt', html_template='ezreg/emails/waitlist_pending.html', context={'registration':registration}, bcc=cc, registration=registration)
+    if registration.status == Registration.STATUS_APPLIED:
+        return send_email(['amschaal@ucdavis.edu'], from_addr, 'You have applied for "%s"'%registration.event.title, 'ezreg/emails/applied.txt', html_template='ezreg/emails/applied.html', context={'registration':registration}, bcc=cc, registration=registration)
     if registration.status == Registration.STATUS_REGISTERED:
         return send_ical_email(registration.event,['amschaal@ucdavis.edu'], from_addr, 'You are registered for "%s"'%registration.event.title, 'ezreg/emails/registered.txt', html_template='ezreg/emails/registered.html', context={'registration':registration}, bcc=cc, registration=registration)
     if registration.status == Registration.STATUS_CANCELLED:

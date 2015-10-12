@@ -65,4 +65,7 @@ urlpatterns = [
     url(r'^api/event/(?P<event>[A-Za-z0-9_\-]{10})/payment_processors/$', 'ezreg.api.views.event_payment_processors', name="event_payment_processors"),
     url(r'^json_forms/', include(json_form_urls.urlpatterns)),
     url(r'^jsurls.js$', 'ezreg.jsutils.jsurls', {}, 'jsurls'), 
+    # CAS
+    url(r'^accounts/login/$', 'cas.views.login', name='login'),
+    url(r'^accounts/logout/$', 'cas.views.logout', name='logout'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -15,8 +15,12 @@ function EventEmailsController($scope,$http,growl,NgTableParams) {
 	$scope.send_event_emails = function (selected) {
 		var url = django_js_utils.urls.resolve('send_event_emails', { event: $scope.event_id });
 		$http.post(url,{selected:selected}).then(function(response){
+			growl.success('Unsent emails sent' ,{ttl: 5000});
 			$scope.tableParams.reload();
-	  	});
+	  	}, function(response){
+			if (response.data.detail)
+				growl.error(response.data.detail ,{ttl: 5000});
+		});
 	    
 	  };
 	

@@ -31,6 +31,8 @@ class OrganizerUserPermission(models.Model):
     organizer = models.ForeignKey(Organizer,related_name="user_permissions")
     user = models.ForeignKey(User)
     permission = models.CharField(max_length=10,choices=PERMISSION_CHOICES)
+    class Meta:
+        unique_together = (('organizer','user','permission'))
     def __unicode__(self):
         return '%s - %s: %s'%(self.organizer,self.permission,self.user)
 
@@ -104,6 +106,10 @@ class Event(models.Model):
         cevent.add('summary', self.title)
         calendar.add_component(cevent)
         return calendar.to_ical()
+    def get_user_permissions(self, user):
+        if user.is_superuser:
+            return [p[0] for p in OrganizerUserPermission.PERMISSION_CHOICES]
+        return [p.permission for p in OrganizerUserPermission.objects.filter(user=user,organizer=self.organizer)]
     def __unicode__(self):
         return self.title
     class Meta:
@@ -154,7 +160,7 @@ class Registration(models.Model):
     id = models.CharField(max_length=10,default=id_generator,primary_key=True)
     status = models.CharField(max_length=25,choices=STATUSES,null=True,blank=True)
     event = models.ForeignKey('Event',related_name='registrations')
-    registered = models.DateTimeField(auto_now=True)
+    registered = models.DateTimeField(auto_now_add=True)
     first_name = models.CharField(max_length=50,null=True,blank=True)
     last_name = models.CharField(max_length=50,null=True,blank=True)
     email = models.EmailField(null=True,blank=True)
@@ -163,11 +169,24 @@ class Registration(models.Model):
 #     special_requests = models.TextField(null=True,blank=True)
     price = models.ForeignKey('Price',null=True,blank=True)
     email_messages = models.ManyToManyField(MailerMessage,related_name='registrations')
+    test = models.BooleanField(default=False)
     data = JSONField(null=True, blank=True)
     def get_form_value(self,name):
         if not self.data:
             return None
         return self.data[name] if self.data.has_key(name) else None
+    def get_registration_fields(self):
+        fields = [
+                  {'name':'first_name','label':'First name','value':self.first_name},
+                  {'name':'last_name','label':'Last name','value':self.last_name},
+                  {'name':'email','label':'Email','value':self.email}
+                 ]
+        if self.data:
+            for field in self.event.form_fields:
+                if field.has_key('name'):
+                    if self.data.has_key(field['name']):
+                        fields.append({'name':field['name'],'label':field['label'],'value':self.data[field['name']]})
+        return fields
     @property
     def waitlist_place(self):
         if self.status != Registration.STATUS_WAITLISTED:

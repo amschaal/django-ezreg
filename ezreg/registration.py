@@ -31,7 +31,9 @@ def show_price_form_condition(wizard):
     return wizard.event.prices.count() > 0
 
 def registration_form_custom_condition(wizard):
-    return wizard.event.form_fields
+    if not isinstance(wizard.event.form_fields,list):
+        return False
+    return len(wizard.event.form_fields) > 0
 
 class RegistrationWizard(SessionWizardView):
     form_list = [('registration_form',RegistrationForm),('registration_form_custom',RegistrationForm), ('price_form',PriceForm),('payment_form',BasePaymentForm),('confirmation_form',ConfirmationForm)] #first ConfirmationForm is ignored or replaced depending on payment method
@@ -107,7 +109,7 @@ class RegistrationWizard(SessionWizardView):
             status = Registration.STATUS_APPLY_INCOMPLETE
         elif self.event.can_waitlist():
             status = Registration.STATUS_WAITLIST_INCOMPLETE
-        registration = Registration.objects.create(event=self.event,status=status)
+        registration = Registration.objects.create(event=self.event,status=status,test=self.test)
         self.storage.data['registration_id'] = registration.id
         return registration
     def cancel_registration(self):
@@ -129,6 +131,14 @@ class RegistrationWizard(SessionWizardView):
         context.update({'event': self.event})
         context['registration'] = self.registration
         context['registration_form'] = self.get_cleaned_data_for_step('registration_form') or None
+        custom_data_fields = []
+        custom_data = self.get_cleaned_data_for_step('registration_form_custom')
+        if custom_data:
+            for field in self.event.form_fields:
+                if field.has_key('name'):
+                    if custom_data.has_key(field['name']):
+                        custom_data_fields.append({'name':field['name'],'label':field['label'],'value':custom_data[field['name']]})
+        context['registration_form_custom'] = custom_data_fields
         context['price'] = self.get_cleaned_data_for_step('price_form') or None
         context['payment'] = self.get_cleaned_data_for_step('payment_form') or None
         return context
@@ -143,6 +153,7 @@ class RegistrationWizard(SessionWizardView):
         just starts at the first step or wants to restart the process.
         The data of the wizard will be resetted before rendering the first step
         """
+        self.test = request.GET.has_key('test')
         #custom crap HERE
         if not self.registration:
             if not self.event.registration_open:
@@ -174,10 +185,11 @@ class RegistrationWizard(SessionWizardView):
             step = self.steps.current
         form = super(RegistrationWizard, self).get_form(step, data, files)
         if step == 'registration_form_custom':
+            fields = self.event.form_fields if isinstance(self.event.form_fields,list) else []
             if data:
-                form = JSONForm(data,fields=self.event.form_fields)
+                form = JSONForm(data,fields=fields)
             else:
-                form = JSONForm(fields=self.event.form_fields)
+                form = JSONForm(fields=fields)
         if step == 'payment_form':
             cleaned_data = self.get_cleaned_data_for_step('price_form') or None
             if cleaned_data:

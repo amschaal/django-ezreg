@@ -2,12 +2,9 @@
 
 <h2>Registration details</h2>
 <table class="table">
-<tr><th>First name:</th><td>{{registration.first_name}}</td></tr>
-<tr><th>Last name:</th><td>{{registration.last_name}}</td></tr>
-<tr><th>Email:</th><td>{{registration.email}}</td></tr>
-<tr><th>Institution:</th><td>{{registration.institution}}</td></tr>
-<tr><th>Group:</th><td>{{registration.group_name}}</td></tr>
-<tr><th>Special requests:</th><td>{{registration.special_requests}}</td></tr>
+{% for field in registration.get_registration_fields %}
+<tr><th>{{field.label}}</th><td>{{field.value}}</td></tr>
+{% endfor %}
 </table>
 
 

@@ -8,7 +8,9 @@
 		    Action<span class="caret"></span>
 		  </button>
 		  <ul class="dropdown-menu" role="menu" aria-labelledby="Action">
+		  {% if 'admin' in permissions %}
 		    <li role="menuitem" ng-click="update_statuses()"><a href="#">Update Statuses</a></li>
+		  {% endif %}
 		    <li role="menuitem" ng-click="export_registrations()"><a href="#">Export</a></li>
 		  </ul>
 		</div>
@@ -30,8 +32,10 @@
 			  </button>
 			  <ul class="dropdown-menu" role="menu" aria-labelledby="Action">
 			    <li role="menuitem"><a href="{[registrationLink(row)]}">View details</a></li>
-			    <li role="menuitem"><a href="{[modifyRegistrationLink(row)]}">Modify</a></li>
-			    <li role="menuitem"><a href="{[updateRegistrationStatusLink(row)]}">Update status</a></li>
+			    {% if 'admin' in permissions %}
+			    	<li role="menuitem"><a href="{[modifyRegistrationLink(row)]}">Modify</a></li>
+			    	<li role="menuitem"><a href="{[updateRegistrationStatusLink(row)]}">Update status</a></li>
+			    {% endif %}
 			  </ul>
 			</div>
 		</td>

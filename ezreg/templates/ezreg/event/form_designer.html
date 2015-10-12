@@ -18,7 +18,7 @@
 					<div ng-repeat="choice in field.choices">
 						<input ng-model="choice.name" placeholder="name">
 						<input ng-model="choice.value" placeholder="value">
-						<button ng-click="removeOption(field,$index);">Remove</button>
+						<button ng-click="removeOption(field,$index);" class="btn btn-xs btn-danger">Remove</button>
 					</div>
 					<button ng-click="addOption(field);">Add option</button>
 				</div>
@@ -27,11 +27,10 @@
 				<textarea style="width:100%;height:200px;" ui-tinymce ng-model="field.html"></textarea>
 			</td>
 			<td>
-				<button ng-click="removeField($index);">Remove</button>
+				<button ng-click="removeField($index);" class="btn btn-sm btn-danger">Remove</button>
 			</td>
 		</tr>
 		</table>
 		
-		<button ng-click="addField()">Add Field</button> <button ng-click="save()">Save</button>
-		{{event.form_fields}}
+		<button ng-click="addField()" class="btn btn-default">Add Field</button> <button ng-click="save()" class="btn btn-primary">Save</button>
 	</div>

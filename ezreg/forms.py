@@ -36,8 +36,7 @@ class EventForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
         super(EventForm,self).__init__(*args, **kwargs)
 #         self.fields['group'].queryset = user.groups.all()
-        OUPs = OrganizerUserPermission.objects.filter(user=user,permission=OrganizerUserPermission.PERMISSION_ADMIN)
-        self.fields['organizer'].queryset = Organizer.objects.filter(id__in=[oup.organizer_id for oup in OUPs])
+        self.fields['organizer'].queryset = Organizer.objects.filter(user_permissions__user=user,user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN)
 #         self.fields['open_until'].widget.attrs['ng-init']="dt='%s';"% self.instance.open_until
     body = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     cancellation_policy = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
@@ -55,8 +54,7 @@ class EventForm(forms.ModelForm):
 class PaymentProcessorForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
         super(PaymentProcessorForm,self).__init__(*args, **kwargs)
-        OUPs = OrganizerUserPermission.objects.filter(user=user,permission=OrganizerUserPermission.PERMISSION_ADMIN)
-        self.fields['organizer'].queryset = Organizer.objects.filter(id__in=[oup.organizer_id for oup in OUPs])
+        self.fields['organizer'].queryset = Organizer.objects.filter(user_permissions__user=user,user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN)
         self.PaymentProcessors = PaymentProcessorManager()
         processor_choices = self.PaymentProcessors.get_choices()
         self.fields['processor_id'].widget = forms.widgets.Select(choices=processor_choices)

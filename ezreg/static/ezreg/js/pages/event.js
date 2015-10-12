@@ -29,11 +29,11 @@ function PriceController($scope,$http,growl,Price,PaymentProcessor) {
 		
 		angular.forEach($scope.prices, function(price, key) {
 			var success = function(response){
-				console.log('success',response);
+				growl.success("Price '"+price.name+"' saved.",{ttl: 5000});
 			}
 			var error = function(response,stuff){
-				console.log('error',response,price);
 				price.errors = response.data;
+				growl.error("Price '"+price.name+"' not saved.",{ttl: 5000});
 			}
 			
 			if (price.id)
@@ -59,7 +59,7 @@ function PriceController($scope,$http,growl,Price,PaymentProcessor) {
 				function(response){
 					growl.success("Payment processors updated",{ttl: 5000});
 				},
-				errorMessageHandler
+				function(response){growl.error("Saving payment processors failed.",{ttl: 5000});}
 		);
 	}
 }

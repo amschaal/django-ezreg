@@ -21,7 +21,8 @@ def home(request):
 
 @login_required
 def events(request):
-    events = get_objects_for_user(request.user,'view_event',klass=Event)
+#     events = get_objects_for_user(request.user,'view_event',klass=Event)
+    events = Event.objects.filter(organizer__user_permissions__user=request.user).distinct()
     return render(request, 'ezreg/events.html', {'events':events},context_instance=RequestContext(request))
 
 @login_required
@@ -71,6 +72,7 @@ def manage_event(request,event):
     statuses = json.dumps({status[0]:status[1] for status in Registration.STATUSES})
     processors = json.dumps({processor.name:processor.name for processor in event.payment_processors.all()})
     form_fields = json.dumps(event.form_fields) if event.form_fields else '[]'
+    permissions = event.get_user_permissions(request.user)
     if request.method == 'GET':
         form = EventForm(request.user,instance=event)
     elif request.method == 'POST':
@@ -78,7 +80,7 @@ def manage_event(request,event):
         if form.is_valid():
             event = form.save()
             return redirect('manage_event',event=event.id) #event.get_absolute_url()
-    return render(request, 'ezreg/event/manage.html', {'form':form,'event':event,'Registration':Registration,'statuses':statuses,'processors':processors,'form_fields':form_fields} ,context_instance=RequestContext(request))
+    return render(request, 'ezreg/event/manage.html', {'form':form,'event':event,'Registration':Registration,'statuses':statuses,'processors':processors,'form_fields':form_fields,'permissions':permissions} ,context_instance=RequestContext(request))
     
 
 def event(request,slug_or_id):
@@ -168,7 +170,6 @@ def configure_payment_processor(request,id):
             processor.save()
             return redirect('payment_processors') #event.get_absolute_url()
     return render(request, 'ezreg/configure_payment_processor.html', {'form':form,'processor':processor} ,context_instance=RequestContext(request))
-
     
 @event_access_decorator([OrganizerUserPermission.PERMISSION_VIEW])
 def export_registrations(request, event):

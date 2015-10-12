@@ -2,12 +2,9 @@ Event: {{registration.event.title}}
 
 -Registration details-
 
-First name:  {{registration.first_name}}
-Last name:   {{registration.last_name}}
-Email:       {{registration.email}}
-Institution: {{registration.institution}}
-Group:       {{registration.group_name}}
-Special requests: {{registration.special_requests}}
+{% for field in registration.get_registration_fields %}
+{{field.label}}:	{{field.value}}
+{% endfor %}
 
 
 
