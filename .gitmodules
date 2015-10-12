@@ -1,0 +1,3 @@
+[submodule "ezreg/static/vendor/angular-remote-table"]
+	path = ezreg/static/vendor/angular-remote-table
+	url = git@github.com:amschaal/angular-remote-table.git
