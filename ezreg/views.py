@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect
 from django.template.context import RequestContext
 from ezreg.models import Event,  Registration, PaymentProcessor, EventPage,\
     id_generator, EventProcessor, OrganizerUserPermission
-from guardian.shortcuts import get_objects_for_user
 from ezreg.forms import EventForm, PaymentProcessorForm,  AdminRegistrationForm,\
     AdminRegistrationStatusForm
 from django.contrib.auth.decorators import login_required
@@ -21,7 +20,6 @@ def home(request):
 
 @login_required
 def events(request):
-#     events = get_objects_for_user(request.user,'view_event',klass=Event)
     events = Event.objects.filter(organizer__user_permissions__user=request.user).distinct()
     return render(request, 'ezreg/events.html', {'events':events},context_instance=RequestContext(request))
 
