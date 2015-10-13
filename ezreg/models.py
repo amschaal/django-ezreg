@@ -13,6 +13,7 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 import os
 from mailqueue.models import MailerMessage
+from ezreg.fields import EmailListField
 
 def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -59,6 +60,8 @@ class Event(models.Model):
     enable_waitlist = models.BooleanField(default=False)
     enable_application = models.BooleanField(default=False)
     waitlist_message = models.TextField(blank=True,null=True)
+    bcc = EmailListField(max_length=250,blank=True,null=True)
+    from_addr = models.EmailField(max_length=50,blank=True,null=True)
     ical = models.FilePathField(path=settings.FILES_ROOT,match='*.ics',blank=True,null=True)
     form_fields = JSONField(null=True, blank=True)
     @property

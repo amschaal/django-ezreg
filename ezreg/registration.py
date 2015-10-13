@@ -68,7 +68,7 @@ class RegistrationWizard(SessionWizardView):
             else:
                 registration.status = Registration.STATUS_REGISTERED
         registration.save()
-        email_status(registration, from_addr='no-reply@genomecenter.ucdavis.edu')
+        email_status(registration)
         return HttpResponseRedirect(reverse('registration',kwargs={'id':registration.id}))
     def get_template_names(self):
         form = self.get_form()
@@ -187,6 +187,9 @@ class RegistrationWizard(SessionWizardView):
         form = super(RegistrationWizard, self).get_form(step, data, files)
         if step == 'registration_form_custom':
             fields = self.event.form_fields if isinstance(self.event.form_fields,list) else []
+            if not data and self.registration:
+                if self.registration.data:
+                    data = self.registration.data
             if data:
                 form = JSONForm(data,fields=fields)
             else:

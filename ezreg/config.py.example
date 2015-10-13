@@ -10,6 +10,7 @@ DATABASES = {
 }
 
 SITE_URL='http://myregistrationsite.com'
+FROM_EMAIL = 'no-reply@myregistrationsite.com'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.ucdavis.edu'

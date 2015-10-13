@@ -131,7 +131,7 @@ def update_registration_status(request,id):
         form = AdminRegistrationStatusForm(request.POST,instance=registration)
         if form.is_valid():
             registration = form.save()
-            email_status(registration,'no-reply@genomecenter.ucdavis.edu')
+            email_status(registration)
             return redirect('registrations',slug_or_id=registration.event_id) #event.get_absolute_url()
     return render(request, 'ezreg/update_registration_status.html', {'form':form,'registration':registration} ,context_instance=RequestContext(request))
 

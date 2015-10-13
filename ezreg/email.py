@@ -57,17 +57,22 @@ def generate_event_ical(event):
     calendar.add_component(cevent)
     return calendar.to_ical()
 
-def email_status(registration,from_addr,cc=[]):
+def email_status(registration):
     from ezreg.models import Registration
+    to = [] if registration.test else [registration.email]
+    from_addr = registration.event.from_addr if registration.event.from_addr else settings.FROM_EMAIL
+    bcc = registration.event.bcc if registration.event.bcc else []
+    if len(to) == 0 and len(bcc) == 0:
+        return False
     if registration.status == Registration.STATUS_WAITLISTED:
-        return send_email(['amschaal@ucdavis.edu'], from_addr, 'You have been waitlisted for "%s"'%registration.event.title, 'ezreg/emails/waitlisted.txt', html_template='ezreg/emails/waitlisted.html', context={'registration':registration}, bcc=cc, registration=registration)
+        return send_email(to, from_addr, 'You have been waitlisted for "%s"'%registration.event.title, 'ezreg/emails/waitlisted.txt', html_template='ezreg/emails/waitlisted.html', context={'registration':registration}, bcc=bcc, registration=registration)
     if registration.status == Registration.STATUS_WAITLIST_PENDING:
-        return send_email(['amschaal@ucdavis.edu'], from_addr, 'You may now register for "%s"'%registration.event.title, 'ezreg/emails/waitlist_pending.txt', html_template='ezreg/emails/waitlist_pending.html', context={'registration':registration}, bcc=cc, registration=registration)
+        return send_email(to, from_addr, 'You may now register for "%s"'%registration.event.title, 'ezreg/emails/waitlist_pending.txt', html_template='ezreg/emails/waitlist_pending.html', context={'registration':registration}, bcc=bcc, registration=registration)
     if registration.status == Registration.STATUS_APPLIED:
-        return send_email(['amschaal@ucdavis.edu'], from_addr, 'You have applied for "%s"'%registration.event.title, 'ezreg/emails/applied.txt', html_template='ezreg/emails/applied.html', context={'registration':registration}, bcc=cc, registration=registration)
+        return send_email(to, from_addr, 'You have applied for "%s"'%registration.event.title, 'ezreg/emails/applied.txt', html_template='ezreg/emails/applied.html', context={'registration':registration}, bcc=bcc, registration=registration)
     if registration.status == Registration.STATUS_APPLIED_ACCEPTED:
-        return send_email(['amschaal@ucdavis.edu'], from_addr, 'Your application has been accepted for "%s"'%registration.event.title, 'ezreg/emails/application_pending.txt', html_template='ezreg/emails/application_pending.html', context={'registration':registration}, bcc=cc, registration=registration)
+        return send_email(to, from_addr, 'Your application has been accepted for "%s"'%registration.event.title, 'ezreg/emails/application_pending.txt', html_template='ezreg/emails/application_pending.html', context={'registration':registration}, bcc=bcc, registration=registration)
     if registration.status == Registration.STATUS_REGISTERED:
-        return send_ical_email(registration.event,['amschaal@ucdavis.edu'], from_addr, 'You are registered for "%s"'%registration.event.title, 'ezreg/emails/registered.txt', html_template='ezreg/emails/registered.html', context={'registration':registration}, bcc=cc, registration=registration)
+        return send_ical_email(registration.event,to, from_addr, 'You are registered for "%s"'%registration.event.title, 'ezreg/emails/registered.txt', html_template='ezreg/emails/registered.html', context={'registration':registration}, bcc=bcc, registration=registration)
     if registration.status == Registration.STATUS_CANCELLED:
-        return send_email(['amschaal@ucdavis.edu'], from_addr, 'You registration for "%s" has been cancelled'%registration.event.title, 'ezreg/emails/cancelled.txt', html_template='ezreg/emails/cancelled.html', context={'registration':registration}, bcc=cc, registration=registration)
+        return send_email(to, from_addr, 'You registration for "%s" has been cancelled'%registration.event.title, 'ezreg/emails/cancelled.txt', html_template='ezreg/emails/cancelled.html', context={'registration':registration}, bcc=bcc, registration=registration)

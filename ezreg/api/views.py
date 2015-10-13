@@ -83,7 +83,7 @@ def update_event_statuses(request, event):
     registrations.update(status=request.data.get('status'))
     if request.data.get('send_email'):
         for registration in registrations:
-            email_status(registration,'no-reply@genomecenter.ucdavis.edu')
+            email_status(registration)
     return Response({'status':'success'})
 
 @api_view(['POST'])
