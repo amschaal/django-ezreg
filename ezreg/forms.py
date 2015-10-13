@@ -84,7 +84,7 @@ class RegistrationForm(forms.ModelForm):
 class AdminRegistrationForm(forms.ModelForm):
     class Meta:
         model=Registration
-        exclude = ('id','event','price','status')
+        fields = ('first_name','last_name','email')
 
 class AdminRegistrationStatusForm(forms.ModelForm):
     email = forms.CheckboxInput()

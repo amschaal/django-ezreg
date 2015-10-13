@@ -13,6 +13,7 @@ from datetime import datetime
 import json
 import csv
 from ezreg.decorators import event_access_decorator
+from django_json_forms.forms import JSONForm
 
 def home(request):
     upcoming = Event.objects.filter(advertise=True,active=True,open_until__gte=datetime.today()).order_by('start_time')[:5]
@@ -105,14 +106,21 @@ def registration_ical(request,id):
 @login_required
 def modify_registration(request,id=None):
     registration = Registration.objects.get(id=id)
+    fields = registration.event.form_fields if isinstance(registration.event.form_fields,list) else None
     if request.method == 'GET':
         form = AdminRegistrationForm(instance=registration)
+        if fields:
+            extra_fields_form = JSONForm(registration.data,fields=fields)  
     elif request.method == 'POST':
         form = AdminRegistrationForm(request.POST,instance=registration)
-        if form.is_valid():
+        if fields:
+            extra_fields_form = JSONForm(request.POST,fields=fields)  
+        if form.is_valid() and extra_fields_form.is_valid():
             registration = form.save()
-            return redirect('registrations',slug_or_id=registration.event_id) #event.get_absolute_url()
-    return render(request, 'ezreg/modify_registration.html', {'form':form,'registration':registration} ,context_instance=RequestContext(request))
+            registration.data = extra_fields_form.cleaned_data
+            registration.save()
+            return redirect('manage_event',event=registration.event_id) #event.get_absolute_url()
+    return render(request, 'ezreg/modify_registration.html', {'form':form,'registration':registration,'extra_fields_form':extra_fields_form} ,context_instance=RequestContext(request))
 
 @login_required
 def update_registration_status(request,id):
