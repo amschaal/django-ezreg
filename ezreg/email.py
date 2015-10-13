@@ -5,13 +5,14 @@ from icalendar import Calendar, Event, vText
 from datetime import datetime
 from mailqueue.models import MailerMessage
 from django.core.files import File
+from django.conf import settings
 # def send_email(to,from_addr,subject,template,html_template=None,context={},cc=[],bcc=[]):
 #     html = render_to_string(html_template,context)
 #     body = render_to_string(template,context)
 #     send_mail(subject, body, from_addr,to,html_message=html,fail_silently=False)
 
 def generate_email(to,from_addr,subject,template,html_template=None,context={},bcc=None,registration=None):
-    
+    context['site_url'] = settings.SITE_URL
     html = render_to_string(html_template,context)
     body = render_to_string(template,context)
     message = MailerMessage(to_address=', '.join(to),from_address=from_addr,subject=subject,content=body,html_content=html)
@@ -64,6 +65,8 @@ def email_status(registration,from_addr,cc=[]):
         return send_email(['amschaal@ucdavis.edu'], from_addr, 'You may now register for "%s"'%registration.event.title, 'ezreg/emails/waitlist_pending.txt', html_template='ezreg/emails/waitlist_pending.html', context={'registration':registration}, bcc=cc, registration=registration)
     if registration.status == Registration.STATUS_APPLIED:
         return send_email(['amschaal@ucdavis.edu'], from_addr, 'You have applied for "%s"'%registration.event.title, 'ezreg/emails/applied.txt', html_template='ezreg/emails/applied.html', context={'registration':registration}, bcc=cc, registration=registration)
+    if registration.status == Registration.STATUS_APPLIED_ACCEPTED:
+        return send_email(['amschaal@ucdavis.edu'], from_addr, 'Your application has been accepted for "%s"'%registration.event.title, 'ezreg/emails/application_pending.txt', html_template='ezreg/emails/application_pending.html', context={'registration':registration}, bcc=cc, registration=registration)
     if registration.status == Registration.STATUS_REGISTERED:
         return send_ical_email(registration.event,['amschaal@ucdavis.edu'], from_addr, 'You are registered for "%s"'%registration.event.title, 'ezreg/emails/registered.txt', html_template='ezreg/emails/registered.html', context={'registration':registration}, bcc=cc, registration=registration)
     if registration.status == Registration.STATUS_CANCELLED:

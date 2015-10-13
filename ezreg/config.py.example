@@ -1,0 +1,28 @@
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'ezreg',
+        'USER': 'username',
+        'PASSWORD': 'password',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
+    }
+}
+
+SITE_URL='http://myregistrationsite.com'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.ucdavis.edu'
+
+# We use CAS, you might not
+USE_CAS=True
+if USE_CAS:
+    CAS_SERVER_URL = "https://cas.ucdavis.edu/cas/"
+    CAS_VERSION = '2'
+    CAS_LOGOUT_COMPLETELY = True
+    CAS_PROVIDE_URL_TO_LOGOUT = True
+    AUTHENTICATION_BACKENDS = (
+        'django.contrib.auth.backends.ModelBackend',
+        'cas.backends.CASBackend',
+    )
+

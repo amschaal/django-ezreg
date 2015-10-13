@@ -81,16 +81,7 @@ WSGI_APPLICATION = 'ezreg.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'ezreg',
-        'USER': 'dev',
-        'PASSWORD': 'dev',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-    }
-}
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -108,6 +99,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
+
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR,'static')
@@ -149,24 +141,5 @@ PAYMENT_PROCESSORS = [
     'ezreg.payment.touchnet.processor.TouchnetPaymentProcessor',
 ]
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.ucdavis.edu'
+from config import *
 
-USE_CAS=True
-if USE_CAS:
-    CAS_SERVER_URL = "https://cas.ucdavis.edu/cas/"
-    CAS_VERSION = '2'
-    CAS_LOGOUT_COMPLETELY = True
-    CAS_PROVIDE_URL_TO_LOGOUT = True
-    AUTHENTICATION_BACKENDS = (
-        'django.contrib.auth.backends.ModelBackend',
-        'cas.backends.CASBackend',
-    )
-
-    MIDDLEWARE_CLASSES += (
-#         'cas.middleware.CASMiddleware',
-    )
-    CAS_RESPONSE_CALLBACKS = (
-#         'auth.cas.callbackfunction',
-#         'anotherpath.to.module.callbackfunction2',
-    )

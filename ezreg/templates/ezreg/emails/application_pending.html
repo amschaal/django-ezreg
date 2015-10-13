@@ -1,6 +1,6 @@
 Dear {{registration.first_name}} {{registration.last_name}},
 <p>
-Your application has been accepted for the event, "{{registration.event.title}}".  Please complete your registration using the following link:
-<a href=""></a>
+Your application has been accepted for the event, "{{registration.event.title}}".  Please complete your registration using the following link:<br>
+<a href="{{site_url}}{% url 'complete_registration' registration_id=registration.id slug_or_id=registration.event.slug_or_id %}">{{site_url}}{% url 'complete_registration' registration_id=registration.id slug_or_id=registration.event.slug_or_id %}</a>
 </p>
 If you do not complete registration within the next 24 hours, your registration will be cancelled in order to offer the place to another applicant.
