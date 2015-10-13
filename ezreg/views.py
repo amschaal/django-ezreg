@@ -160,7 +160,7 @@ def create_modify_payment_processor(request,id=None):
         form = PaymentProcessorForm(request.user,request.POST,instance=instance)
         if form.is_valid():
             processor = form.save()
-            return redirect('payment_processors') #event.get_absolute_url()
+            return redirect('configure_payment_processor',id=processor.id) #event.get_absolute_url()
     return render(request, 'ezreg/create_modify_payment_processor.html', {'form':form} ,context_instance=RequestContext(request))
 
 @login_required
