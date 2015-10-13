@@ -66,19 +66,19 @@ class Event(models.Model):
         return self.slug if self.slug else self.id
     @property
     def registered(self):
-        return self.registrations.filter(status=Registration.STATUS_REGISTERED).count()
+        return self.registrations.filter(status=Registration.STATUS_REGISTERED).exclude(test=True).count()
     @property
     def waitlisted(self):
-        return self.registrations.filter(status=Registration.STATUS_WAITLISTED).count()
+        return self.registrations.filter(status=Registration.STATUS_WAITLISTED).exclude(test=True).count()
     @property
     def applied(self):
-        return self.registrations.filter(status=Registration.STATUS_APPLIED).count()
+        return self.registrations.filter(status=Registration.STATUS_APPLIED).exclude(test=True).count()
     @property
     def cancelled(self):
-        return self.registrations.filter(status=Registration.STATUS_CANCELLED).count()
+        return self.registrations.filter(status=Registration.STATUS_CANCELLED).exclude(test=True).count()
     @property
     def pending(self):
-        return self.registrations.filter(Q( status=Registration.STATUS_PENDING_INCOMPLETE)|Q( status=Registration.STATUS_WAITLIST_PENDING)|Q( status=Registration.STATUS_WAITLIST_INCOMPLETE)|Q( status=Registration.STATUS_APPLY_INCOMPLETE)).count()
+        return self.registrations.filter(Q( status=Registration.STATUS_PENDING_INCOMPLETE)|Q( status=Registration.STATUS_WAITLIST_PENDING)|Q( status=Registration.STATUS_WAITLIST_INCOMPLETE)|Q( status=Registration.STATUS_APPLY_INCOMPLETE)).exclude(test=True).count()
     
     @property
     def registration_enabled(self):
@@ -86,9 +86,9 @@ class Event(models.Model):
         return self.active and str(self.open_until)[:10] >= str(datetime.today())[:10]
 #         return self.active and str(self.open_until)[:10] >= str(datetime.today())[:10] and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() < self.capacity
     def can_register(self):
-        return self.registration_enabled and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() < self.capacity and not self.enable_application
+        return self.registration_enabled and self.registrations.exclude(status=Registration.STATUS_CANCELLED).exclude(test=True).count() < self.capacity and not self.enable_application
     def can_waitlist(self):
-        return self.registration_enabled and self.enable_waitlist and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() >= self.capacity
+        return self.registration_enabled and self.enable_waitlist and self.registrations.exclude(status=Registration.STATUS_CANCELLED).exclude(test=True).count() >= self.capacity
     def can_apply(self):
         return self.registration_enabled and self.enable_application
     def registration_open(self):

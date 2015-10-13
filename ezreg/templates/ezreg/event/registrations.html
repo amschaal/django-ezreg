@@ -1,5 +1,13 @@
 <script src="/static/ezreg/js/pages/event_registrations.js"></script>
 
+
+<script type="text/ng-template" id="checkbox_filter.html">
+    <input type="checkbox" name="{{name}}" ng-model="params.filter()[name]" class="input-filter form-control" ng-value="'True'" ng-true-value="'True'" ng-false-value="'False'" />
+</script>
+<script type="text/ng-template" id="path/to/your/filters/number.html">
+    <input type="text" name="{{name}}" ng-disabled="$filterRow.disabled" ng-model="params.filter()[name]" class="input-filter form-control" maxlengh="4" angular-mask="0000" placeholder="nnnn" />
+</script>
+
 <div ng-controller="RegistrationController" ng-init='init("{{event.id}}",{{statuses|safe}},{{processors|safe}} );'>
 	<span class="pull-right">
 	{[getSelected().length]} selected
@@ -25,6 +33,7 @@
         <td data-title="'Amount'" sortable="'payment__amount'">{[row.payment__amount]}</td>
         <td data-title="'Processor'" filter="{payment__processor__name: 'select'}" filter-data="processors_filter_choices" >{[row.payment__processor]}</td>
 		<td data-title="'Status'" filter="{status: 'select'}" filter-data="statuses_filter_choices">{[statuses[row.status]]}</td>
+		<td data-title="'Test'" filter="{test: 'checkbox'}"><i ng-if="row.test" class="glyphicon glyphicon-ok"></i></td>
 		<td data-title="'Actions'">
 			<div class="btn-group" dropdown is-open="isopen[row.id]">
 			  <button type="button" class="btn btn-default" dropdown-toggle ng-disabled="disabled">

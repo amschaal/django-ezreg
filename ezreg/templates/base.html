@@ -88,13 +88,14 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
           {%if user.is_authenticated%}
-            <li class="active"><a href="{% url 'events' %}">Events</a></li>
+            <li><a href="{% url 'events' %}">Events</a></li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin <b class="caret"></b></a>
               <ul class="dropdown-menu">
                 <li><a href="{% url 'payment_processors' %}">Manage Payment Processors</a></li>
               </ul>
             </li>
+            <li><a href="{% url 'logout' %}">Log out</a></li>
           {% endif %}
           </ul>
         </div><!--/.nav-collapse -->
@@ -108,7 +109,11 @@
 	{% block content %}
 	{% endblock %}
 	</div>
-
+  <div class="footer">
+  	{% if not user.is_authenticated %}
+    <a class="pull-right" href="{% url 'login' %}">π</a>
+    {% endif %}
+  </div>
   <div growl></div>
   </body>
 </html>

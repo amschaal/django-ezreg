@@ -154,22 +154,23 @@ class RegistrationWizard(SessionWizardView):
         The data of the wizard will be resetted before rendering the first step
         """
         self.test = request.GET.has_key('test')
+        test_redirect_parameter = '?test' if self.test else ''
         #custom crap HERE
         if not self.registration:
-            if not self.event.registration_open:
+            if not (self.event.can_register() or self.event.can_apply() or self.event.can_waitlist()): 
                 return render(request, 'ezreg/registration/closed.html', {'event':self.event},context_instance=RequestContext(request))
             elif self.event.can_register():
                 pass
-            elif self.event.can_waitlist() and not kwargs['waitlist']:
-                return HttpResponseRedirect(reverse('waitlist',kwargs={'slug_or_id':self.event.slug_or_id}))
-            elif self.event.can_apply() and not kwargs['apply']:
-                return HttpResponseRedirect(reverse('apply',kwargs={'slug_or_id':self.event.slug_or_id}))
+            elif self.event.can_waitlist() and not kwargs.get('waitlist',False):
+                return HttpResponseRedirect(reverse('waitlist',kwargs={'slug_or_id':self.event.slug_or_id})+test_redirect_parameter)
+            elif self.event.can_apply() and not kwargs.get('apply',False):
+                return HttpResponseRedirect(reverse('apply',kwargs={'slug_or_id':self.event.slug_or_id})+test_redirect_parameter)
             self.start_registration()
         else:
             if self.registration.status == Registration.STATUS_WAITLIST_INCOMPLETE and not kwargs.get('waitlist',False):
-                return HttpResponseRedirect(reverse('waitlist',kwargs={'slug_or_id':self.event.slug_or_id}))
+                return HttpResponseRedirect(reverse('waitlist',kwargs={'slug_or_id':self.event.slug_or_id})+test_redirect_parameter)
             elif self.registration.status == Registration.STATUS_APPLY_INCOMPLETE and not kwargs.get('apply',False):
-                return HttpResponseRedirect(reverse('apply',kwargs={'slug_or_id':self.event.slug_or_id}))
+                return HttpResponseRedirect(reverse('apply',kwargs={'slug_or_id':self.event.slug_or_id})+test_redirect_parameter)
         # reset the current step to the first step.
         self.storage.current_step = self.steps.first
         

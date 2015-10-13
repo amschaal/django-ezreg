@@ -8,3 +8,19 @@ table.borderless tbody tr th
 .event-page{
 	margin-top: 20px;
 }
+
+html {
+  position: relative;
+  min-height: 99%;
+}
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 30px;
+}
+.footer {
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 20px;
+}

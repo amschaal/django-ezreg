@@ -2,6 +2,25 @@ var app = angular.module('ezreg');
 app.requires.push('ngTable');
 app.controller('RegistrationController', ['$scope','$http','$modal','growl','Registration',"NgTableParams", RegistrationController])
 
+app.config(setConfigPhaseSettings);
+setConfigPhaseSettings.$inject = ["ngTableFilterConfigProvider"];
+function setConfigPhaseSettings(ngTableFilterConfigProvider) {
+    var filterAliasUrls = {
+      "checkbox": "checkbox_filter.html",
+      "sent": "checkbox_filter.html"
+    };
+    ngTableFilterConfigProvider.setConfig({
+      aliasUrls: filterAliasUrls
+    });
+
+//    // optionally set a default url to resolve alias names that have not been explicitly registered
+//    // if you don't set one, then 'ng-table/filters/' will be used by default
+//    ngTableFilterConfigProvider.setConfig({
+//      defaultBaseUrl: "ng-table/filters/"
+//    });
+
+  }
+
 function RegistrationController($scope,$http,$modal,growl,Registration,NgTableParams) {
 	var defaults={};
 	console.log('wtf');
@@ -35,7 +54,7 @@ function RegistrationController($scope,$http,$modal,growl,Registration,NgTablePa
 		  		var url = params.url();
 		  		console.log(params);
 		  		console.log(url);
-		  	var query_params = {event:$scope.id,page:url.page,page_size:url.count,ordering:params.orderBy().join(',').replace('+','')};
+		  	var query_params = {event:$scope.id,test:'False',page:url.page,page_size:url.count,ordering:params.orderBy().join(',').replace('+','')};
 		  	angular.extend(query_params, params.filter());
 	        // ajax request to api
 		  	return $http.get('/api/registrations/',{params:query_params}).then(function(response){

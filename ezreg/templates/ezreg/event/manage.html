@@ -15,6 +15,15 @@
 	<h1>{{event.title}}
 	<span class="pull-right">
 		 <a href="{% url 'event' slug_or_id=event.slug_or_id%}" class="btn btn-default">View</a> 
+		 <div class="btn-group" dropdown is-open="isopen[row.id]">
+		  <button type="button" class="btn btn-default" dropdown-toggle ng-disabled="disabled">
+		    Register<span class="caret"></span>
+		  </button>
+		  <ul class="dropdown-menu" role="menu" aria-labelledby="Action">
+		    	<li role="menuitem"><a href="{% url 'register' slug_or_id=event.slug_or_id %}">Register</a></li>
+		    	<li role="menuitem"><a href="{% url 'register' slug_or_id=event.slug_or_id %}?test">Test</a></li>
+		  </ul>
+		</div>
 		 {% if 'admin' in permissions %}
 		 <a href="{% url 'copy_event' event=event.id%}" class="btn btn-default" onClick="return confirm('Are you sure you want to make a copy of this event?')">Copy</a>
 		 <a href="{% url 'delete_event' event=event.id%}" class="btn btn-danger" onClick="return confirm('Are you sure you want to delete this event?')">Delete</a>

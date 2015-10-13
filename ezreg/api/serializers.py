@@ -30,7 +30,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
     data = JSONSerializerField()
     class Meta:
         model = Registration
-        fields = ('id','status','event','registered','first_name','last_name','email','data','payment__amount','payment__processor')
+        fields = ('id','status','event','registered','first_name','last_name','email','test','data','payment__amount','payment__processor')
 
 class MailerMessageSerializer(serializers.ModelSerializer):
 #     registrations = serializers.ReadOnlyField(source='registrations',many=True)
