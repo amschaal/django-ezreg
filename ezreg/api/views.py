@@ -22,7 +22,7 @@ class PaymentProcessorViewset(viewsets.ReadOnlyModelViewSet):
     filter_fields = ('organizer',)
     search_fields = ('organizer',)
     def get_queryset(self):
-        return PaymentProcessor.objects.filter(organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN,event__organizer__user_permissions__user=self.request.user)
+        return PaymentProcessor.objects.filter(organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN,organizer__user_permissions__user=self.request.user)
     
 class EventPageViewset(viewsets.ModelViewSet):
     serializer_class = EventPageSerializer
@@ -49,7 +49,7 @@ class MailerMessageViewset(viewsets.ReadOnlyModelViewSet):
     filter_fields = {'registrations__id':['exact'],'registrations__event':['exact'],'sent':['exact'],'to_address':['exact','icontains'],'bcc_address':['exact','icontains'],'subject':['exact','icontains']}
     search_fields = ('to_address',)
     def get_queryset(self):
-        return MailerMessage.objects.filter(registrations__event__organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_VIEW,event__organizer__user_permissions__user=self.request.user).prefetch_related('registrations')
+        return MailerMessage.objects.filter(registrations__event__organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_VIEW,registrations__event__organizer__user_permissions__user=self.request.user).prefetch_related('registrations')
 """
 POST {"processors":{3:{"enabled":true},5:{"enabled":true}}}  where JSON object keys are PaymentProcessor ids
 """
