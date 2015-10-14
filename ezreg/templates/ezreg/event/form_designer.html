@@ -14,10 +14,10 @@
 			<td ng-if="field.type != 'layout_html'"><textarea ng-model="field.help_text"></textarea></td>
 			<td ng-if="field.type != 'layout_html'">
 				<div ng-if="['select','radio'].indexOf(field.type) != -1">
-					<p><b>Choices:</b></p>
+					<p><b>Options:</b></p>
 					<div ng-repeat="choice in field.choices">
 						<input ng-model="choice.name" placeholder="name">
-						<input ng-model="choice.value" placeholder="value">
+						<!-- <input ng-model="choice.value" placeholder="value"> -->
 						<button ng-click="removeOption(field,$index);" class="btn btn-xs btn-danger">Remove</button>
 					</div>
 					<button ng-click="addOption(field);">Add option</button>
