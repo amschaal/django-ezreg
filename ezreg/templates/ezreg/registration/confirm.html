@@ -11,6 +11,10 @@
 
 <h2>{{event.title}}</h2>
 <p>{{event.description}}</p>
+<p>
+{% if event.start_time %}<b>Begins:</b> {{event.start_time}}<br>{% endif %}
+{% if event.end_time %}<b>Ends:</b> {{event.end_time}}{% endif %}
+</p>
 <p><i>Please confirm your registration details</i></p>
 
 <table class="table">

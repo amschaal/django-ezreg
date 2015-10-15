@@ -125,7 +125,15 @@ class PriceFormsetHelper(FormHelper):
 #Dummy form for skipping/replacing in registration wizard (because we can't dynamically set forms based on previous form input)
 class ConfirmationForm(forms.Form):
     template = 'ezreg/registration/confirm.html'
+    accept_policy = forms.BooleanField(label="Accept",required=False)
     def __init__(self, *args, **kwargs):
         event = kwargs.pop('event')
         super(ConfirmationForm,self).__init__(*args, **kwargs)
+        if not event.cancellation_policy:
+            del self.fields['accept_policy']
+    def clean_accept_policy(self):
+        accept_policy = self.cleaned_data['accept_policy']
+        if not accept_policy:
+            raise ValidationError('You must accept the cancellation policy to continue.')
+        return accept_policy
     
