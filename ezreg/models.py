@@ -207,8 +207,8 @@ class Registration(models.Model):
     @property
     def is_accepted(self):
         return self.status == Registration.STATUS_APPLIED_ACCEPTED
-    class Meta:
-        unique_together = (('email','event'))
+#     class Meta:
+#         unique_together = (('email','event'))
    
 class Payment(models.Model):
     STATUS_UNPAID = 'UNPAID'
