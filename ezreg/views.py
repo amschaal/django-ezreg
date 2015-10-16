@@ -92,17 +92,6 @@ def event_page(request,slug_or_id,page_slug):
     page = EventPage.objects.get(event=event,slug=page_slug)
     return render(request, 'ezreg/page.html', {'event':event,'page':page},context_instance=RequestContext(request))
 
-def registration_ical(request,id):
-    registration = Registration.objects.get(id=id)
-    event = CalendarEvent()
-    event.add('dtstart', registration.event.start_date)
-    event.add('summary', registration.event.title)
-    response = HttpResponse(event.to_ical(), content_type='text/calendar')
-    response['Filename'] = 'event.ics'
-    response['Content-Disposition'] = 'inline; filename=event.ics'
-    return response
-
-    
 
 @generic_permission_decorator([OrganizerUserPermission.PERMISSION_ADMIN],'organizer__events__registrations__id','id')
 def modify_registration(request,id=None):

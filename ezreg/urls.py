@@ -55,7 +55,6 @@ urlpatterns = [
     url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/modify/$', 'ezreg.views.modify_registration', name="modify_registration"),
     url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/update_status/$', 'ezreg.views.update_registration_status', name="update_registration_status"),
     url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/pay/$', 'ezreg.views.pay', name="pay"),
-    url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/invite.ics$', 'ezreg.views.registration_ical', name="registration_ical"),
     url(r'^payment_processors/$', 'ezreg.views.payment_processors',name='payment_processors'),
     url(r'^payment_processors/create/$', 'ezreg.views.create_payment_processor',name='create_payment_processor'),
     url(r'^payment_processors/(?P<id>\d+)/modify/$', 'ezreg.views.modify_payment_processor',name='modify_payment_processor'),
