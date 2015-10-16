@@ -12,19 +12,20 @@ from icalendar import Calendar, Event as CalendarEvent
 from datetime import datetime
 import json
 import csv
-from ezreg.decorators import event_access_decorator
+from ezreg.decorators import event_access_decorator,\
+    generic_permission_decorator, has_permissions
 from django_json_forms.forms import JSONForm
 
 def home(request):
     upcoming = Event.objects.filter(advertise=True,active=True,open_until__gte=datetime.today()).order_by('start_time')[:5]
     return render(request, 'ezreg/home.html', {'upcoming':upcoming},context_instance=RequestContext(request))
 
-@login_required
+@has_permissions([OrganizerUserPermission.PERMISSION_ADMIN,OrganizerUserPermission.PERMISSION_VIEW],require_all=False)
 def events(request):
     events = Event.objects.filter(organizer__user_permissions__user=request.user).distinct()
     return render(request, 'ezreg/events.html', {'events':events},context_instance=RequestContext(request))
 
-@login_required
+@has_permissions([OrganizerUserPermission.PERMISSION_ADMIN])
 def create_event(request):
     if request.method == 'GET':
         form = EventForm(request.user)
@@ -103,7 +104,7 @@ def registration_ical(request,id):
 
     
 
-@login_required
+@generic_permission_decorator([OrganizerUserPermission.PERMISSION_ADMIN],'organizer__events__registrations__id','id')
 def modify_registration(request,id=None):
     registration = Registration.objects.get(id=id)
     fields = registration.event.form_fields if isinstance(registration.event.form_fields,list) else None
@@ -122,7 +123,7 @@ def modify_registration(request,id=None):
             return redirect('manage_event',event=registration.event_id) #event.get_absolute_url()
     return render(request, 'ezreg/modify_registration.html', {'form':form,'registration':registration,'extra_fields_form':extra_fields_form} ,context_instance=RequestContext(request))
 
-@login_required
+@generic_permission_decorator([OrganizerUserPermission.PERMISSION_ADMIN],'organizer__events__registrations__id','id')
 def update_registration_status(request,id):
     registration = Registration.objects.get(id=id)
     if request.method == 'GET':
@@ -144,16 +145,16 @@ def pay(request,id):
     registration = Registration.objects.get(id=id)
     return render(request, 'ezreg/pay.html', {'registration':registration},context_instance=RequestContext(request))
 
-@login_required
+@has_permissions([OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS])
 def payment_processors(request):
-    OUPs = OrganizerUserPermission.objects.filter(user=request.user,permission=OrganizerUserPermission.PERMISSION_ADMIN)
+    OUPs = OrganizerUserPermission.objects.filter(user=request.user,permission=OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS)
     payment_processors = PaymentProcessor.objects.filter(organizer_id__in=[oup.organizer_id for oup in OUPs])
     return render(request, 'ezreg/payment_processors.html', {'payment_processors':payment_processors},context_instance=RequestContext(request))
 
 
-@login_required
-def create_modify_payment_processor(request,id=None):
-    instance = None if not id else PaymentProcessor.objects.get(id=id)
+@generic_permission_decorator([OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS],'organizer__payment_processors__id','id')
+def modify_payment_processor(request,id):
+    instance = PaymentProcessor.objects.get(id=id)
     if request.method == 'GET':
         form = PaymentProcessorForm(request.user,instance=instance)
     elif request.method == 'POST':
@@ -163,7 +164,18 @@ def create_modify_payment_processor(request,id=None):
             return redirect('configure_payment_processor',id=processor.id) #event.get_absolute_url()
     return render(request, 'ezreg/create_modify_payment_processor.html', {'form':form} ,context_instance=RequestContext(request))
 
-@login_required
+@has_permissions([OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS])
+def create_payment_processor(request):
+    if request.method == 'GET':
+        form = PaymentProcessorForm(request.user)
+    elif request.method == 'POST':
+        form = PaymentProcessorForm(request.user,request.POST)
+        if form.is_valid():
+            processor = form.save()
+            return redirect('configure_payment_processor',id=processor.id) #event.get_absolute_url()
+    return render(request, 'ezreg/create_modify_payment_processor.html', {'form':form} ,context_instance=RequestContext(request))
+
+@generic_permission_decorator([OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS],'organizer__payment_processors__id','id')
 def configure_payment_processor(request,id):
     processor = PaymentProcessor.objects.get(id=id)
     ConfigForm = processor.get_configuration_form()

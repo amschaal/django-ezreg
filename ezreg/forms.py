@@ -54,7 +54,7 @@ class EventForm(forms.ModelForm):
 class PaymentProcessorForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
         super(PaymentProcessorForm,self).__init__(*args, **kwargs)
-        self.fields['organizer'].queryset = Organizer.objects.filter(user_permissions__user=user,user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN)
+        self.fields['organizer'].queryset = Organizer.objects.filter(user_permissions__user=user,user_permissions__permission=OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS)
         self.PaymentProcessors = PaymentProcessorManager()
         processor_choices = self.PaymentProcessors.get_choices()
         self.fields['processor_id'].widget = forms.widgets.Select(choices=processor_choices)

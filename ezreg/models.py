@@ -27,11 +27,12 @@ class Organizer(models.Model):
 
 class OrganizerUserPermission(models.Model):
     PERMISSION_ADMIN = 'admin'
+    PERMISSION_MANAGE_PROCESSORS = 'manage_processors'
     PERMISSION_VIEW = 'view'
-    PERMISSION_CHOICES=((PERMISSION_ADMIN,'Administer'),(PERMISSION_VIEW,'View registrations'))
+    PERMISSION_CHOICES=((PERMISSION_ADMIN,'Administer'),(PERMISSION_VIEW,'View registrations'),(PERMISSION_MANAGE_PROCESSORS,'Manage payment processors'))
     organizer = models.ForeignKey(Organizer,related_name="user_permissions")
     user = models.ForeignKey(User)
-    permission = models.CharField(max_length=10,choices=PERMISSION_CHOICES)
+    permission = models.CharField(max_length=25,choices=PERMISSION_CHOICES)
     class Meta:
         unique_together = (('organizer','user','permission'))
     def __unicode__(self):
@@ -43,7 +44,7 @@ class Event(models.Model):
 #     STATUSES = ((STATUS_OPEN,'Open'),(STATUS_CLOSED,'Closed'))
     id = models.CharField(max_length=10,default=id_generator,primary_key=True)
 #     group = models.ForeignKey(Group)
-    organizer = models.ForeignKey(Organizer)
+    organizer = models.ForeignKey(Organizer,related_name='events')
     slug = models.SlugField(max_length=100,unique=True,blank=True)
     title = models.CharField(max_length=100,blank=False)
     description = models.TextField(blank=False)
@@ -228,7 +229,7 @@ class Payment(models.Model):
 class PaymentProcessor(models.Model):
     processor_id = models.CharField(max_length=30)
 #     group = models.ForeignKey(Group)
-    organizer = models.ForeignKey(Organizer)
+    organizer = models.ForeignKey(Organizer,related_name='payment_processors')
     name = models.CharField(max_length=50)
     description = models.TextField(blank=True)
     hidden = models.BooleanField(default=False)

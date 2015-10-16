@@ -57,6 +57,8 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
 )
 
+
+
 ROOT_URLCONF = 'ezreg.urls'
 
 TEMPLATES = [
@@ -70,6 +72,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'ezreg.context_processors.permissions_processor'
             ],
         },
     },
