@@ -5,7 +5,7 @@ app.controller('DesignerController', function($scope,$http) {
     $scope.field_types = [
                           {'class':'field','type':'text', 'label': 'Text Field'},
                           {'class':'field','type':'textarea', 'label': 'TextArea Field'},
-                          {'class':'field','type':'file', 'label': 'File Field'},
+                          //{'class':'field','type':'file', 'label': 'File Field'},
                           {'class':'field','type':'radio', 'label': 'Radio Field'},
                           {'class':'field','type':'integer', 'label': 'Integer Field'},
                           {'class':'field','type':'select', 'label': 'Select Field'},

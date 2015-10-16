@@ -43,6 +43,13 @@ class EventForm(forms.ModelForm):
     class Meta:
         model=Event
         exclude = ('id','payment_processors','ical','form_fields','group')
+        labels = {
+                  'start_time': 'Event Start Time',
+                  'end_time': 'Event End Time',
+                  
+        }
+        help_texts = {
+        }
         widgets = {
 #                     'open_until':forms.TextInput(attrs={'datepicker-popup':"yyyy-MM-dd", 'is-open':"blah", 'ng-click':"blah=true", 'ng-model':"dt"})
                       'open_until':DateWidget(attrs={'id':"open_until"}, usel10n = True, bootstrap_version=3),

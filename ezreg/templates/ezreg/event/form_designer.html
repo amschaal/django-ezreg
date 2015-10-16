@@ -1,8 +1,9 @@
 	<script src="/static/ezreg/js/pages/form_designer.js"></script>
     
   	
-	<div  ng-controller="DesignerController" ng-init='initialize({{form_fields|safe}},"{{event.id}}")'>
+	<div  ng-controller="DesignerController" ng-init='initialize({{form_fields|escape}},"{{event.id}}")'>
 	<h3>Form Fields</h3>
+	<h4>Add any additional fields you'd like here (first name, last name, and email are already included).</h4>
 		<table style="width:100%">
 		<tr><th></th><th>Required</th><th>Type</th><th>Name</th><th>Label</th><th>Help Text</th><th>Options</th><th></th></tr>
 		<tr ng-repeat="field in fields">
