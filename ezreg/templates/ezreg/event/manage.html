@@ -100,7 +100,8 @@
 </tab>
 <tab heading="Event Pages">
 <div ng-controller="EventPageController" ng-init="init({'event_id':'{{event.id}}'})">
-<button class="btn btn-primary pull-right" ng-click="addPage()">Add page</button>
+<h4>Add any additional event pages here.<button class="btn btn-primary pull-right" ng-click="addPage()">Add page</button></h4>
+
 <tabset>
 
 <tab ng-repeat="page in pages" heading="{[page.heading]}">
