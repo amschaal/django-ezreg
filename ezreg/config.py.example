@@ -28,3 +28,5 @@ if USE_CAS:
     )
     CAS_AUTO_CREATE_USER = False
 
+TOUCHNET_PRODUCTION_URL = 'https://secure.touchnet.com......'
+TOUCHNET_TEST_URL = 'https://test.secure.touchnet.com......'

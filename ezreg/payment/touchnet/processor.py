@@ -1,6 +1,6 @@
 from ezreg.payment.base import BasePaymentProcessor
 from ezreg.payment.touchnet.forms import TouchnetConfigurationForm, TouchnetPostForm
-
+from django.conf import settings
 class TouchnetPaymentProcessor(BasePaymentProcessor):
     id = 'touchnet_payment_processor'
     name = 'Touchnet Payment Processor'
@@ -22,6 +22,6 @@ class TouchnetPaymentProcessor(BasePaymentProcessor):
         m.update(conf['posting_key']+data['EXT_TRANS_ID']+str(data['AMT']))
         data['VALIDATION_KEY']=base64.encodestring(m.digest())
         form = TouchnetPostForm(initial=data)
-        form.action = conf['production_url']
+        form.action = settings.TOUCHNET_TEST_URL if payment.registration.test else settings.TOUCHNET_PRODUCTION_URL
         return form
     
