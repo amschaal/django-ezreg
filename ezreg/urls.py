@@ -68,3 +68,5 @@ urlpatterns = [
     url(r'^accounts/login/$', 'cas.views.login', name='login'),
     url(r'^accounts/logout/$', 'cas.views.logout', name='logout'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+handler403 = 'ezreg.error_views.handler403'

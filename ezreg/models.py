@@ -98,7 +98,7 @@ class Event(models.Model):
     def registration_open(self):
         return self.registration_enabled and (self.can_register() or self.can_apply() or self.can_waitlist())
     def generate_event_ical(self):
-        from icalendar import Calendar, Event, vText
+        from icalendar import Calendar, Event, vText, vCalAddress
         calendar = Calendar()
         cevent = Event()
         if self.start_time:
@@ -107,6 +107,9 @@ class Event(models.Model):
                 cevent.add('dtend', self.end_time)
         if self.address:
             cevent.add('location',vText(self.address))
+#         organizer = vCalAddress('')
+#         organizer.params['cn']= vText(self.organizer.name)
+#         cevent['organizer']=organizer
         cevent.add('summary', self.title)
         calendar.add_component(cevent)
         return calendar.to_ical()
