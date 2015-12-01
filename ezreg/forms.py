@@ -39,7 +39,7 @@ class EventForm(forms.ModelForm):
         self.fields['organizer'].queryset = Organizer.objects.filter(user_permissions__user=user,user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN)
 #         self.fields['open_until'].widget.attrs['ng-init']="dt='%s';"% self.instance.open_until
     body = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
-    cancellation_policy = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
+    cancellation_policy = forms.CharField(required=False,widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     class Meta:
         model=Event
         exclude = ('id','payment_processors','ical','form_fields','group')
