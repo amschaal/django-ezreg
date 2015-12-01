@@ -11,7 +11,12 @@ from django.conf import settings
 #     body = render_to_string(template,context)
 #     send_mail(subject, body, from_addr,to,html_message=html,fail_silently=False)
 
-def generate_email(to,from_addr,subject,template,html_template=None,context={},bcc=None,registration=None):
+def generate_email(to,from_addr,subject,template,html_template,context={},bcc=None,registration=None):
+    if registration:
+        subject = subject if not registration.test else '***Test*** '+subject
+    print '*************'
+    print registration
+    print subject
     context['site_url'] = settings.SITE_URL
     html = render_to_string(html_template,context)
     body = render_to_string(template,context)
@@ -24,7 +29,7 @@ def generate_email(to,from_addr,subject,template,html_template=None,context={},b
     
     
 def send_email(to,from_addr,subject,template,html_template=None,context={},cc=[],bcc=[],registration=None):
-    msg = generate_email(to, from_addr, subject, template, html_template, context, bcc)
+    msg = generate_email(to, from_addr, subject, template, html_template=html_template, context=context, bcc=bcc,registration=registration)
     msg.save()
     if registration:
         registration.email_messages.add(msg)
@@ -32,7 +37,7 @@ def send_email(to,from_addr,subject,template,html_template=None,context={},cc=[]
     return msg
         
 def send_ical_email(event,to,from_addr,subject,template,html_template=None,context={},cc=None,bcc=None,registration=None):
-    msg = generate_email(to, from_addr, subject, template, html_template, context, bcc)
+    msg = generate_email(to, from_addr, subject, template, html_template=html_template, context=context, bcc=bcc,registration=registration)
     print 'Event ical'
     print event.ical
     if event.ical:

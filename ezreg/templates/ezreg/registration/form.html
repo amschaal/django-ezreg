@@ -9,19 +9,9 @@
 {% block content %}
 {% include 'ezreg/partials/registration_header.html' %}
 
-<h2>{{event.title}}</h2>
-<p>{{event.description}}</p>
 <p><i>Please enter registration information</i></p>
 <form action="" method="post">{% csrf_token %}
-{{ wizard.management_form }}
-{% if wizard.form.forms %}
-    {{ wizard.form.management_form }}
-    {% for form in wizard.form.forms %}
-        {{ form|crispy }}
-    {% endfor %}
-{% else %}
-    {{ wizard.form|crispy }}
-{% endif %}
+{% include 'ezreg/partials/wizard_forms.html' %}
 <input type="submit" value="{% trans "Continue" %}" class="btn btn-primary"/>
 <button name="wizard_goto_step" type="submit" value="cancel" class="btn btn-danger pull-right">{% trans "Cancel" %}</button>
 </form>

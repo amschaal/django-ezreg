@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <h1>{{event.title}}</h1>
+<h3>{% if event.start_time %}{{event.start_time}}{% endif %}{% if event.end_time %} - {{event.end_time}}{% endif %}</h3>
 {% if event.pages.all.count > 0%}
 <div class="navbar-collapse collapse navbar-default">
 	<ul class="nav navbar-nav">
@@ -19,7 +20,7 @@
 	<p><i>Registration closes on: {{event.open_until}}</i></p>
 {% endif %}
 	{% endif %}
-	{% if event.enable_application %}
+	{% if event.can_apply %}
 		<a href="{% url 'apply' slug_or_id=event.slug_or_id %}" class="btn btn-warning btn">Apply</a>
 	{% elif event.can_register%}
 		<a href="{% url 'register' slug_or_id=event.slug_or_id %}" class="btn btn-warning btn">Register</a>

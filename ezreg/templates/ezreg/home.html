@@ -20,7 +20,7 @@
 	              		{{event.organizer}}
 	              </td>
 	              <td>
-	              	{% if event.enable_application %}<span class="status apply">Application process open</span>
+	              	{% if event.can_apply %}<span class="status apply">Application process open</span>
 					{% elif event.can_register%}<span class="status open">Registration open</span>
 					{% elif event.can_waitlist %}<span class="status waitlisted">Waitlist open</span>
 					{% elif not event.registration_enabled %}<span class="status closed">Closed</span>
