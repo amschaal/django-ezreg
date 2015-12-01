@@ -62,8 +62,8 @@ class EventForm(forms.ModelForm):
 #                     'open_until':forms.TextInput(attrs={'datepicker-popup':"yyyy-MM-dd", 'is-open':"blah", 'ng-click':"blah=true", 'ng-model':"dt"})
                       'open_until':DateWidget(attrs={'id':"open_until"}, usel10n = True, bootstrap_version=3),
                         #Use localization and bootstrap 3
-                        'start_time': DateTimeWidget(attrs={'id':"start_time"}, usel10n = True, bootstrap_version=3),
-                        'end_time': DateTimeWidget(attrs={'id':"end_time"}, usel10n = True, bootstrap_version=3)
+                        'start_time': DateTimeWidget(attrs={'id':"start_time"},options={'format': 'yyyy-dd-mm HH:ii','minuteStep':15}, usel10n = False, bootstrap_version=3),
+                        'end_time': DateTimeWidget(attrs={'id':"end_time"}, options={'format': 'yyyy-dd-mm HH:ii','minuteStep':15}, usel10n = False, bootstrap_version=3)
                    }
 
 class PaymentProcessorForm(forms.ModelForm):

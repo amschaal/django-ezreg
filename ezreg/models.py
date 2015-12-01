@@ -14,6 +14,7 @@ from django.conf import settings
 import os
 from mailqueue.models import MailerMessage
 from ezreg.fields import EmailListField
+from django.core.validators import MinLengthValidator
 
 def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -45,12 +46,12 @@ class Event(models.Model):
     id = models.CharField(max_length=10,default=id_generator,primary_key=True)
 #     group = models.ForeignKey(Group)
     organizer = models.ForeignKey(Organizer,related_name='events')
-    slug = models.SlugField(max_length=100,unique=True,blank=True)
+    slug = models.SlugField(max_length=100,unique=True,blank=True,validators=[MinLengthValidator(5)])
     title = models.CharField(max_length=100,blank=False)
     description = models.TextField(blank=False)
     body = models.TextField(blank=False)
     active = models.BooleanField(default=False)
-    capacity = models.IntegerField(blank=True,null=True)
+    capacity = models.PositiveSmallIntegerField(blank=True,null=True)
     cancellation_policy = models.TextField(blank=True,null=True)
     open_until = models.DateField()
     start_time = models.DateTimeField(blank=True,null=True)
