@@ -5,6 +5,7 @@
 <a class="btn btn-primary pull-right" href="{% url 'create_event'%}">Create</a>
 {% endif %}
 </h1></div>
+{% if events.count > 0 %}
 <div class="table-responsive">
 <table class="table table-striped">
   <thead>
@@ -34,4 +35,7 @@
   </tbody>
 </table>
 </div>
+{% else %}
+<h3>You have no events to manage.  <a href="{% url 'create_event'%}">Add</a> one!</h3>
+{% endif %}
 {% endblock %}
