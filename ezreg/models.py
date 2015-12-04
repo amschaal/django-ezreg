@@ -218,8 +218,9 @@ class Registration(models.Model):
 class Payment(models.Model):
     STATUS_UNPAID = 'UNPAID'
     STATUS_PENDING = 'PENDING'
+    STATUS_CANCELLED = 'CANCELLED'
     STATUS_PAID = 'PAID'
-    STATUS_CHOICES = ((STATUS_UNPAID,'Unpaid'),(STATUS_PENDING,'Pending'),(STATUS_PAID,'Paid'))
+    STATUS_CHOICES = ((STATUS_UNPAID,'Unpaid'),(STATUS_PENDING,'Pending'),(STATUS_PAID,'Paid'),(STATUS_CANCELLED,'Cancelled'))
     processor = models.ForeignKey('PaymentProcessor',null=True,blank=True)
     status = models.CharField(max_length=10,default=STATUS_UNPAID,choices=STATUS_CHOICES)
     paid_at = models.DateTimeField(blank=True,null=True)
