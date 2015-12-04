@@ -5,8 +5,9 @@
               <h3 class="panel-title">Upcoming events</h3>
             </div>
             <div class="panel-body">
+              {% if upcoming.count > 0 %}
               <table class="table table-condensed borderless">
-                <tr><th>Date(s)</th><th>Event title</th><th>Organizer</th><th class="pull-right">Registration closes</th></tr>
+                <tr><th>Date(s)</th><th>Event title</th><th>Organizer</th><th>Status</th><th class="pull-right">Registration closes</th></tr>
               {% for event in upcoming %}
 	            
 	            <tr>
@@ -19,12 +20,23 @@
 	              <td>
 	              		{{event.organizer}}
 	              </td>
+	              <td>
+	              	{% if event.can_apply %}<span class="status apply">Application process open</span>
+					{% elif event.can_register%}<span class="status open">Registration open</span>
+					{% elif event.can_waitlist %}<span class="status waitlisted">Waitlist open</span>
+					{% elif not event.registration_enabled %}<span class="status closed">Closed</span>
+					{% else %}<span class="status full">Full</span>
+					{% endif %}
+	              </td>
 	              <td class="pull-right">
 	              		{{event.open_until|date:'M j'}}
 	              </td>
 	            </tr>
               {% endfor %}
               </table>
+             {% else %}
+             	<h3>There are currently no upcoming events.</h3>
+             {% endif %}
           	</div>
 </div>
 {% endblock %}

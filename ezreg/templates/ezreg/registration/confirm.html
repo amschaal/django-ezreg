@@ -9,12 +9,6 @@
 {% block content %}
 {% include 'ezreg/partials/registration_header.html' %}
 
-<h2>{{event.title}}</h2>
-<p>{{event.description}}</p>
-<p>
-{% if event.start_time %}<b>Begins:</b> {{event.start_time}}<br>{% endif %}
-{% if event.end_time %}<b>Ends:</b> {{event.end_time}}{% endif %}
-</p>
 <p><i>Please confirm your registration details</i></p>
 
 <table class="table">
@@ -42,15 +36,7 @@
 {% endif %}
 
 <form action="" method="post">{% csrf_token %}
-{{ wizard.management_form }}
-{% if wizard.form.forms %}
-    {{ wizard.form.management_form }}
-    {% for form in wizard.form.forms %}
-        {{ form|crispy }}
-    {% endfor %}
-{% else %}
-    {{ wizard.form|crispy }}
-{% endif %}
+{% include 'ezreg/partials/wizard_forms.html' %}
 {% if wizard.steps.prev %}
 <!-- <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.first }}" class="btn btn-primary">{% trans "first step" %}</button> -->
 <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}" class="btn btn-primary">{% trans "Back" %}</button>

@@ -90,8 +90,11 @@ class Event(models.Model):
 #         if self.enable_application:
         return self.active and str(self.open_until)[:10] >= str(datetime.today())[:10]
 #         return self.active and str(self.open_until)[:10] >= str(datetime.today())[:10] and self.registrations.exclude(status=Registration.STATUS_CANCELLED).count() < self.capacity
+    @property
+    def is_full(self):
+        return self.registrations.exclude(status=Registration.STATUS_CANCELLED).exclude(test=True).count() >= self.capacity
     def can_register(self):
-        return self.registration_enabled and self.registrations.exclude(status=Registration.STATUS_CANCELLED).exclude(test=True).count() < self.capacity and not self.enable_application
+        return self.registration_enabled and not self.is_full and not self.enable_application
     def can_waitlist(self):
         return self.registration_enabled and self.enable_waitlist and self.registrations.exclude(status=Registration.STATUS_CANCELLED).exclude(test=True).count() >= self.capacity
     def can_apply(self):

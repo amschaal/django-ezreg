@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <h1>{{event.title}}</h1>
+<h3>{% if event.start_time %}{{event.start_time}}{% endif %}{% if event.end_time %} - {{event.end_time}}{% endif %}</h3>
 {% if event.pages.all.count > 0%}
 <div class="navbar-collapse collapse navbar-default">
 	<ul class="nav navbar-nav">

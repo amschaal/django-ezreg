@@ -24,3 +24,15 @@ body {
   /* Set the fixed height of the footer here */
   height: 20px;
 }
+.status.open, .status.apply{
+	font-weight: bold;
+	color: green;
+}
+.status.closed, .status.full{
+	font-weight: bold;
+	color: red;
+}
+.status.waitlisted{
+	font-weight: bold;
+	color: orange;
+}
