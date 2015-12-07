@@ -15,7 +15,7 @@ class TouchnetPaymentProcessor(BasePaymentProcessor):
         m = hashlib.md5()
         #https://secure.touchnet.com:8443/C21642test_upay/web/index.jsp
         data = {'UPAY_SITE_ID':conf['upay_site_id'],
-                'EXT_TRANS_ID':'FID=%s;%d;'%(conf['fid'],payment.registration.id),
+                'EXT_TRANS_ID':'FID=%s;%s'%(conf['fid'],payment.registration.id),
                 'EXT_TRANS_ID_LABEL':'%s services'%payment.registration.event.title,
                 'AMT': payment.amount
                 }
