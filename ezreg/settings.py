@@ -138,11 +138,5 @@ REST_FRAMEWORK = {
 }
 
 
-
-PAYMENT_PROCESSORS = [
-    'ezreg.payment.dafis.processor.DafisPaymentProcessor',
-    'ezreg.payment.touchnet.processor.TouchnetPaymentProcessor',
-]
-
 from config import *
 

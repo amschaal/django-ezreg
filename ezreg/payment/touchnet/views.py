@@ -1,5 +1,10 @@
-from rest_framework.decorators import api_view
-from ezreg.models import Payment
+from rest_framework.decorators import api_view, permission_classes
+from ezreg.models import Payment, Registration
+from django.http.response import JsonResponse
+from datetime import datetime
+from ezreg.payment.touchnet.permissions import IPAddressPermission
+import logging
+
 
 """
 EXT_TRANS_ID    The departmental identifier passed in to the UPay site. (100)
@@ -21,25 +26,50 @@ ACCT_ZIP    Billing Address Postal Code (20)
 class Payment(models.Model):
     STATUS_UNPAID = 'UNPAID'
     STATUS_PENDING = 'PENDING'
-    STATUS_PAID = 'PAID'
     STATUS_CANCELLED = 'CANCELLED'
-    STATUS_CHOICES = ((STATUS_UNPAID,'Unpaid'),(STATUS_PENDING,'Pending'),(STATUS_PAID,'Paid'))
+    STATUS_INVALID_AMOUNT = 'INVALID_AMOUNT'
+    STATUS_PAID = 'PAID'
+    STATUS_CHOICES = ((STATUS_UNPAID,'Unpaid'),(STATUS_PENDING,'Pending'),(STATUS_PAID,'Paid'),(STATUS_CANCELLED,'Cancelled'),(STATUS_INVALID_AMOUNT,'Invalid Amount'))
     processor = models.ForeignKey('PaymentProcessor',null=True,blank=True)
     status = models.CharField(max_length=10,default=STATUS_UNPAID,choices=STATUS_CHOICES)
     paid_at = models.DateTimeField(blank=True,null=True)
     registration = models.OneToOneField(Registration,related_name='payment')
     amount = models.DecimalField(decimal_places=2,max_digits=7)
+    external_id = models.CharField(max_length=50,null=True,blank=True)
     data = JSONField(null=True,blank=True)
 """
 
-
 @api_view(['POST'])
+@permission_classes([IPAddressPermission])
 def postback(request):
-    fid, payment_id = request.data['EXT_TRANS_ID']
-    payment = Payment.objects.get(id=payment_id)
-    #check payment.processor.config['posting_key'] == request.data['POSTING_KEY']
-    if request.data['PMT_STATUS']=='success':
-        pass
-    elif request.data['PMT_STATUS']=='cancelled':
-        pass
+    logger = logging.getLogger('touchnet')
+    try:
+        print request.POST.get('EXT_TRANS_ID')
+        fid, registration_id = request.POST.get('EXT_TRANS_ID').split(";")
+        print registration_id
+        registration = Registration.objects.get(id=registration_id)
+        payment = registration.payment
+        if  payment.processor.config.has_key('posting_key'):
+            if payment.processor.config['posting_key'] != request.POST.get('POSTING_KEY'):
+                raise Exception("Invalid POSTING_KEY")
+        if request.POST.get('PMT_STATUS')=='success':
+            payment.external_id = request.POST.get('TPG_TRANS_ID')
+            if float(request.POST.get('PMT_AMT')) == float(payment.amount):
+                payment.status = Payment.STATUS_PAID
+                payment.paid_at = datetime.now()
+                payment.save()
+            else:
+                payment.status = Payment.STATUS_INVALID_AMOUNT
+                payment.save()
+                raise Exception('Invalid amount posted %s, expecting %f' % (request.POST.get('PMT_AMT'),payment.amount))
+            payment.save()
+        elif request.POST.get('PMT_STATUS')=='cancelled':
+            payment.status = Payment.STATUS_CANCELLED
+            payment.save()
+        return JsonResponse({'status':'ok','payment_status':payment.status})
+    except Exception, e:
+        # Get an instance of a logger
+        logger.info("Error for EXT_TRANS_ID: %s"%request.POST.get('EXT_TRANS_ID',''))
+        logger.error(e.message)
+        return JsonResponse({'status':'error'},status=400)
         

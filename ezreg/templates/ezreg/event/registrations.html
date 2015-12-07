@@ -8,7 +8,7 @@
     <input type="text" name="{{name}}" ng-disabled="$filterRow.disabled" ng-model="params.filter()[name]" class="input-filter form-control" maxlengh="4" angular-mask="0000" placeholder="nnnn" />
 </script>
 
-<div ng-controller="RegistrationController" ng-init='init("{{event.id}}",{{statuses|safe}},{{processors|safe}} );'>
+<div ng-controller="RegistrationController" ng-init='init("{{event.id}}",{{statuses|safe}},{{processors|safe}},{{payment_statuses|safe}} );'>
 	<span class="pull-right">
 	{[getSelected().length]} selected
 		<div class="btn-group" dropdown is-open="status.isopen">
@@ -33,6 +33,7 @@
         <td data-title="'Amount'" sortable="'payment__amount'">{[row.payment__amount]}</td>
         <td data-title="'Processor'" filter="{payment__processor__name: 'select'}" filter-data="processors_filter_choices" >{[row.payment__processor]}</td>
 		<td data-title="'Status'" filter="{status: 'select'}" filter-data="statuses_filter_choices">{[statuses[row.status]]}</td>
+		<td data-title="'Payment Status'" filter="{payment__status: 'select'}" filter-data="payment_status_filter_choices">{[payment_statuses[row.payment__status]]}</td>
 		<td data-title="'Test'" filter="{test: 'checkbox'}"><i ng-if="row.test" class="glyphicon glyphicon-ok"></i></td>
 		<td data-title="'Actions'">
 			<div class="btn-group" dropdown is-open="isopen[row.id]">

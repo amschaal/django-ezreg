@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.template.context import RequestContext
 from ezreg.models import Event,  Registration, PaymentProcessor, EventPage,\
-    id_generator, EventProcessor, OrganizerUserPermission
+    id_generator, EventProcessor, OrganizerUserPermission, Payment
 from ezreg.forms import EventForm, PaymentProcessorForm,  AdminRegistrationForm,\
     AdminRegistrationStatusForm
 from django.contrib.auth.decorators import login_required
@@ -70,6 +70,7 @@ def copy_event(request,event):
 @event_access_decorator([OrganizerUserPermission.PERMISSION_ADMIN,OrganizerUserPermission.PERMISSION_VIEW],require_all=False)
 def manage_event(request,event):
     statuses = json.dumps({status[0]:status[1] for status in Registration.STATUSES})
+    payment_statuses = json.dumps({status[0]:status[1] for status in Payment.STATUS_CHOICES})
     processors = json.dumps({processor.name:processor.name for processor in event.payment_processors.all()})
     form_fields = json.dumps(event.form_fields) if event.form_fields else '[]'
     permissions = event.get_user_permissions(request.user)
@@ -80,7 +81,7 @@ def manage_event(request,event):
         if form.is_valid():
             event = form.save()
             return redirect('manage_event',event=event.id) #event.get_absolute_url()
-    return render(request, 'ezreg/event/manage.html', {'form':form,'event':event,'Registration':Registration,'statuses':statuses,'processors':processors,'form_fields':form_fields,'permissions':permissions} ,context_instance=RequestContext(request))
+    return render(request, 'ezreg/event/manage.html', {'form':form,'event':event,'Registration':Registration,'statuses':statuses,'payment_statuses':payment_statuses,'processors':processors,'form_fields':form_fields,'permissions':permissions} ,context_instance=RequestContext(request))
     
 
 def event(request,slug_or_id):

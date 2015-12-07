@@ -31,11 +31,13 @@ function RegistrationController($scope,$http,$modal,growl,Registration,NgTablePa
 		console.log(filter_choices);
 		return filter_choices;
 	};
-	$scope.init = function(id,statuses,processors){
+	$scope.init = function(id,statuses,processors,payment_statuses){
 		$scope.checked={};
 		$scope.statuses = statuses;
+		$scope.payment_statuses = payment_statuses;
 		$scope.statuses_filter_choices = create_filter_choices(statuses);
 		$scope.processors_filter_choices = create_filter_choices(processors);
+		$scope.payment_status_filter_choices = create_filter_choices(payment_statuses);
 		$scope.id = id;
 	};
 	$scope.registrationLink = function(registration){return django_js_utils.urls.resolve('registration', { id: registration.id })};

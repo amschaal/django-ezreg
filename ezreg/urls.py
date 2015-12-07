@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
 from django.conf import settings
-from django.conf.urls import include, url
+from django.conf.urls import include, url, patterns
 from django.conf.urls.static import static
 from django.contrib import admin
 from rest_framework import routers
@@ -23,6 +23,7 @@ from django_json_forms import urls as json_form_urls
 from ezreg.api.views import PriceViewset, PaymentProcessorViewset, \
     EventPageViewset, RegistrationViewset, MailerMessageViewset
 from ezreg.registration import RegistrationWizard
+from django.utils.importlib import import_module
 
 
 router = routers.DefaultRouter()
@@ -68,5 +69,16 @@ urlpatterns = [
     url(r'^accounts/login/$', 'cas.views.login', name='login'),
     url(r'^accounts/logout/$', 'cas.views.logout', name='logout'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# from django.utils.importlib import import_module
+#@todo: do something cleaner than this...
+if hasattr(settings, 'PAYMENT_PROCESSOR_URLS'):
+    for processor_urls in settings.PAYMENT_PROCESSOR_URLS:
+        pass
+        try:
+#             mod = import_module(processor_urls)
+            urlpatterns += patterns('',url(r'^processors/',include(processor_urls)))
+        except Exception, e:
+            print e 
 
 handler403 = 'ezreg.error_views.handler403'
