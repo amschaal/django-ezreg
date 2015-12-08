@@ -4,6 +4,7 @@ from django.http.response import JsonResponse
 from datetime import datetime
 from ezreg.payment.touchnet.permissions import IPAddressPermission
 import logging
+from ezreg.payment.touchnet.processor import TouchnetPaymentProcessor
 
 
 """
@@ -49,9 +50,10 @@ def postback(request):
         print registration_id
         registration = Registration.objects.get(id=registration_id)
         payment = registration.payment
-        if  payment.processor.config.has_key('posting_key'):
-            if payment.processor.config['posting_key'] != request.POST.get('POSTING_KEY'):
-                raise Exception("Invalid POSTING_KEY")
+        posting_key = TouchnetPaymentProcessor.get_posting_key(payment)
+#         if  payment.processor.config.has_key('posting_key'):
+        if posting_key != request.POST.get('POSTING_KEY'):
+            raise Exception("Invalid POSTING_KEY")
         if request.POST.get('PMT_STATUS')=='success':
             payment.external_id = request.POST.get('TPG_TRANS_ID')
             if float(request.POST.get('PMT_AMT')) == float(payment.amount):

@@ -14,14 +14,21 @@ class TouchnetPaymentProcessor(BasePaymentProcessor):
         import hashlib
         m = hashlib.md5()
         #https://secure.touchnet.com:8443/C21642test_upay/web/index.jsp
-        data = {'UPAY_SITE_ID':conf['upay_site_id'],
+        site_id = TouchnetPaymentProcessor.get_site_id(payment)
+        posting_key = TouchnetPaymentProcessor.get_posting_key(payment)
+        data = {'UPAY_SITE_ID':site_id,
                 'EXT_TRANS_ID':'FID=%s;%s'%(conf['fid'],payment.registration.id),
                 'EXT_TRANS_ID_LABEL':'%s services'%payment.registration.event.title,
                 'AMT': payment.amount
                 }
-        m.update(conf['posting_key']+data['EXT_TRANS_ID']+str(data['AMT']))
+        m.update(posting_key+data['EXT_TRANS_ID']+str(data['AMT']))
         data['VALIDATION_KEY']=base64.encodestring(m.digest())
         form = TouchnetPostForm(initial=data)
         form.action = settings.TOUCHNET_TEST_URL if payment.registration.test else settings.TOUCHNET_PRODUCTION_URL
         return form
-    
+    @staticmethod
+    def get_site_id(payment):
+        return payment.processor.config['upay_test_site_id'] if payment.registration.test else payment.processor.config['upay_site_id']
+    @staticmethod
+    def get_posting_key(payment):
+        return payment.processor.config['test_posting_key'] if payment.registration.test else payment.processor.config['posting_key']
