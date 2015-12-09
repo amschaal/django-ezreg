@@ -142,6 +142,7 @@ class Price(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=250,blank=True)
     amount = models.DecimalField(decimal_places=2,max_digits=7)
+    coupon_code = models.CharField(max_length=25,unique=True,null=True)
     start_date = models.DateField(null=True,blank=True)
     end_date = models.DateField(null=True,blank=True)
     def __unicode__(self):

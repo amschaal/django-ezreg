@@ -109,19 +109,46 @@ class AdminRegistrationStatusForm(forms.ModelForm):
         
 class PriceForm(forms.Form):
     template = 'ezreg/registration/price.html'
-    def __init__(self, *args, **kwargs):
-        event = kwargs.pop('event')
-        super(PriceForm,self).__init__(*args, **kwargs)
-        self.fields['price'].queryset = event.prices.exclude(start_date__isnull=False,start_date__gt=datetime.today()).exclude(end_date__isnull=False,end_date__lt=datetime.today())
-        self.fields['payment_method'].queryset = event.payment_processors.filter(hidden=False)
     price = forms.ModelChoiceField(Price,required=True,empty_label=None,widget=forms.widgets.RadioSelect)
+    coupon_code = forms.CharField(required=False)
     payment_method = forms.ModelChoiceField(PaymentProcessor,required=True,empty_label=None,widget=forms.widgets.RadioSelect)
-
-# class PriceForm(forms.ModelForm):
-#     class Meta:
-#         model=Price
-#         fields=('name','description','amount','hidden')
-
+    def __init__(self, *args, **kwargs):
+        self.event = kwargs.pop('event')
+        super(PriceForm,self).__init__(*args, **kwargs)
+        self.setup_coupons()
+        self.fields['price'].queryset = self.get_price_queryset()
+        self.fields['payment_method'].queryset = self.get_payment_method_queryset() 
+    def setup_coupons(self):
+        self.data = self.data.copy() #POST querydict is immutable, need to be able to overwrite price for coupon code
+        self.coupon_price = None
+        if not self.event.prices.filter(coupon_code__isnull=False).count():
+            del self.fields['coupon_code']
+        else:
+            coupon_code = self._raw_value('coupon_code')
+            if coupon_code:
+                self.coupon_price = self.event.prices.filter(coupon_code=coupon_code).first()
+                if self.coupon_price:
+                    self.data[self.add_prefix('price')]=self.coupon_price.id
+                
+    def get_payment_method_queryset(self):
+        return self.event.payment_processors.filter(hidden=False)
+    def get_price_queryset(self):
+        prices = self.event.prices.exclude(start_date__isnull=False,start_date__gt=datetime.today()).exclude(end_date__isnull=False,end_date__lt=datetime.today()).exclude(coupon_code__isnull=False)
+        #Add coupon price if available
+        if self.coupon_price:
+            price_ids = [p.id for p in prices]+[self.coupon_price.id]
+            prices = self.event.prices.filter(id__in=price_ids)#prices #@todo: figure out filter to only allow coupon in addition
+        return prices
+    def clean_price(self):
+        if self.coupon_price:
+            self.cleaned_data['price'] = self.coupon_price
+        return self.cleaned_data['price']
+    def clean_coupon_code(self):
+        coupon_code = self.cleaned_data['coupon_code']
+        if coupon_code and not self.coupon_price:
+                raise ValidationError('Invalid coupon code')
+        return coupon_code
+            
 
 class PriceFormsetHelper(FormHelper):
     def __init__(self, *args, **kwargs):

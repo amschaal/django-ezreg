@@ -48,7 +48,7 @@
 <div ng-controller="PriceController" ng-init="init({'event_id':'{{event.id}}','organizer':'{{event.organizer_id}}','event_processors_url':'{% url 'event_payment_processors' event=event.id %}'})">
 	<h3>Prices</h3>
 	<table class="table" ng-if="prices.length > 0">
-		<tr><th>Name</th><th>Amount</th><th>Description</th><th>Start Date</th><th>End Date</th><th></th></tr>
+		<tr><th>* Name</th><th>* Amount</th><th>Description</th><th>Coupon Code</th><th>Start Date</th><th>End Date</th><th></th></tr>
 		<tr ng-repeat="price in prices">
 			<td ng-class="{'has-error':price.errors.name}">
 				<ul ng-if="price.errors.name"><li ng-repeat="error in price.errors.name">{[error]}</li></ul>
@@ -61,6 +61,10 @@
 			<td ng-class="{'has-error':price.errors.description}">
 				<ul ng-if="price.errors.description"><li ng-repeat="error in price.errors.description">{[error]}</li></ul>	
 				<textarea title="{[price.errors.description]}" class="form-control" ng-model="price.description"></textarea>
+			</td>
+			<td ng-class="{'has-error':price.errors.coupon_code}">
+				<ul ng-if="price.errors.coupon_code"><li ng-repeat="error in price.errors.coupon_code">{[error]}</li></ul>	
+				<input title="{[price.errors.coupon_code]}" class="form-control" ng-model="price.coupon_code"/>
 			</td>
 			<td ng-class="{'has-error':price.errors.start_date}">
 				<ul ng-if="price.errors.start_date"><li ng-repeat="error in price.errors.start_date">{[error]}</li></ul>

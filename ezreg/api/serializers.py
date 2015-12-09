@@ -10,9 +10,15 @@ class JSONSerializerField(serializers.Field):
         return value
 
 class PriceSerializer(serializers.ModelSerializer):
+    def to_internal_value(self, data):
+        if data.has_key('coupon_code'):
+            if not data['coupon_code']: 
+                data['coupon_code'] = None
+        return super(PriceSerializer,self).to_internal_value(data)
     class Meta:
         model = Price
-        fields = ('id','event','name','amount','description','start_date','end_date')
+        fields = ('id','event','name','amount','description','coupon_code','start_date','end_date')
+    
 
 class PaymentProcessorSerializer(serializers.ModelSerializer):
     class Meta:
