@@ -6,5 +6,9 @@
         {{ form|crispy }}
     {% endfor %}
 {% else %}
-    {{ wizard.form|crispy }}
+	{% if wizard.form.helper %}
+    	{% crispy wizard.form wizard.form.helper %}
+	{% else %}
+		{{ form|crispy }}
+	{% endif %}
 {% endif %}
