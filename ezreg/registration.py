@@ -133,11 +133,12 @@ class RegistrationWizard(SessionWizardView):
         self.storage.data['registration_id'] = registration.id
         return registration
     def cancel_registration(self):
-        self.delete_registration()
+        self.delete_registration(force=True)
         return HttpResponseRedirect(reverse('event',kwargs={'slug_or_id':self.event.id}))
-    def delete_registration(self):
+    def delete_registration(self,force=False):
         if self.get_registration():
-            self.registration_instance.delete()
+            if self.registration.status in [Registration.STATUS_APPLY_INCOMPLETE,Registration.STATUS_PENDING_INCOMPLETE,Registration.STATUS_WAITLIST_INCOMPLETE] or force:
+                self.registration_instance.delete()
             del self.registration_instance
         if self.storage.data.has_key('registration_id'):
             Registration.objects.filter(id=self.storage.data['registration_id'],status__in=[Registration.STATUS_APPLY_INCOMPLETE,Registration.STATUS_PENDING_INCOMPLETE,Registration.STATUS_WAITLIST_INCOMPLETE]).delete()
