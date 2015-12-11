@@ -79,12 +79,12 @@ function RegistrationController($scope,$http,$modal,growl,Registration,NgTablePa
 //        });
 //      }
 		$scope.getSelected = function(){
-			var emails = [];
+			var ids = [];
 			angular.forEach($scope.checked,function(value,key){
 				if (value)
-					emails.push(key);
+					ids.push(key);
 			});
-			return emails;
+			return ids;
 		}
 		$scope.update_statuses_old = function(){
 			console.log($scope.getSelected());

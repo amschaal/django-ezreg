@@ -88,7 +88,7 @@ class RegistrationForm(forms.ModelForm):
         email = self.cleaned_data['email']
         print self.instance.id
         if email:
-            if Registration.objects.filter(email=email, event=self.event).exclude(id=self.instance.id).exclude(status=Registration.STATUS_CANCELLED).count() != 0:
+            if Registration.objects.filter(email=email, event=self.event).exclude(id=self.instance.id).exclude(status__in=[Registration.STATUS_CANCELLED]).exclude(test=True).count() != 0:
                 raise ValidationError('A registration with that email already exists.')
         return email
     class Meta:

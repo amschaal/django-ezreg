@@ -182,7 +182,7 @@ def configure_payment_processor(request,id):
 @event_access_decorator([OrganizerUserPermission.PERMISSION_VIEW])
 def export_registrations(request, event):
     print request.POST.getlist('selection')
-    registrations = event.registrations.filter(email__in=request.POST.getlist('selection'))
+    registrations = event.registrations.filter(id__in=request.POST.getlist('selection'))
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
     writer = csv.writer(response)

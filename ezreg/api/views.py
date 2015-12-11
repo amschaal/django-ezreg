@@ -79,7 +79,7 @@ def event_payment_processors(request, event):
 @api_view(['POST'])
 @event_access_decorator([OrganizerUserPermission.PERMISSION_ADMIN])
 def update_event_statuses(request, event):
-    registrations = event.registrations.filter(email__in=request.data.get('selected'))
+    registrations = event.registrations.filter(id__in=request.data.get('selected'))
     registrations.update(status=request.data.get('status'))
     if request.data.get('send_email'):
         for registration in registrations:
