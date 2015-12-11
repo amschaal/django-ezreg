@@ -69,6 +69,7 @@ class RegistrationWizard(SessionWizardView):
                 registration.status = Registration.STATUS_REGISTERED
         registration.save()
         email_status(registration)
+        self.storage.reset()
         return HttpResponseRedirect(reverse('registration',kwargs={'id':registration.id}))
     def get_template_names(self):
         form = self.get_form()
@@ -80,21 +81,40 @@ class RegistrationWizard(SessionWizardView):
         if step == 'registration_form' and self.registration:
             kwargs['instance'] = self.registration
         return kwargs
-    @property
-    def registration(self):
+    def get_registration(self):
+        if hasattr(self, 'registration_instance'):
+            return self.registration_instance
         if self.kwargs.has_key('registration_id'):
-            print self.kwargs['registration_id']
             try:
-                self.registration_instance = Registration.objects.get(id=self.kwargs['registration_id'],status__in=[Registration.STATUS_WAITLIST_PENDING,Registration.STATUS_APPLIED_ACCEPTED])
+                self.registration_instance = Registration.objects.get(id=self.kwargs['registration_id'],event_id=self.event.id,status__in=[Registration.STATUS_WAITLIST_PENDING,Registration.STATUS_APPLIED_ACCEPTED])
             except Registration.DoesNotExist, e:
                 raise Exception("No registration was found that was eligible for completion.")
-        elif not self.storage.data.has_key('registration_id'):
-            return None
-        elif not hasattr(self, 'registration_instance'):
-            try:
-                self.registration_instance = Registration.objects.get(id=self.storage.data['registration_id'])
-            except Registration.DoesNotExist, e:
-                self.registration_instance = self.start_registration()
+        elif self.storage.data.has_key('registration_id'):
+            self.registration_instance = Registration.objects.filter(id=self.storage.data['registration_id'],event_id=self.event.id).first()
+        else:
+            self.registration_instance = None
+        return self.registration_instance
+        
+        
+#         if hasattr(self, 'registration_instance'):
+#             return self.registration_instance
+#         if self.kwargs.has_key('registration_id'):
+#             try:
+#                 self.registration_instance = Registration.objects.get(id=self.kwargs['registration_id'],event_id=self.event.id,status__in=[Registration.STATUS_WAITLIST_PENDING,Registration.STATUS_APPLIED_ACCEPTED])
+#             except Registration.DoesNotExist, e:
+#                 raise Exception("No registration was found that was eligible for completion.")
+#         elif not self.storage.data.has_key('registration_id'):
+#             self.registration_instance = None
+#         elif not hasattr(self, 'registration_instance'):
+#             try:
+#                 self.registration_instance = Registration.objects.get(id=self.storage.data['registration_id'],event_id=self.event.id)
+#             except Registration.DoesNotExist, e:
+#                 self.registration_instance = None
+#         return self.registration_instance
+    @property
+    def registration(self):
+        if not self.get_registration():
+            self.registration_instance = self.start_registration()
         return self.registration_instance
     @property
     def event(self):
@@ -102,21 +122,26 @@ class RegistrationWizard(SessionWizardView):
             self.event_instance = Event.objects.get(Q(id=self.kwargs['slug_or_id'])|Q(slug=self.kwargs['slug_or_id']))
         return self.event_instance
     def start_registration(self):
-        self.storage.reset()
-        if self.event.can_register():
-            status = Registration.STATUS_PENDING_INCOMPLETE
-        elif self.event.can_apply():
+        self.delete_registration() #Don't allow past registrations to hang around.
+        if self.event.can_apply():
             status = Registration.STATUS_APPLY_INCOMPLETE
+        elif self.event.can_register():
+            status = Registration.STATUS_PENDING_INCOMPLETE
         elif self.event.can_waitlist():
             status = Registration.STATUS_WAITLIST_INCOMPLETE
         registration = Registration.objects.create(event=self.event,status=status,test=self.test)
         self.storage.data['registration_id'] = registration.id
         return registration
     def cancel_registration(self):
-        if self.registration:
-            self.registration.delete()
-        self.storage.reset()
+        self.delete_registration()
         return HttpResponseRedirect(reverse('event',kwargs={'slug_or_id':self.event.id}))
+    def delete_registration(self):
+        if self.get_registration():
+            self.registration_instance.delete()
+            del self.registration_instance
+        if self.storage.data.has_key('registration_id'):
+            Registration.objects.filter(id=self.storage.data['registration_id'],status__in=[Registration.STATUS_APPLY_INCOMPLETE,Registration.STATUS_PENDING_INCOMPLETE,Registration.STATUS_WAITLIST_INCOMPLETE]).delete()
+        self.storage.reset()
     def get_payment_processor(self):
         cleaned_data = self.get_cleaned_data_for_step('price_form') or None
         if not cleaned_data:
@@ -171,6 +196,8 @@ class RegistrationWizard(SessionWizardView):
                 return HttpResponseRedirect(reverse('waitlist',kwargs={'slug_or_id':self.event.slug_or_id})+test_redirect_parameter)
             elif self.registration.status == Registration.STATUS_APPLY_INCOMPLETE and not kwargs.get('apply',False):
                 return HttpResponseRedirect(reverse('apply',kwargs={'slug_or_id':self.event.slug_or_id})+test_redirect_parameter)
+            elif self.registration.status == Registration.STATUS_PENDING_INCOMPLETE and not kwargs.get('register',False):
+                return HttpResponseRedirect(reverse('register',kwargs={'slug_or_id':self.event.slug_or_id})+test_redirect_parameter)
         # reset the current step to the first step.
         self.storage.current_step = self.steps.first
         
@@ -179,6 +206,8 @@ class RegistrationWizard(SessionWizardView):
         if self.request.POST.get('wizard_goto_step', None) == 'cancel':
             return self.cancel_registration()
 #         self.registration = self.storage.data['registration']
+        if not self.get_registration():
+            return HttpResponseRedirect(reverse('event',kwargs={'slug_or_id':self.event.id}))
         return SessionWizardView.post(self, *args, **kwargs)
     def get_form(self, step=None, data=None, files=None):
         # determine the step if not given
@@ -190,6 +219,7 @@ class RegistrationWizard(SessionWizardView):
             if not data and self.registration:
                 if self.registration.data:
                     data = self.registration.data
+            print fields
             if data:
                 form = JSONForm(data,fields=fields)
             else:

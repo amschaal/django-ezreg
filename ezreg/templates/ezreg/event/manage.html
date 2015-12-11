@@ -109,7 +109,7 @@
 <tabset>
 
 <tab ng-repeat="page in pages" heading="{[page.heading]}">
-
+<p><span class="pull-right"><button class="btn btn-success" ng-click="savePage(page)">Save</button> <button class="btn btn-danger" ng-click="deletePage(page,$index)">Delete</button></span></p> 
 <form class="form-horizontal">
 <fieldset>
 <!-- Text input-->
