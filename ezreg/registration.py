@@ -71,6 +71,9 @@ class RegistrationWizard(SessionWizardView):
         email_status(registration)
         self.storage.reset()
         return HttpResponseRedirect(reverse('registration',kwargs={'id':registration.id}))
+    def get_prefix(self, request, *args, **kwargs):
+    # use the lowercase underscore version of the class name
+        return self.event.id
     def get_template_names(self):
         form = self.get_form()
         if hasattr(form, 'template'):
@@ -86,11 +89,11 @@ class RegistrationWizard(SessionWizardView):
             return self.registration_instance
         if self.kwargs.has_key('registration_id'):
             try:
-                self.registration_instance = Registration.objects.get(id=self.kwargs['registration_id'],event_id=self.event.id,status__in=[Registration.STATUS_WAITLIST_PENDING,Registration.STATUS_APPLIED_ACCEPTED])
+                self.registration_instance = Registration.objects.get(id=self.kwargs['registration_id'],status__in=[Registration.STATUS_WAITLIST_PENDING,Registration.STATUS_APPLIED_ACCEPTED])
             except Registration.DoesNotExist, e:
                 raise Exception("No registration was found that was eligible for completion.")
         elif self.storage.data.has_key('registration_id'):
-            self.registration_instance = Registration.objects.filter(id=self.storage.data['registration_id'],event_id=self.event.id).first()
+            self.registration_instance = Registration.objects.filter(id=self.storage.data['registration_id']).first()
         else:
             self.registration_instance = None
         return self.registration_instance
