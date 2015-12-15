@@ -11,6 +11,7 @@ from ezreg.models import Event, Registration, Payment, EventPage
 from ezreg.payment import PaymentProcessorManager
 from ezreg.payment.base import BasePaymentForm
 from django_json_forms.forms import JSONForm
+from ezreg.exceptions import RegistrationClosedException
 
 
 def show_payment_form_condition(wizard):
@@ -126,12 +127,15 @@ class RegistrationWizard(SessionWizardView):
         return self.event_instance
     def start_registration(self):
         self.delete_registration() #Don't allow past registrations to hang around.
+        
         if self.event.can_apply():
             status = Registration.STATUS_APPLY_INCOMPLETE
         elif self.event.can_register():
             status = Registration.STATUS_PENDING_INCOMPLETE
         elif self.event.can_waitlist():
             status = Registration.STATUS_WAITLIST_INCOMPLETE
+        else:
+            raise RegistrationClosedException
         registration = Registration.objects.create(event=self.event,status=status,test=self.test)
         self.storage.data['registration_id'] = registration.id
         return registration
@@ -184,24 +188,26 @@ class RegistrationWizard(SessionWizardView):
         """
         self.test = request.GET.has_key('test')
         test_redirect_parameter = '?test' if self.test else ''
-        #custom crap HERE
-        if not self.registration:
-            if not (self.event.can_register() or self.event.can_apply() or self.event.can_waitlist()): 
-                return render(request, 'ezreg/registration/closed.html', {'event':self.event},context_instance=RequestContext(request))
-            elif self.event.can_register():
-                pass
-            elif self.event.can_waitlist() and not kwargs.get('waitlist',False):
-                return HttpResponseRedirect(reverse('waitlist',kwargs={'slug_or_id':self.event.slug_or_id})+test_redirect_parameter)
-            elif self.event.can_apply() and not kwargs.get('apply',False):
-                return HttpResponseRedirect(reverse('apply',kwargs={'slug_or_id':self.event.slug_or_id})+test_redirect_parameter)
-            self.start_registration()
-        else:
-            if self.registration.status == Registration.STATUS_WAITLIST_INCOMPLETE and not kwargs.get('waitlist',False):
-                return HttpResponseRedirect(reverse('waitlist',kwargs={'slug_or_id':self.event.slug_or_id})+test_redirect_parameter)
-            elif self.registration.status == Registration.STATUS_APPLY_INCOMPLETE and not kwargs.get('apply',False):
-                return HttpResponseRedirect(reverse('apply',kwargs={'slug_or_id':self.event.slug_or_id})+test_redirect_parameter)
-            elif self.registration.status == Registration.STATUS_PENDING_INCOMPLETE and not kwargs.get('register',False):
-                return HttpResponseRedirect(reverse('register',kwargs={'slug_or_id':self.event.slug_or_id})+test_redirect_parameter)
+        try:
+            if not self.registration:
+                if not (self.event.can_register() or self.event.can_apply() or self.event.can_waitlist()): 
+                    return render(request, 'ezreg/registration/closed.html', {'event':self.event},context_instance=RequestContext(request))
+                elif self.event.can_register():
+                    pass
+                elif self.event.can_waitlist() and not kwargs.get('waitlist',False):
+                    return HttpResponseRedirect(reverse('waitlist',kwargs={'slug_or_id':self.event.slug_or_id})+test_redirect_parameter)
+                elif self.event.can_apply() and not kwargs.get('apply',False):
+                    return HttpResponseRedirect(reverse('apply',kwargs={'slug_or_id':self.event.slug_or_id})+test_redirect_parameter)
+                self.start_registration()
+            else:
+                if self.registration.status == Registration.STATUS_WAITLIST_INCOMPLETE and not kwargs.get('waitlist',False):
+                    return HttpResponseRedirect(reverse('waitlist',kwargs={'slug_or_id':self.event.slug_or_id})+test_redirect_parameter)
+                elif self.registration.status == Registration.STATUS_APPLY_INCOMPLETE and not kwargs.get('apply',False):
+                    return HttpResponseRedirect(reverse('apply',kwargs={'slug_or_id':self.event.slug_or_id})+test_redirect_parameter)
+                elif self.registration.status == Registration.STATUS_PENDING_INCOMPLETE and not kwargs.get('register',False):
+                    return HttpResponseRedirect(reverse('register',kwargs={'slug_or_id':self.event.slug_or_id})+test_redirect_parameter)
+        except RegistrationClosedException:
+            return render(request, 'ezreg/registration/closed.html', {'event':self.event},context_instance=RequestContext(request))
         # reset the current step to the first step.
         self.storage.current_step = self.steps.first
         
