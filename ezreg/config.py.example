@@ -30,3 +30,6 @@ if USE_CAS:
 
 TOUCHNET_PRODUCTION_URL = 'https://secure.touchnet.com......'
 TOUCHNET_TEST_URL = 'https://test.secure.touchnet.com......'
+
+KFS_VALIDATE_SUBACCOUNT_URL = "https://intitute.edu/rest/fau/subaccount/%s/%s/%s/isvalid"
+KFS_VALIDATE_ACCOUNT_URL = "https://intitute.edu/rest/fau/account/%s/%s/isvalid"
