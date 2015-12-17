@@ -31,16 +31,16 @@ class PaymentForm(BasePaymentForm):
             if hasattr(settings, 'KFS_VALIDATE_ACCOUNT_URL'):
                 URL = settings.KFS_VALIDATE_ACCOUNT_URL % (chart,account)
 #             URL = "https://kfs.ucdavis.edu/kfs-prd/remoting/rest/fau/account/%s/%s/isvalid" % (chart,account)
+        valid = None
         if URL:
             try:
                 valid = json.load(urllib2.urlopen(URL))
                 cleaned_data['validated']=True
             except Exception, e:
-                valid = False
                 cleaned_data['validated']=False
-            if not valid:
+            if valid == False:
                 raise forms.ValidationError("The account is invalid.  Please ensure that chart, account, and (optionally) sub account refer to a valid account.")
-                
+        return cleaned_data
             
                 
             
