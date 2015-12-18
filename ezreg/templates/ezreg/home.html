@@ -12,7 +12,11 @@
 	            
 	            <tr>
 	              <td>
-	              	{{event.start_time|date:'M j'}}{% if event.end_time %} - {{event.end_time|date:'M j'}}{%endif%}
+	              	{% if event.start_time|date == event.end_time|date %}
+	              		{{event.start_time|date:'M j'}}
+	              	{% else%}
+	              		{{event.start_time|date:'M j'}}{% if event.end_time %} - {{event.end_time|date:'M j'}}{%endif%}
+	              	{% endif %}
 	              </td>
 	              <td>
 	              		<a href="{% url 'event' slug_or_id=event.slug_or_id %}">{{event.title}}</a>

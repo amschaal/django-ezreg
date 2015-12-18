@@ -15,6 +15,7 @@ import os
 from mailqueue.models import MailerMessage
 from ezreg.fields import EmailListField
 from django.core.validators import MinLengthValidator
+from django_bleach.models import BleachField
 
 def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -46,13 +47,13 @@ class Event(models.Model):
     id = models.CharField(max_length=10,default=id_generator,primary_key=True)
 #     group = models.ForeignKey(Group)
     organizer = models.ForeignKey(Organizer,related_name='events')
-    slug = models.SlugField(max_length=100,unique=True,blank=True,validators=[MinLengthValidator(5)])
+    slug = models.SlugField(max_length=100,unique=True,blank=True)
     title = models.CharField(max_length=100,blank=False)
     description = models.TextField(blank=False)
-    body = models.TextField(blank=False)
+    body = BleachField(blank=False)
     active = models.BooleanField(default=False)
     capacity = models.PositiveSmallIntegerField(blank=True,null=True)
-    cancellation_policy = models.TextField(blank=True,null=True)
+    cancellation_policy = BleachField(blank=True,null=True)
     open_until = models.DateField()
     start_time = models.DateTimeField(blank=True,null=True)
     end_time = models.DateTimeField(blank=True,null=True)
@@ -133,7 +134,7 @@ class EventPage(models.Model):
     event = models.ForeignKey('Event',related_name='pages')
     slug = models.SlugField(max_length=50,blank=True)
     heading = models.CharField(max_length=40)
-    body = models.TextField()
+    body = BleachField()
     class Meta:
         unique_together = (('event','slug'))
 

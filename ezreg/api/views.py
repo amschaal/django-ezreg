@@ -8,6 +8,9 @@ from rest_framework.response import Response
 from mailqueue.models import MailerMessage
 from ezreg.email import email_status
 from ezreg.decorators import event_access_decorator
+from django.template.defaultfilters import removetags
+from django_bleach.utils import get_bleach_default_options
+import bleach
 
 # @todo: Secure these for ALL methods (based on price.event.group)!!!
 class PriceViewset(viewsets.ModelViewSet):
@@ -23,14 +26,14 @@ class PaymentProcessorViewset(viewsets.ReadOnlyModelViewSet):
     search_fields = ('organizer',)
     def get_queryset(self):
         return PaymentProcessor.objects.filter(organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN,organizer__user_permissions__user=self.request.user)
-    
+
 class EventPageViewset(viewsets.ModelViewSet):
     serializer_class = EventPageSerializer
     filter_fields = ('event',)
     search_fields = ('event',)
     def get_queryset(self):
         return EventPage.objects.filter(event__organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN,event__organizer__user_permissions__user=self.request.user)
-    
+
 class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = RegistrationSerializer
 #     filter_fields = ('status','event','email','first_name','last_name')
@@ -86,11 +89,16 @@ def update_event_statuses(request, event):
             email_status(registration)
     return Response({'status':'success'})
 
+
+
 @api_view(['POST'])
 @event_access_decorator([OrganizerUserPermission.PERMISSION_ADMIN])
 def update_event_form(request, event):
     if request.data.get('form_fields'):
-        event.form_fields = request.data.get('form_fields') 
+        event.form_fields = request.data.get('form_fields')
+        for i, field in enumerate(event.form_fields):
+            if field.has_key('html'):
+                event.form_fields[i]['html'] = bleach.clean(event.form_fields[i]['html'], **get_bleach_default_options())#removetags(event.form_fields[i]['html'], 'script style')
         event.save()
     return Response({'status':'success'})
 
