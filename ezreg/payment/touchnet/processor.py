@@ -17,7 +17,7 @@ class TouchnetPaymentProcessor(BasePaymentProcessor):
         site_id = TouchnetPaymentProcessor.get_site_id(payment)
         posting_key = TouchnetPaymentProcessor.get_posting_key(payment)
         data = {'UPAY_SITE_ID':site_id,
-                'EXT_TRANS_ID':'FID=%s;%s'%(conf['fid'],payment.registration.id),
+                'EXT_TRANS_ID':'FID=%s;%s'%(conf['FID'],payment.registration.id),
                 'EXT_TRANS_ID_LABEL':'%s services'%payment.registration.event.title,
                 'AMT': payment.amount
                 }
@@ -28,7 +28,7 @@ class TouchnetPaymentProcessor(BasePaymentProcessor):
         return form
     @staticmethod
     def get_site_id(payment):
-        return payment.processor.config['upay_test_site_id'] if payment.registration.test else payment.processor.config['upay_site_id']
+        return payment.processor.config['UPAY_TEST_SITE_ID'] if payment.registration.test else payment.processor.config['UPAY_SITE_ID']
     @staticmethod
     def get_posting_key(payment):
-        return payment.processor.config['test_posting_key'] if payment.registration.test else payment.processor.config['posting_key']
+        return payment.processor.config['TEST_POSTING_KEY'] if payment.registration.test else payment.processor.config['POSTING_KEY']

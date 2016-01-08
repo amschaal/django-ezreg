@@ -1,11 +1,11 @@
 from django import forms
 
 class TouchnetConfigurationForm(forms.Form):
-    fid = forms.CharField(max_length=5)
-    upay_site_id = forms.IntegerField()
-    posting_key = forms.CharField(max_length=50)
-    upay_test_site_id = forms.IntegerField()
-    test_posting_key = forms.CharField(max_length=50)
+    FID = forms.CharField(max_length=5)
+    UPAY_SITE_ID = forms.IntegerField()
+    POSTING_KEY = forms.CharField(max_length=50)
+    UPAY_TEST_SITE_ID = forms.IntegerField()
+    TEST_POSTING_KEY = forms.CharField(max_length=50)
 
 class TouchnetPostForm(forms.Form):
     UPAY_SITE_ID = forms.CharField(widget=forms.HiddenInput())

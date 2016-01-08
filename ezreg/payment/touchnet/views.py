@@ -40,38 +40,41 @@ class Payment(models.Model):
     data = JSONField(null=True,blank=True)
 """
 
+
 @api_view(['POST'])
-@permission_classes([IPAddressPermission])
+#@permission_classes([IPAddressPermission])
 def postback(request):
+    req = {k.upper():v for k,v in request.POST.items()} #Touchnet seems inconsistent about case
     logger = logging.getLogger('touchnet')
     try:
-        print request.POST.get('EXT_TRANS_ID')
-        fid, registration_id = request.POST.get('EXT_TRANS_ID').split(";")
+        print req.get('EXT_TRANS_ID')
+        fid, registration_id = req.get('EXT_TRANS_ID').split(";")
         print registration_id
         registration = Registration.objects.get(id=registration_id)
         payment = registration.payment
         posting_key = TouchnetPaymentProcessor.get_posting_key(payment)
 #         if  payment.processor.config.has_key('posting_key'):
-        if posting_key != request.POST.get('POSTING_KEY'):
+        if posting_key != req.get('POSTING_KEY'):
+#	    values = ', '.join([key+':'+value for key, value in req.items()])
             raise Exception("Invalid POSTING_KEY")
-        if request.POST.get('PMT_STATUS')=='success':
-            payment.external_id = request.POST.get('TPG_TRANS_ID')
-            if float(request.POST.get('PMT_AMT')) == float(payment.amount):
+        if req.get('PMT_STATUS')=='success':
+            payment.external_id = req.get('TPG_TRANS_ID')
+            if float(req.get('PMT_AMT')) == float(payment.amount):
                 payment.status = Payment.STATUS_PAID
                 payment.paid_at = datetime.now()
                 payment.save()
             else:
                 payment.status = Payment.STATUS_INVALID_AMOUNT
                 payment.save()
-                raise Exception('Invalid amount posted %s, expecting %f' % (request.POST.get('PMT_AMT'),payment.amount))
+                raise Exception('Invalid amount posted %s, expecting %f' % (req.get('PMT_AMT'),payment.amount))
             payment.save()
-        elif request.POST.get('PMT_STATUS')=='cancelled':
+        elif req.get('PMT_STATUS')=='cancelled':
             payment.status = Payment.STATUS_CANCELLED
             payment.save()
         return JsonResponse({'status':'ok','payment_status':payment.status})
     except Exception, e:
         # Get an instance of a logger
-        logger.info("Error for EXT_TRANS_ID: %s"%request.POST.get('EXT_TRANS_ID',''))
+        logger.info("Error for EXT_TRANS_ID: %s"%req.get('EXT_TRANS_ID',''))
         logger.error(e.message)
         return JsonResponse({'status':'error'},status=400)
         
