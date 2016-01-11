@@ -72,9 +72,6 @@ class RegistrationWizard(SessionWizardView):
         email_status(registration)
         self.storage.reset()
         return HttpResponseRedirect(reverse('registration',kwargs={'id':registration.id}))
-    def get_prefix(self, request, *args, **kwargs):
-    # use the lowercase underscore version of the class name
-        return self.event.id
     def get_template_names(self):
         form = self.get_form()
         if hasattr(form, 'template'):
@@ -99,22 +96,6 @@ class RegistrationWizard(SessionWizardView):
             self.registration_instance = None
         return self.registration_instance
         
-        
-#         if hasattr(self, 'registration_instance'):
-#             return self.registration_instance
-#         if self.kwargs.has_key('registration_id'):
-#             try:
-#                 self.registration_instance = Registration.objects.get(id=self.kwargs['registration_id'],event_id=self.event.id,status__in=[Registration.STATUS_WAITLIST_PENDING,Registration.STATUS_APPLIED_ACCEPTED])
-#             except Registration.DoesNotExist, e:
-#                 raise Exception("No registration was found that was eligible for completion.")
-#         elif not self.storage.data.has_key('registration_id'):
-#             self.registration_instance = None
-#         elif not hasattr(self, 'registration_instance'):
-#             try:
-#                 self.registration_instance = Registration.objects.get(id=self.storage.data['registration_id'],event_id=self.event.id)
-#             except Registration.DoesNotExist, e:
-#                 self.registration_instance = None
-#         return self.registration_instance
     @property
     def registration(self):
         if not self.get_registration():
@@ -180,6 +161,7 @@ class RegistrationWizard(SessionWizardView):
 #         return SessionWizardView.dispatch(self, request, *args, **kwargs)
     def get(self, request, *args, **kwargs):
         #If there is already a registration started, resume it
+        self.event.delete_expired_registrations()
         existing_registration = self.get_registration()
         if existing_registration:
             self.render_goto_step(self.steps.first)
@@ -204,7 +186,7 @@ class RegistrationWizard(SessionWizardView):
     def post(self, *args, **kwargs):
         if self.request.POST.get('wizard_goto_step', None) == 'cancel':
             return self.cancel_registration()
-#         self.registration = self.storage.data['registration']
+        self.event.delete_expired_registrations()
         if not self.get_registration():
             return HttpResponseRedirect(reverse('event',kwargs={'slug_or_id':self.event.id}))
         return SessionWizardView.post(self, *args, **kwargs)

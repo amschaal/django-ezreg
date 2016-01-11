@@ -7,7 +7,7 @@ from distutils.command.config import config
 from jsonfield import JSONField
 from django.db.models.signals import pre_save
 from ezreg.payment import PaymentProcessorManager
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.db.models.query_utils import Q
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
@@ -16,6 +16,7 @@ from mailqueue.models import MailerMessage
 from ezreg.fields import EmailListField
 from django.core.validators import MinLengthValidator
 from django_bleach.models import BleachField
+from django.utils import timezone
 
 def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -65,6 +66,7 @@ class Event(models.Model):
     waitlist_message = models.TextField(blank=True,null=True)
     bcc = EmailListField(max_length=250,blank=True,null=True)
     from_addr = models.EmailField(max_length=50,blank=True,null=True)
+    expiration_time = models.PositiveSmallIntegerField(default=30)
     ical = models.FilePathField(path=settings.FILES_ROOT,match='*.ics',blank=True,null=True)
     form_fields = JSONField(null=True, blank=True)
     @property
@@ -102,6 +104,8 @@ class Event(models.Model):
         return self.registration_enabled and self.enable_application
     def registration_open(self):
         return self.registration_enabled and (self.can_register() or self.can_apply() or self.can_waitlist())
+    def delete_expired_registrations(self):
+        self.registrations.filter(registered__lte=(timezone.now()-timedelta(minutes=self.expiration_time)),status__in=[Registration.STATUS_PENDING_INCOMPLETE]).delete()
     def generate_event_ical(self):
         from icalendar import Calendar, Event, vText, vCalAddress
         calendar = Calendar()
