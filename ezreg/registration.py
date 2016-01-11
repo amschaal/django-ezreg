@@ -179,15 +179,14 @@ class RegistrationWizard(SessionWizardView):
 #         self.event = Event.objects.get(Q(id=self.kwargs['slug_or_id'])|Q(slug=self.kwargs['slug_or_id']))
 #         return SessionWizardView.dispatch(self, request, *args, **kwargs)
     def get(self, request, *args, **kwargs):
-        """
-        This method handles GET requests.
-
-        If a GET request reaches this point, the wizard assumes that the user
-        just starts at the first step or wants to restart the process.
-        The data of the wizard will be resetted before rendering the first step
-        """
+        #If there is already a registration started, resume it
+        existing_registration = self.get_registration()
+        if existing_registration:
+            self.render_goto_step(self.steps.first)
+        
         self.test = request.GET.has_key('test')
         test_redirect_parameter = '?test' if self.test else ''
+        
         try:
             registration = self.registration
             if registration.status == Registration.STATUS_WAITLIST_INCOMPLETE and not kwargs.get('waitlist',False):
