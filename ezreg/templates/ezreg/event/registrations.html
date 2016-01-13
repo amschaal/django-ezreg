@@ -10,7 +10,7 @@
 
 <div ng-controller="RegistrationController" ng-init='init("{{event.id}}",{{statuses|safe}},{{processors|safe}},{{payment_statuses|safe}} );'>
 	<span class="pull-right">
-	{[getSelected().length]} selected
+	{[getSelected().length]} selected <a ng-click="selectAll()">Select All</a>
 		<div class="btn-group" dropdown is-open="status.isopen">
 		  <button type="button" class="btn btn-default" dropdown-toggle ng-disabled="disabled">
 		    Action<span class="caret"></span>

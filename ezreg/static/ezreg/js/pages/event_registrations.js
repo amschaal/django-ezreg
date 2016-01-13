@@ -44,6 +44,16 @@ function RegistrationController($scope,$http,$modal,growl,Registration,NgTablePa
 	$scope.modifyRegistrationLink = function(registration){return django_js_utils.urls.resolve('modify_registration', { id: registration.id })};
 	$scope.updateRegistrationStatusLink = function(registration){return django_js_utils.urls.resolve('update_registration_status', { id: registration.id })};
 	
+	$scope.selectAll = function(){
+		$http.get('/api/registrations/',{params:$scope.registrationParameters}).then(function(response){
+	  		console.log(response.data);
+	  		$scope.checked = {}
+	  		angular.forEach(response.data.results,function(registration,index){
+	  			$scope.checked[registration.id]=true;
+	  		});
+	  		
+	  	});
+	}
 	
 //	var registrations = Registration.query({event: '2Z89K20AZ3'});
 	$scope.tableParams = new NgTableParams({
@@ -54,13 +64,12 @@ function RegistrationController($scope,$http,$modal,growl,Registration,NgTablePa
 //	      dataset: registrations
 		  	getData: function(params) {
 		  		var url = params.url();
-		  		console.log(params);
-		  		console.log(url);
 		  	var query_params = {event:$scope.id,test:'False',page:url.page,page_size:url.count,ordering:params.orderBy().join(',').replace('+','')};
 		  	angular.extend(query_params, params.filter());
 	        // ajax request to api
+		  	$scope.registrationParameters = angular.copy(query_params);
+		  	angular.extend($scope.registrationParameters, {page_size:10000,page:1});
 		  	return $http.get('/api/registrations/',{params:query_params}).then(function(response){
-		  		console.log(response.data);
 		  		params.total(response.data.count);
 		  		return response.data.results;
 		  	});

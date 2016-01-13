@@ -48,7 +48,9 @@ class EventForm(forms.ModelForm):
                   'end_time': 'Event End Time',
                   'active':'Activate registration',
                   'from_addr':'From address',
-                  'address':'Location'
+                  'address':'Location',
+                  'display_address': 'Display location',
+                  'expiration_time': 'Expiration time (minutes)'
         }
         help_texts = {
             'slug': 'The slug will be used in the event URL.  Use only alphanumeric characters and underscores.',
@@ -59,7 +61,8 @@ class EventForm(forms.ModelForm):
             'bcc':'Comma delimited email addresses that should be BCCed with each registration email.',
             'from_addr':'Email address that registration emails should be sent from, if different from the default.',
             'display_address':'Should the location be shown on the event page?',
-            'address':'Where is the event located?  This will be included in the ical event sent with confirmation emails.'
+            'address':'Where is the event located?  This will be included in the ical event sent with confirmation emails.',
+            'expiration_time':'Registrations must be completed within this time limit.'
         }
         widgets = {
 #                     'open_until':forms.TextInput(attrs={'datepicker-popup':"yyyy-MM-dd", 'is-open':"blah", 'ng-click':"blah=true", 'ng-model':"dt"})
