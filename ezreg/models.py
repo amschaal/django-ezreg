@@ -58,6 +58,7 @@ class Event(models.Model):
     open_until = models.DateField()
     start_time = models.DateTimeField(blank=True,null=True)
     end_time = models.DateTimeField(blank=True,null=True)
+    display_address = models.BooleanField(default=True)
     address = models.TextField(blank=True,null=True)
     advertise = models.BooleanField(default=False)
     payment_processors = models.ManyToManyField('PaymentProcessor',through='EventProcessor')

@@ -47,7 +47,8 @@ class EventForm(forms.ModelForm):
                   'start_time': 'Event Start Time',
                   'end_time': 'Event End Time',
                   'active':'Activate registration',
-                  'from_addr':'From address'
+                  'from_addr':'From address',
+                  'address':'Location'
         }
         help_texts = {
             'slug': 'The slug will be used in the event URL.  Use only alphanumeric characters and underscores.',
@@ -56,7 +57,9 @@ class EventForm(forms.ModelForm):
             'enable_waitlist':'Once the event fills up, allow users to waitlist.',
             'enable_application':'Users will be able to fill out all fields not related to payment, marking their status as applied.  The event coordinator will need to select which applications can proceed to complete registration.  DO NOT USE with waitlist.',
             'bcc':'Comma delimited email addresses that should be BCCed with each registration email.',
-            'from_addr':'Email address that registration emails should be sent from, if different from the default.'
+            'from_addr':'Email address that registration emails should be sent from, if different from the default.',
+            'display_address':'Should the location be shown on the event page?',
+            'address':'Where is the event located?  This will be included in the ical event sent with confirmation emails.'
         }
         widgets = {
 #                     'open_until':forms.TextInput(attrs={'datepicker-popup':"yyyy-MM-dd", 'is-open':"blah", 'ng-click':"blah=true", 'ng-model':"dt"})
