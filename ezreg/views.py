@@ -196,7 +196,7 @@ def export_registrations(request, event):
     writer.writerow(fields)
     for r in registrations:
         values = [r.first_name, r.last_name, r.email]
-        values += [r.get_form_value(field['name']) for field in form_fields]
+        values += [unicode(r.get_form_value(field['name'])).encode("utf-8") for field in form_fields]
         writer.writerow(values)
 
     return response
