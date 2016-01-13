@@ -187,7 +187,9 @@ def export_registrations(request, event):
     response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
     writer = csv.writer(response)
     print request.POST
-    form_fields = [field for field in event.form_fields if 'layout' not in field['type'] and request.POST.get('fields_%s'%field['name'],False)]
+    form_fields = []
+    if event.form_fields:
+        form_fields = [field for field in event.form_fields if 'layout' not in field['type'] and request.POST.get('fields_%s'%field['name'],False)]
     fields = ['First Name', 'Last Name', 'Email']
     fields += [field['label'] for field in form_fields]
     
