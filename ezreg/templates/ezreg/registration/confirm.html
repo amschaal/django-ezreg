@@ -41,7 +41,7 @@
 <!-- <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.first }}" class="btn btn-primary">{% trans "first step" %}</button> -->
 <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}" class="btn btn-primary">{% trans "Back" %}</button>
 {% endif %}
-<input type="submit" value="{% trans "Confirm" %}" class="btn btn-primary"/>
+<input onClick="this.disabled=true;this.form.submit();" type="submit" value="{% trans "Confirm" %}" class="btn btn-primary"/>
 <button name="wizard_goto_step" type="submit" value="cancel" class="btn btn-danger pull-right">{% trans "Cancel" %}</button>
 </form>
 {% endblock %}
