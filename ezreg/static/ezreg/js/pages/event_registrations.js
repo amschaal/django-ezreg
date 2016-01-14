@@ -45,14 +45,17 @@ function RegistrationController($scope,$http,$modal,growl,Registration,NgTablePa
 	$scope.updateRegistrationStatusLink = function(registration){return django_js_utils.urls.resolve('update_registration_status', { id: registration.id })};
 	
 	$scope.selectAll = function(){
-		$http.get('/api/registrations/',{params:$scope.registrationParameters}).then(function(response){
-	  		console.log(response.data);
-	  		$scope.checked = {}
-	  		angular.forEach(response.data.results,function(registration,index){
-	  			$scope.checked[registration.id]=true;
-	  		});
-	  		
-	  	});
+		if ($scope.select_all)
+			$http.get('/api/registrations/',{params:$scope.registrationParameters}).then(function(response){
+		  		console.log(response.data);
+		  		$scope.checked = {}
+		  		angular.forEach(response.data.results,function(registration,index){
+		  			$scope.checked[registration.id]=true;
+		  		});
+		  		
+		  	});
+		else
+			$scope.checked = {};
 	}
 	
 //	var registrations = Registration.query({event: '2Z89K20AZ3'});
