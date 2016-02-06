@@ -14,9 +14,6 @@ from django.conf import settings
 def generate_email(to,from_addr,subject,template,html_template,context={},bcc=None,registration=None):
     if registration:
         subject = subject if not registration.test else '***Test*** '+subject
-    print '*************'
-    print registration
-    print subject
     context['site_url'] = settings.SITE_URL
     html = render_to_string(html_template,context)
     body = render_to_string(template,context)
@@ -26,8 +23,18 @@ def generate_email(to,from_addr,subject,template,html_template,context={},bcc=No
 #     msg = EmailMultiAlternatives(subject, body, from_addr, to, bcc)
 #     msg.attach_alternative(html, 'text/html')
     return message
-    
-    
+
+def send_text_email(to,from_addr,subject,body,context={},cc=[],bcc=[],registration=None):
+    body = render_to_string(body,context)
+    message = MailerMessage(to_address=', '.join(to),from_address=from_addr,subject=subject,content=body)
+    if bcc:
+        message.bcc_address = ', '.join(bcc)
+    message.save()
+    if registration:
+        registration.email_messages.add(message)
+        registration.save()
+    return message
+
 def send_email(to,from_addr,subject,template,html_template=None,context={},cc=[],bcc=[],registration=None):
     msg = generate_email(to, from_addr, subject, template, html_template=html_template, context=context, bcc=bcc,registration=registration)
     msg.save()

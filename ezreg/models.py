@@ -231,7 +231,8 @@ class Payment(models.Model):
     STATUS_CANCELLED = 'CANCELLED'
     STATUS_INVALID_AMOUNT = 'INVALID_AMOUNT'
     STATUS_PAID = 'PAID'
-    STATUS_CHOICES = ((STATUS_UNPAID,'Unpaid'),(STATUS_PENDING,'Pending'),(STATUS_PAID,'Paid'),(STATUS_CANCELLED,'Cancelled'),(STATUS_INVALID_AMOUNT,'Invalid Amount'))
+    STATUS_ERROR = 'ERROR'
+    STATUS_CHOICES = ((STATUS_UNPAID,'Unpaid'),(STATUS_PENDING,'Pending'),(STATUS_PAID,'Paid'),(STATUS_CANCELLED,'Cancelled'),(STATUS_INVALID_AMOUNT,'Invalid Amount'),(STATUS_ERROR,'Error'))
     processor = models.ForeignKey('PaymentProcessor',null=True,blank=True)
     status = models.CharField(max_length=20,default=STATUS_UNPAID,choices=STATUS_CHOICES)
     paid_at = models.DateTimeField(blank=True,null=True)

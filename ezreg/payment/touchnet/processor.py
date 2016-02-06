@@ -4,6 +4,7 @@ from django.conf import settings
 class TouchnetPaymentProcessor(BasePaymentProcessor):
     id = 'touchnet_payment_processor'
     name = 'Touchnet Payment Processor'
+    payment_template = 'touchnet/pay.html'
     @staticmethod
     def get_configuration_form():
         return TouchnetConfigurationForm

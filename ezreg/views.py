@@ -133,7 +133,7 @@ def registration(request,id):
 
 def pay(request,id):
     registration = Registration.objects.get(id=id)
-    return render(request, 'ezreg/pay.html', {'registration':registration},context_instance=RequestContext(request))
+    return render(request, registration.payment.processor.get_processor().payment_template, {'registration':registration},context_instance=RequestContext(request))
 
 @has_permissions([OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS])
 def payment_processors(request):

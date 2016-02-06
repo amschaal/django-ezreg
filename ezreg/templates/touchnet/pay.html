@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+{% with post_form=registration.payment.get_post_form %}
+{{post_form}}
+<form method="POST" name="payment" action="{{post_form.action}}">
+{{post_form}}
+<button class="btn btn-primary">Pay</button>
+</form>
+<script>
+window.onload = function(){
+	  document.forms['payment'].submit()
+	}
+</script>
+{% endwith%}
+{% endblock %}

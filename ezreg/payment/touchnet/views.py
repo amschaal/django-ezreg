@@ -5,6 +5,7 @@ from datetime import datetime
 from ezreg.payment.touchnet.permissions import IPAddressPermission
 import logging
 from ezreg.payment.touchnet.processor import TouchnetPaymentProcessor
+from ezreg.email import email_status
 
 
 """
@@ -47,9 +48,7 @@ def postback(request):
     req = {k.upper():v for k,v in request.POST.items()} #Touchnet seems inconsistent about case
     logger = logging.getLogger('touchnet')
     try:
-        print req.get('EXT_TRANS_ID')
         fid, registration_id = req.get('EXT_TRANS_ID').split(";")
-        print registration_id
         registration = Registration.objects.get(id=registration_id)
         payment = registration.payment
         posting_key = TouchnetPaymentProcessor.get_posting_key(payment)
@@ -63,17 +62,24 @@ def postback(request):
                 payment.status = Payment.STATUS_PAID
                 payment.paid_at = datetime.now()
                 payment.save()
+                registration.status = Registration.STATUS_REGISTERED
+                registration.save()
+                email_status(registration)
             else:
                 payment.status = Payment.STATUS_INVALID_AMOUNT
                 payment.save()
                 raise Exception('Invalid amount posted %s, expecting %f' % (req.get('PMT_AMT'),payment.amount))
             payment.save()
         elif req.get('PMT_STATUS')=='cancelled':
-            payment.status = Payment.STATUS_CANCELLED
-            payment.save()
+#             payment.status = Payment.STATUS_CANCELLED
+#             payment.save()
+            payment.delete()
+            registration.delete()
         return JsonResponse({'status':'ok','payment_status':payment.status})
     except Exception, e:
         # Get an instance of a logger
+        payment.status = Payment.STATUS_ERROR
+        payment.save()
         logger.info("Error for EXT_TRANS_ID: %s"%req.get('EXT_TRANS_ID',''))
         logger.error(e.message)
         return JsonResponse({'status':'error'},status=400)

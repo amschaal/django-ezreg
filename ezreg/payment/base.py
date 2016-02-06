@@ -2,6 +2,7 @@ from django import forms
 class BasePaymentProcessor:
     id = 'base_payment_processor'
     name = 'Base Payment Processor'
+    payment_template = 'ezreg/pay.html'
     def __init__(self,config):
         self.config = config
     @staticmethod
