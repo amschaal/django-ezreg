@@ -71,10 +71,12 @@ def postback(request):
                 raise Exception('Invalid amount posted %s, expecting %f' % (req.get('PMT_AMT'),payment.amount))
             payment.save()
         elif req.get('PMT_STATUS')=='cancelled':
-#             payment.status = Payment.STATUS_CANCELLED
-#             payment.save()
-            payment.delete()
-            registration.delete()
+            payment.status = Payment.STATUS_CANCELLED
+            payment.save()
+            registration.status = Registration.STATUS_CANCELLED
+            registration.save()
+#             payment.delete()
+#             registration.delete()
         return JsonResponse({'status':'ok','payment_status':payment.status})
     except Exception, e:
         # Get an instance of a logger
