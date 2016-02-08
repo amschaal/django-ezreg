@@ -15,6 +15,7 @@ import csv
 from ezreg.decorators import event_access_decorator,\
     generic_permission_decorator, has_permissions
 from django_json_forms.forms import JSONForm
+from django.utils import timezone
 
 def home(request):
     upcoming = Event.objects.filter(advertise=True,active=True,open_until__gte=datetime.today()).order_by('start_time')[:5]
@@ -184,7 +185,7 @@ def export_registrations(request, event):
     print request.POST.getlist('selection')
     registrations = event.registrations.filter(id__in=request.POST.getlist('selection'))
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+    response['Content-Disposition'] = 'attachment; filename="%s_registrations_%s.csv"'%(event.title.replace(' ','_'),timezone.now().strftime("%Y_%m_%d__%H_%M"))
     writer = csv.writer(response)
     print request.POST
     form_fields = []
