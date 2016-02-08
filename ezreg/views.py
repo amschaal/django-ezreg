@@ -182,10 +182,11 @@ def configure_payment_processor(request,id):
     
 @event_access_decorator([OrganizerUserPermission.PERMISSION_VIEW])
 def export_registrations(request, event):
-    print request.POST.getlist('selection')
+    import re
+#     print request.POST.getlist('selection')
     registrations = event.registrations.filter(id__in=request.POST.getlist('selection'))
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="%s_registrations_%s.csv"'%(event.title.replace(' ','_'),timezone.now().strftime("%Y_%m_%d__%H_%M"))
+    response['Content-Disposition'] = 'attachment; filename="%s_registrations_%s.csv"'%(re.sub('[^0-9a-zA-Z_]+', '', event.title.replace(' ','_')) ,timezone.now().strftime("%Y_%m_%d__%H_%M"))
     writer = csv.writer(response)
     print request.POST
     form_fields = []
