@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status
 from ezreg.api.serializers import PriceSerializer, PaymentProcessorSerializer,\
-    EventPageSerializer, RegistrationSerializer, MailerMessageSerializer
+    EventPageSerializer, RegistrationSerializer, MailerMessageSerializer,\
+    EventSerializer
 from ezreg.models import Price, PaymentProcessor, Event, EventProcessor,\
     EventPage, Registration, OrganizerUserPermission
 from rest_framework.decorators import api_view
@@ -26,6 +27,13 @@ class PaymentProcessorViewset(viewsets.ReadOnlyModelViewSet):
     search_fields = ('organizer',)
     def get_queryset(self):
         return PaymentProcessor.objects.filter(organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN,organizer__user_permissions__user=self.request.user)
+
+class EventViewset(viewsets.ModelViewSet):
+    serializer_class = EventSerializer
+#     filter_fields = ('event',)
+    search_fields = ('title',)
+    def get_queryset(self):
+        return Event.objects.filter(organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN,organizer__user_permissions__user=self.request.user)
 
 class EventPageViewset(viewsets.ModelViewSet):
     serializer_class = EventPageSerializer

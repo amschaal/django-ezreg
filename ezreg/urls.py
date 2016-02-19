@@ -21,7 +21,7 @@ from rest_framework import routers
 from django_json_forms import urls as json_form_urls
 
 from ezreg.api.views import PriceViewset, PaymentProcessorViewset, \
-    EventPageViewset, RegistrationViewset, MailerMessageViewset
+    EventPageViewset, RegistrationViewset, MailerMessageViewset, EventViewset
 from ezreg.registration import RegistrationWizard
 from django.utils.importlib import import_module
 
@@ -30,6 +30,7 @@ router = routers.DefaultRouter()
 router.register(r'prices', PriceViewset, 'Price')
 router.register(r'payment_processors', PaymentProcessorViewset, 'PaymentProcessor')
 router.register(r'event_pages', EventPageViewset, 'EventPage')
+router.register(r'events', EventViewset, 'Event')
 router.register(r'registrations', RegistrationViewset, 'Registration')
 router.register(r'emails', MailerMessageViewset, 'Email')
 

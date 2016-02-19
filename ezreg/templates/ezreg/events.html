@@ -1,41 +1,24 @@
 {% extends 'base.html' %}
+{% block headend %}
+<script src="/static/ezreg/js/pages/manage_events.js"></script>
+{% endblock %}
 {% block content %}
 <div class="page-header"><h1>Events 
 {% if OrganizerUserPermission.PERMISSION_ADMIN in all_user_permissions %}
 <a class="btn btn-primary pull-right" href="{% url 'create_event'%}">Create</a>
 {% endif %}
 </h1></div>
-{% if events.count > 0 %}
-<div class="table-responsive">
-<table class="table table-striped">
-  <thead>
-    <tr>
-    	<th>Title</th>
-    	<th>Capacity</th>
-    	<th>Registered</th>
-    	<th>Waitlisted</th>
-    	<th>Applied</th>
-    	<th>Pending</th>
-    	<th>Cancelled</th>
-    </tr>
-  </thead>
-  <tbody>
-  {% for event in events %}
-	<tr>
-		<td><a href="{% url 'event' slug_or_id=event.slug_or_id %}">{{event.title}}</a></td>
-		<td>{{event.capacity}}</td>
-		<td>{{event.registered}}</td>
-		<td>{{event.waitlisted}}</td>
-		<td>{{event.applied}}</td>
-		<td>{{event.pending}}</td>
-		<td>{{event.cancelled}}</td>
-		<td><span class="pull-right"><a href="{% url 'manage_event' event=event.id %}">Manage</a></span> </td>
-	</tr>
-  {% endfor %}
-  </tbody>
-</table>
+<div ng-controller="EventsController" ng-init="init()">
+	<table ng-table="tableParams" class="table table-condensed table-bordered table-striped">
+      <tr ng-repeat="row in $data">
+        <td data-title="'Title'" filter="{title: 'text'}" sortable="'title'"><a href="{[ getURL('manage_event',{event:row.id}) ]}">{[row.title]}</a></td>
+        <td data-title="'Capacity'" sortable="'capacity'">{[row.capacity]}</td>
+        <td data-title="'Registered'" sortable="'registered'">{[row.registered]}</td>
+        <td data-title="'Waitlisted'" sortable="'waitlisted'">{[row.waitlist]}</td>
+        <td data-title="'Applied'" sortable="'applied'">{[row.applied]}</td>
+        <td data-title="'Pending'" sortable="'pending'">{[row.pending]}</td>
+        <td data-title="'Cancelled'" sortable="'cancelled'">{[row.cancelled]}</td>
+      </tr>
+    </table>
 </div>
-{% else %}
-<h3>You have no events to manage.  <a href="{% url 'create_event'%}">Add</a> one!</h3>
-{% endif %}
 {% endblock %}

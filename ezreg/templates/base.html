@@ -53,18 +53,23 @@
     <script src="{% url 'jsurls'%}"></script>
         
     <script>
-	    var ezreg = angular.module('ezreg', ['ui.bootstrap', 'ui.router', 'ngCookies', 'ngResource', 'ezregModels','angular-growl']);
+	    var ezreg = angular.module('ezreg', ['ui.bootstrap', 'ui.router', 'ngCookies', 'ngResource', 'ezregModels','angular-growl','ngTable']);
 	    ezreg.config(['$httpProvider', function($httpProvider) {
 		    $httpProvider.defaults.headers.common['X-CSRFToken'] = '{{ csrf_token|escapejs }}';
-		}]);
-	    ezreg.config(function($interpolateProvider) {
+		}])
+	    .config(function($interpolateProvider) {
 		  $interpolateProvider.startSymbol('{[');
 		  $interpolateProvider.endSymbol(']}');
-		});
-	    ezreg.config(['$resourceProvider', function($resourceProvider) {
+		})
+	    .config(['$resourceProvider', function($resourceProvider) {
 		  // Don't strip trailing slashes from calculated URLs
 		  $resourceProvider.defaults.stripTrailingSlashes = false;
-		}]);
+		}])
+		.run(function($rootScope) {
+			$rootScope.getURL = function(name,params){
+				return django_js_utils.urls.resolve(name, params);
+			}
+	    });
     </script>
     {% block headend %}
     {% endblock %}
