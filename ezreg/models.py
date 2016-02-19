@@ -145,6 +145,7 @@ class EventPage(models.Model):
 
 class Price(models.Model):
     event = models.ForeignKey('Event',related_name='prices')
+    order = models.PositiveSmallIntegerField(null=True,blank=True)
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=250,blank=True)
     amount = models.DecimalField(decimal_places=2,max_digits=7)

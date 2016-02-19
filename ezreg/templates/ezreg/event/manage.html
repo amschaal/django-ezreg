@@ -38,7 +38,7 @@
 <form method="POST" action=".">
 {% csrf_token %}
 {{form|crispy}}
-<button class="btn btn-primary">Submit</button>
+<button class="btn btn-primary">{% if event.id %}Save{% else %}Create{% endif %}</button>
 </form>
 </tab>
 <tab heading="Form">
@@ -48,8 +48,12 @@
 <div ng-controller="PriceController" ng-init="init({'event_id':'{{event.id}}','organizer':'{{event.organizer_id}}','event_processors_url':'{% url 'event_payment_processors' event=event.id %}'})">
 	<h3>Prices</h3>
 	<table class="table" ng-if="prices.length > 0">
-		<tr><th>* Name</th><th>* Amount</th><th>Description</th><th>Coupon Code</th><th>Start Date</th><th>End Date</th><th></th></tr>
+		<tr><th>Order</th><th>* Name</th><th>* Amount</th><th>Description</th><th>Coupon Code</th><th>Start Date</th><th>End Date</th><th></th></tr>
 		<tr ng-repeat="price in prices">
+			<td ng-class="{'has-error':price.errors.order}">
+				<ul ng-if="price.errors.order"><li ng-repeat="error in price.errors.order">{[error]}</li></ul>
+				<input type="number" title="{[price.errors.order]}" style="width:80px;"class="form-control" ng-model="price.order"/>
+			</td>
 			<td ng-class="{'has-error':price.errors.name}">
 				<ul ng-if="price.errors.name"><li ng-repeat="error in price.errors.name">{[error]}</li></ul>
 				<input title="{[price.errors.name]}" class="form-control" ng-model="price.name"/>

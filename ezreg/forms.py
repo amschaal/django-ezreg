@@ -139,11 +139,11 @@ class PriceForm(forms.Form):
     def get_payment_method_queryset(self):
         return self.event.payment_processors.filter(hidden=False)
     def get_price_queryset(self):
-        prices = self.event.prices.exclude(start_date__isnull=False,start_date__gt=datetime.today()).exclude(end_date__isnull=False,end_date__lt=datetime.today()).exclude(coupon_code__isnull=False)
+        prices = self.event.prices.exclude(start_date__isnull=False,start_date__gt=datetime.today()).exclude(end_date__isnull=False,end_date__lt=datetime.today()).exclude(coupon_code__isnull=False).order_by('order')
         #Add coupon price if available
         if self.coupon_price:
             price_ids = [p.id for p in prices]+[self.coupon_price.id]
-            prices = self.event.prices.filter(id__in=price_ids)#prices #@todo: figure out filter to only allow coupon in addition
+            prices = self.event.prices.filter(id__in=price_ids).order_by('order')#prices #@todo: figure out filter to only allow coupon in addition
         return prices
     def clean_price(self):
         if self.coupon_price:

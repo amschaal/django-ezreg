@@ -17,7 +17,7 @@ class PriceSerializer(serializers.ModelSerializer):
         return super(PriceSerializer,self).to_internal_value(data)
     class Meta:
         model = Price
-        fields = ('id','event','name','amount','description','coupon_code','start_date','end_date')
+        fields = ('id','order','event','name','amount','description','coupon_code','start_date','end_date')
     
 
 class PaymentProcessorSerializer(serializers.ModelSerializer):
@@ -26,6 +26,11 @@ class PaymentProcessorSerializer(serializers.ModelSerializer):
         fields = ('id','processor_id','name','description','hidden','config')
         
 class EventPageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventPage
+        fields = ('id','event','slug','heading','body')
+
+class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventPage
         fields = ('id','event','slug','heading','body')
