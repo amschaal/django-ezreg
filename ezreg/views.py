@@ -180,7 +180,9 @@ def configure_payment_processor(request,id):
             processor.save()
             return redirect('payment_processors') #event.get_absolute_url()
     return render(request, 'ezreg/configure_payment_processor.html', {'form':form,'processor':processor} ,context_instance=RequestContext(request))
-    
+
+
+#@todo: Pretty ugly.  Should modularize this.  Handling custom payment data, custom form data, etc should be abstracted out of this function.
 @event_access_decorator([OrganizerUserPermission.PERMISSION_VIEW])
 def export_registrations(request, event):
     import re
@@ -196,23 +198,39 @@ def export_registrations(request, event):
     fields = ['Registered','First Name', 'Last Name', 'Email','Status']
     fields += [field['label'] for field in form_fields]
     
-    payment_fields = OrderedDict()
-    payment_field_labels = []
+    payment_fields_all = OrderedDict([('processor','Processor'),('status','Payment Status'),('paid_at','Paid at'),('amount','Amount'),('external_id','External ID')])
+    payment_fields = OrderedDict([(key,payment_fields_all[key]) for key in request.POST.getlist('payment_fields') if key in payment_fields_all])
+    
+    fields += payment_fields.values()
+    
+    processor_fields = OrderedDict()
+    processor_field_labels = []
     for processor in event.payment_processors.all():
         proc_fields = request.POST.getlist('processor_%d'%processor.id)
         if len(proc_fields):
             exportable_fields = processor.get_processor().exportable_fields
-            payment_fields[processor.id]=proc_fields
-            payment_field_labels += [exportable_fields[field] for field in proc_fields]
-    fields += payment_field_labels
+            processor_fields[processor.id]=proc_fields
+            processor_field_labels += [exportable_fields[field] for field in proc_fields]
+    fields += processor_field_labels
     
     writer.writerow(fields)
     
     for r in registrations:
         values = [r.registered, r.first_name, r.last_name, r.email, r.status]
+        #Add custom form field values
         values += [r.get_form_value(field['name']) for field in form_fields]
+        
+        
         payment = r.get_payment()
-        for processor_id, fields in payment_fields.iteritems():
+        
+        #Add selected payment fields
+        if payment:
+            values += [getattr(payment, key) for key in payment_fields.keys()]
+        else:
+            values += ['' for key in payment_fields.keys()]
+        
+        #Add selected payment processor fields
+        for processor_id, fields in processor_fields.iteritems():
             for field in fields:
                 if payment:
                     if payment.processor_id == processor_id and payment.data:

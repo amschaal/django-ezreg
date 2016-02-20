@@ -90,8 +90,15 @@
 					{% endif %}
 					{% endfor %}
 					</fieldset>
-					<h3>Payment Processors</h3>
-					
+					<h3>Payment</h3>
+					<h4><label><input type="checkbox" ng-model="select_all.payment_fields" ng-change="toggleSelect('payment_fields')"/>Payment fields</label></h4>
+					<fieldset>
+						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="processor"/> Processor </label>
+						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="status"/> Payment Status </label>
+						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="paid_at"/> Paid At </label>
+						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="amount"/> Amount </label>
+						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="external_id"/> External ID </label>
+					</fieldset>
 					{% for processor in event.payment_processors.all %}
 					{% if processor.get_processor.exportable_fields.keys %}
 					<h4><label><input type="checkbox" ng-model="select_all.processor_{{processor.id}}_fields" ng-change="toggleSelect('processor_{{processor.id}}_fields')"/>{{processor.name}}</label></h4>
