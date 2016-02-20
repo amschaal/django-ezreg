@@ -16,6 +16,7 @@ from ezreg.decorators import event_access_decorator,\
     generic_permission_decorator, has_permissions
 from django_json_forms.forms import JSONForm
 from django.utils import timezone
+from collections import OrderedDict
 
 def home(request):
     upcoming = Event.objects.filter(advertise=True,active=True,open_until__gte=datetime.today()).order_by('start_time')[:5]
@@ -184,21 +185,41 @@ def configure_payment_processor(request,id):
 def export_registrations(request, event):
     import re
 #     print request.POST.getlist('selection')
-    registrations = event.registrations.filter(id__in=request.POST.getlist('selection'))
+    registrations = event.registrations.filter(id__in=request.POST.getlist('selection')).prefetch_related('payment','payment__processor')
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="%s_registrations_%s.csv"'%(re.sub('[^0-9a-zA-Z_]+', '', event.title.replace(' ','_')) ,timezone.now().strftime("%Y_%m_%d__%H_%M"))
     writer = csv.writer(response)
     print request.POST
     form_fields = []
     if event.form_fields:
-        form_fields = [field for field in event.form_fields if 'layout' not in field['type'] and request.POST.get('fields_%s'%field['name'],False)]
-    fields = ['First Name', 'Last Name', 'Email']
+        form_fields = [field for field in event.form_fields if 'layout' not in field['type'] and field['name'] in request.POST.getlist('custom_fields')]
+    fields = ['Registered','First Name', 'Last Name', 'Email','Status']
     fields += [field['label'] for field in form_fields]
     
+    payment_fields = OrderedDict()
+    payment_field_labels = []
+    for processor in event.payment_processors.all():
+        proc_fields = request.POST.getlist('processor_%d'%processor.id)
+        if len(proc_fields):
+            exportable_fields = processor.get_processor().exportable_fields
+            payment_fields[processor.id]=proc_fields
+            payment_field_labels += [exportable_fields[field] for field in proc_fields]
+    fields += payment_field_labels
+    
     writer.writerow(fields)
+    
     for r in registrations:
-        values = [r.first_name, r.last_name, r.email]
+        values = [r.registered, r.first_name, r.last_name, r.email, r.status]
         values += [r.get_form_value(field['name']) for field in form_fields]
+        payment = r.get_payment()
+        for processor_id, fields in payment_fields.iteritems():
+            for field in fields:
+                if payment:
+                    if payment.processor_id == processor_id and payment.data:
+                        values.append(payment.data.get(field,''))
+                        continue
+                values.append('')
+                
         unicode_values = [unicode(v).encode("utf-8") for v in values]
         writer.writerow(unicode_values)
 

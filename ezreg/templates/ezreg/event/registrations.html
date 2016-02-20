@@ -81,14 +81,27 @@
             <div class="form-group form-inline">
    				<form id="exportForm" action="{% url 'export_registrations' event=event.id %}" method="POST">
 					{% csrf_token %}
-
+					
+					<h3><label><input type="checkbox" ng-model="select_all.custom_form_fields" ng-change="toggleSelect('custom_form_fields')"/>Form fields<label></h3>
 					<fieldset>
 					{% for field in event.form_fields %}
 					{% if field.label %}
-						<label><input type="checkbox" name="fields_{{field.name}}"/> {{field.label}}</label>
+						<label><input type="checkbox" class="custom_form_fields" name="custom_fields" value="{{field.name}}"/> {{field.label}}</label>
 					{% endif %}
 					{% endfor %}
 					</fieldset>
+					<h3>Payment Processors</h3>
+					
+					{% for processor in event.payment_processors.all %}
+					{% if processor.get_processor.exportable_fields.keys %}
+					<h4><label><input type="checkbox" ng-model="select_all.processor_{{processor.id}}_fields" ng-change="toggleSelect('processor_{{processor.id}}_fields')"/>{{processor.name}}</label></h4>
+						<fieldset>
+						{% for name,label in processor.get_processor.exportable_fields.iteritems %}
+							<label><input type="checkbox" class="processor_{{processor.id}}_fields" name="processor_{{processor.id}}" value="{{name}}"/> {{label}}</label>
+						{% endfor %}
+						</fieldset>
+					{% endif %}
+					{% endfor %}
     				<input ng-repeat="val in selected" type="hidden" name="selection" value="{[val]}"/>
     			</form>  
     		</div>

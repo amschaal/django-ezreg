@@ -223,6 +223,11 @@ class Registration(models.Model):
     @property
     def is_accepted(self):
         return self.status == Registration.STATUS_APPLIED_ACCEPTED
+    def get_payment(self):
+        try:
+            return self.payment
+        except Payment.DoesNotExist:
+            return None
 #     class Meta:
 #         unique_together = (('email','event'))
    

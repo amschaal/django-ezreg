@@ -191,6 +191,10 @@ app.controller('exportCtrl', function ($scope, $http, growl, $modalInstance, eve
 		  $('#exportForm').submit();
 		  $modalInstance.close();
 	  };
+	  $scope.toggleSelect = function(key){
+		  console.log(key,$scope.select_all[key]);
+		  $('.'+key).prop('checked',$scope.select_all[key]);
+	  };
 	  $scope.cancel = function () {
 	    $modalInstance.dismiss('cancel');
 	  };
