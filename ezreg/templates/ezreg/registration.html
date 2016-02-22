@@ -2,7 +2,6 @@
 {% block content %}
 {{message}}
 {% include 'ezreg/partials/registration_details.html' %}
-{% include 'ezreg/partials/payment.html' %}
 <b>Registration status:</b> {{registration.get_status_display}}
 
 {% if registration.is_waitlist_pending or registration.is_accepted %}

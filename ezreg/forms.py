@@ -154,7 +154,18 @@ class PriceForm(forms.Form):
         if coupon_code and not self.coupon_price:
                 raise ValidationError('Invalid coupon code')
         return coupon_code
-            
+
+#Form that allows admin to choose ANY price for an event 
+class AdminPriceForm(forms.Form):
+    price = forms.ModelChoiceField(Price,required=True,empty_label=None,widget=forms.widgets.RadioSelect)
+    def __init__(self, *args, **kwargs):
+        self.event = kwargs.pop('event')
+        super(AdminPriceForm,self).__init__(*args, **kwargs)
+        self.fields['price'].queryset = self.get_price_queryset()
+    def get_price_queryset(self):
+        prices = self.event.prices.order_by('order')
+        return prices
+
 
 class PriceFormsetHelper(FormHelper):
     def __init__(self, *args, **kwargs):

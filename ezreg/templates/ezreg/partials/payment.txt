@@ -1,0 +1,14 @@
+{% if registration.payment %}
+-Payment-
+
+Processor: {{registration.payment.processor}}
+Status: {{registration.payment.get_status_display}}
+Amount: ${{registration.payment.amount}}
+{% with registration.payment.get_populated_form as payment_form %}
+{% if payment_form %}
+{% for field in payment_form %}
+{{field.label}}: {{field.value}}
+{% endfor %}
+{% endif %}
+{% endwith %}
+{% endif %}

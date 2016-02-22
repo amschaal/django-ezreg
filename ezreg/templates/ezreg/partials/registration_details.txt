@@ -6,5 +6,5 @@ Event: {{registration.event.title}}
 {{field.label}}:	{{field.value}}
 {% endfor %}
 
-
+{% include 'ezreg/partials/payment.txt' %}
 

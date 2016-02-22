@@ -148,13 +148,16 @@ class RegistrationWizard(SessionWizardView):
         custom_data_fields = []
         custom_data = self.get_cleaned_data_for_step('registration_form_custom')
         if custom_data:
-            for field in self.event.form_fields:
-                if field.has_key('name'):
-                    if custom_data.has_key(field['name']):
-                        custom_data_fields.append({'name':field['name'],'label':field['label'],'value':custom_data[field['name']]})
-        context['registration_form_custom'] = custom_data_fields
+            context['registration_form_custom'] = self.get_form('registration_form_custom', custom_data)
+#             for field in self.event.form_fields:
+#                 if field.has_key('name'):
+#                     if custom_data.has_key(field['name']):
+#                         custom_data_fields.append({'name':field['name'],'label':field['label'],'value':custom_data[field['name']]})
+#         context['registration_form_custom'] = custom_data_fields
         context['price'] = self.get_cleaned_data_for_step('price_form') or None
         context['payment'] = self.get_cleaned_data_for_step('payment_form') or None
+        if context['payment']:
+            context['payment_form'] = self.get_form('payment_form', context['payment'])
         return context
 #     def dispatch(self, request, *args, **kwargs):
 #         self.event = Event.objects.get(Q(id=self.kwargs['slug_or_id'])|Q(slug=self.kwargs['slug_or_id']))

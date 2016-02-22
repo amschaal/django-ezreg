@@ -1,11 +1,15 @@
 {% if registration.payment %}
 <h2>Payment</h2>
 <table class="table">
-<tr><th>Processor:</th><td>{{registration.payment.processor}}</td></tr>
-<tr><th>Status:</th><td>{{registration.payment.status}}</td></tr>
-<tr><th>Amount:</th><td>${{registration.payment.amount}}</td></tr>
-{% for field, value in registration.payment.data.items %}
-<tr><th>{{field}}:</th><td>{{value}}</td></tr>
+<tr><th>Processor</th><td>{{registration.payment.processor}}</td></tr>
+<tr><th>Status</th><td>{{registration.payment.get_status_display}}</td></tr>
+<tr><th>Amount</th><td>${{registration.payment.amount}}</td></tr>
+{% with registration.payment.get_populated_form as payment_form %}
+{% if payment_form %}
+{% for field in payment_form %}
+<tr><th>{{field.label}}</th><td>{{field.value}}</td></tr>
 {% endfor %}
+{% endif %}
+{% endwith %}
 </table>
 {% endif %}

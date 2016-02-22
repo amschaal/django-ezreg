@@ -5,13 +5,17 @@
     
 {% block content %}
 {% include 'ezreg/partials/registration_details.html' %}
-
-<h2>Update status</h2>
+<h2>Modify payment</h2>
+{% if price_form and payment_form %}
 <form method="POST" action=".">
 {%csrf_token%}
-{{form|crispy}}
+{{price_form|crispy}}
+{{payment_form|crispy}}
 <button class="btn">Update</button>
 </form>
+{% else %}
+<h3>Paid registrations may not be modified</h3>
+{% endif %}
 
 
 {% endblock %}

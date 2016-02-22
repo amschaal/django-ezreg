@@ -249,7 +249,18 @@ class Payment(models.Model):
     def get_post_form(self):
         processor = self.processor.get_processor()
         return processor.get_post_form(self)
-    
+    def get_form(self):
+        processor = self.processor.get_processor()
+        return processor.get_form()
+    def get_populated_form(self):
+        form_class = self.get_form()
+        if not form_class:
+            return None
+        if self.data:
+            return form_class(self.data,event=self.registration.event)
+        else:
+            return form_class(event=self.registration.event)
+
 class PaymentProcessor(models.Model):
     processor_id = models.CharField(max_length=30)
 #     group = models.ForeignKey(Group)

@@ -45,6 +45,7 @@
 			    <li role="menuitem"><a href="{[registrationLink(row)]}">View details</a></li>
 			    {% if 'admin' in permissions %}
 			    	<li role="menuitem"><a href="{[modifyRegistrationLink(row)]}">Modify</a></li>
+			    	<li role="menuitem"><a href="{[getURL('modify_payment',{id:row.id})]}">Modify Payment</a></li>
 			    	<li role="menuitem"><a href="{[updateRegistrationStatusLink(row)]}">Update status</a></li>
 			    {% endif %}
 			  </ul>

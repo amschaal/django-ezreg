@@ -15,18 +15,22 @@
 	<tr><th>First name:</th><td>{{registration_form.first_name}}</td></tr>
 	<tr><th>Last name:</th><td>{{registration_form.last_name}}</td></tr>
 	<tr><th>Email:</th><td>{{registration_form.email}}</td></tr>
-	{% for field in registration_form_custom %}
-	<tr><th>{{field.label}}</th><td>{{field.value}}</td></tr>
-	{% endfor %}
+	{% if registration_form_custom %}
+		{% for field in registration_form_custom %}
+		<tr><th>{{field.label}}</th><td>{{field.value}}</td></tr>
+		{% endfor %}
+	{% endif %}
 </table>
 {% if price %}
 <h2>Payment</h2>
 <table class="table">
 <tr><th>Processor:</th><td>{{price.payment_method}}</td></tr>
 <tr><th>Amount:</th><td>{{price.price}}</td></tr>
-{% for k,v in payment.items %}
-<tr><th>{{k}}</th><td>{{v}}</td></tr>
+{% if payment_form %}
+{% for field in payment_form %}
+<tr><th>{{field.label}}</th><td>{{field.value}}</td></tr>
 {% endfor %}
+{% endif %}
 </table>
 {% endif%}
 
