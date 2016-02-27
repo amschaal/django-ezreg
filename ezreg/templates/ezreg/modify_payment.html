@@ -4,7 +4,6 @@
 {% endblock %}
     
 {% block content %}
-{% include 'ezreg/partials/registration_details.html' %}
 <h2>Modify payment</h2>
 {% if price_form and payment_form %}
 <form method="POST" action=".">
@@ -16,6 +15,6 @@
 {% else %}
 <h3>Paid registrations may not be modified</h3>
 {% endif %}
-
+{% include 'ezreg/partials/registration_details.html' %}
 
 {% endblock %}

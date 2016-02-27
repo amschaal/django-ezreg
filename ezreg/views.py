@@ -17,6 +17,7 @@ from ezreg.decorators import event_access_decorator,\
 from django_json_forms.forms import JSONForm
 from django.utils import timezone
 from collections import OrderedDict
+from ezreg.utils import format_registration_data
 
 def home(request):
     upcoming = Event.objects.filter(advertise=True,active=True,open_until__gte=datetime.today()).order_by('start_time')[:5]
@@ -119,13 +120,10 @@ def modify_registration(request,id=None):
 def modify_payment(request,id=None):
     registration = Registration.objects.get(id=id)
     payment = registration.get_payment()
-    
     if payment.status == Payment.STATUS_PAID:
         return render(request, 'ezreg/modify_payment.html', {'registration':registration,'payment':payment} ,context_instance=RequestContext(request))
-    
+
     form_class = payment.get_form()
-    
-    
     if request.method == 'GET':
         price_form = AdminPriceForm({'price':registration.price_id},event=registration.event)
         payment_form = form_class(payment.data,event=registration.event)
@@ -138,8 +136,7 @@ def modify_payment(request,id=None):
             payment.amount = price_form.cleaned_data['price'].amount
             payment.save()
             registration.save()
-            
-            
+            return render(request, 'ezreg/modify_payment.html', {'payment_form':payment_form,'price_form':price_form,'registration':registration,'payment':payment} ,context_instance=RequestContext(request))
     return render(request, 'ezreg/modify_payment.html', {'payment_form':payment_form,'price_form':price_form,'registration':registration,'payment':payment} ,context_instance=RequestContext(request))
 
 
@@ -212,7 +209,7 @@ def configure_payment_processor(request,id):
 
 #@todo: Pretty ugly.  Should modularize this.  Handling custom payment data, custom form data, etc should be abstracted out of this function.
 @event_access_decorator([OrganizerUserPermission.PERMISSION_VIEW])
-def export_registrations(request, event):
+def export_registrations_old(request, event):
     import re
 #     print request.POST.getlist('selection')
     registrations = event.registrations.filter(id__in=request.POST.getlist('selection')).prefetch_related('payment','payment__processor')
@@ -268,5 +265,38 @@ def export_registrations(request, event):
                 
         unicode_values = [unicode(v).encode("utf-8") for v in values]
         writer.writerow(unicode_values)
+
+    return response
+
+
+
+@event_access_decorator([OrganizerUserPermission.PERMISSION_VIEW])
+def export_registrations(request, event):
+    import re
+#     print request.POST.getlist('selection')
+    registrations = event.registrations.filter(id__in=request.POST.getlist('selection')).prefetch_related('payment','payment__processor')
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="%s_registrations_%s.csv"'%(re.sub('[^0-9a-zA-Z_]+', '', event.title.replace(' ','_')) ,timezone.now().strftime("%Y_%m_%d__%H_%M"))
+    data = format_registration_data(event, registrations)
+    
+    writer = csv.writer(response)
+
+    fields = ['registered','first_name','last_name','email','status']
+    if event.form_fields:
+        fields += [field['name'] for field in event.form_fields if 'layout' not in field['type'] and field['name'] in request.POST.getlist('custom_fields')]
+    fields += request.POST.getlist('payment_fields')
+    for processor in event.payment_processors.all():
+        fields += request.POST.getlist('processor_%d'%processor.id)
+    
+    #get rid of fields that aren't available
+    fields = [field for field in fields if data['fields'].has_key(field)]
+    
+    #write headers
+    writer.writerow([data['fields'][field].get('label',field) for field in fields])
+    
+    #write data
+    for row in data['data']:
+        writer.writerow([unicode(row.get(field,'')).encode("utf-8") for field in fields])
+    
 
     return response

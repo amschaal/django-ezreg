@@ -1,5 +1,5 @@
 var app = angular.module('ezreg');
-app.requires.push('ngTable');
+app.requires.push('ngTable','nvd3ChartDirectives');
 app.controller('RegistrationController', ['$scope','$http','$modal','growl','Registration',"NgTableParams", RegistrationController])
 
 app.config(setConfigPhaseSettings);
@@ -150,6 +150,22 @@ function RegistrationController($scope,$http,$modal,growl,Registration,NgTablePa
 		      $log.info('Modal dismissed at: ' + new Date());
 		    });
 		  };
+		  $scope.visualize = function () {
+		    var modalInstance = $modal.open({
+		      animation: $scope.animationsEnabled,
+		      templateUrl: 'visualize.html',
+		      controller: 'vizCtrl',
+		      size: 'lg',
+		      resolve: {
+		        selected: function () {
+		          return $scope.getSelected();
+		        },
+		        event_id: function () {
+		          return $scope.id;
+		        }
+		      }
+	    });
+		  };
 }
 
 
@@ -176,17 +192,6 @@ app.controller('updateStatusCtrl', function ($scope, $http, growl, $modalInstanc
 app.controller('exportCtrl', function ($scope, $http, growl, $modalInstance, event_id, selected) {
 
 	  $scope.selected = selected;
-
-	  $scope.update_statuses = function () {
-		var url = django_js_utils.urls.resolve('export_registrations', { event: event_id });
-		$http.post(url,$scope.params).then(function(response){
-			$modalInstance.close($scope.params.selected);
-	  	}, function(response){
-			if (response.data.detail)
-				growl.error(response.data.detail ,{ttl: 5000});
-		});
-	    
-	  };
 	  $scope.export_registrations = function (){
 		  $('#exportForm').submit();
 		  $modalInstance.close();
@@ -199,3 +204,73 @@ app.controller('exportCtrl', function ($scope, $http, growl, $modalInstance, eve
 	    $modalInstance.dismiss('cancel');
 	  };
 	});
+
+app.controller('vizCtrl', function ($scope, $http, growl, $modalInstance, event_id, selected) {
+
+	  $scope.selected = selected;
+	  function exampleData() {
+		  return  [
+		      { 
+		        "label": "One",
+		        "value" : 29.765957771107
+		      } , 
+		      { 
+		        "label": "Two",
+		        "value" : 0
+		      } , 
+		      { 
+		        "label": "Three",
+		        "value" : 32.807804682612
+		      } , 
+		      { 
+		        "label": "Four",
+		        "value" : 196.45946739256
+		      } , 
+		      { 
+		        "label": "Five",
+		        "value" : 0.19434030906893
+		      } , 
+		      { 
+		        "label": "Six",
+		        "value" : 98.079782601442
+		      } , 
+		      { 
+		        "label": "Seven",
+		        "value" : 13.925743130903
+		      } , 
+		      { 
+		        "label": "Eight",
+		        "value" : 5.1387322875705
+		      }
+		    ];
+		}
+	  $scope.init = function(){
+		  nv.addGraph(function() {
+			  var chart = nv.models.pieChart()
+			      .x(function(d) { return d.label })
+			      .y(function(d) { return d.value })
+			      .showLabels(true);
+
+			    d3.select("#chart svg")
+			        .datum(exampleData())
+			        .transition().duration(350)
+			        .call(chart);
+
+			  return chart;
+			});
+	  };
+		  
+	  $scope.get_data = function () {
+//		var url = django_js_utils.urls.resolve('export_registrations', { event: event_id });
+		$http.get(url,{selected:$scope.selected}).then(function(response){
+			$modalInstance.close($scope.params.selected);
+	  	}, function(response){
+			if (response.data.detail)
+				growl.error(response.data.detail ,{ttl: 5000});
+		});
+	    
+	  };
+	  $scope.cancel = function () {
+	    $modalInstance.dismiss('cancel');
+	  };
+});

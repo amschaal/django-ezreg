@@ -1,4 +1,9 @@
+<script src="/static/vendor/d3/d3.min.js"></script>
+<script src="/static/vendor/d3/nv.d3.min.js"></script>
+<link rel="stylesheet" href="/static/vendor/d3/nv.d3.css">
+<script src="/static/vendor/d3/angularjs-nvd3-directives.js"></script>
 <script src="/static/ezreg/js/pages/event_registrations.js"></script>
+
 
 
 <script type="text/ng-template" id="checkbox_filter.html">
@@ -7,6 +12,7 @@
 <script type="text/ng-template" id="path/to/your/filters/number.html">
     <input type="text" name="{{name}}" ng-disabled="$filterRow.disabled" ng-model="params.filter()[name]" class="input-filter form-control" maxlengh="4" angular-mask="0000" placeholder="nnnn" />
 </script>
+
 
 <div ng-controller="RegistrationController" ng-init='init("{{event.id}}",{{statuses|safe}},{{processors|safe}},{{payment_statuses|safe}} );'>
 	<label><input type="checkbox" ng-model="select_all" ng-change="selectAll()"> Select All</label>
@@ -21,6 +27,7 @@
 		    <li role="menuitem" ng-click="update_statuses()"><a href="#">Update Statuses</a></li>
 		  {% endif %}
 		    <li role="menuitem" ng-click="export_registrations()"><a href="#">Export</a></li>
+		    <li role="menuitem" ng-click="visualize()"><a href="#">Visualize</a></li>
 		  </ul>
 		</div>
 	</span>
@@ -94,18 +101,18 @@
 					<h3>Payment</h3>
 					<h4><label><input type="checkbox" ng-model="select_all.payment_fields" ng-change="toggleSelect('payment_fields')"/>Payment fields</label></h4>
 					<fieldset>
-						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="processor"/> Processor </label>
-						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="status"/> Payment Status </label>
-						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="paid_at"/> Paid At </label>
-						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="amount"/> Amount </label>
-						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="external_id"/> External ID </label>
+						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="payment.processor"/> Processor </label>
+						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="payment.status"/> Payment Status </label>
+						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="payment.paid_at"/> Paid At </label>
+						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="payment.amount"/> Amount </label>
+						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="payment.external_id"/> External ID </label>
 					</fieldset>
 					{% for processor in event.payment_processors.all %}
 					{% if processor.get_processor.exportable_fields.keys %}
 					<h4><label><input type="checkbox" ng-model="select_all.processor_{{processor.id}}_fields" ng-change="toggleSelect('processor_{{processor.id}}_fields')"/>{{processor.name}}</label></h4>
 						<fieldset>
 						{% for name,label in processor.get_processor.exportable_fields.iteritems %}
-							<label><input type="checkbox" class="processor_{{processor.id}}_fields" name="processor_{{processor.id}}" value="{{name}}"/> {{label}}</label>
+							<label><input type="checkbox" class="processor_{{processor.id}}_fields" name="processor_{{processor.id}}" value="processor_{{processor.id}}_{{name}}"/> {{label}}</label>
 						{% endfor %}
 						</fieldset>
 					{% endif %}
@@ -121,4 +128,14 @@
     </script>
   </div>
 
-
+<script type="text/ng-template" id="visualize.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Visualize (<span title="{[params.selected.join(', ')]}">{[params.selected.length]}</span>)</h3>
+        </div>
+        <div class="modal-body" ng-init="init()">
+        <div id="chart"><svg></svg></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+        </div>
+    </script>
