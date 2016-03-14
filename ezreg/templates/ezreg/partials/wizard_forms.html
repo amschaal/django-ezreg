@@ -1,4 +1,5 @@
 {% load crispy_forms_tags %}
+<div id="reg_form">
 {{ wizard.management_form }}
 {% if wizard.form.forms %}
     {{ wizard.form.management_form }}
@@ -12,3 +13,4 @@
 		{{ form|crispy }}
 	{% endif %}
 {% endif %}
+</div>

@@ -1,3 +1,8 @@
+{% if form.errors %}
+<span class="has-error">
+<strong class="help-block"><span class="glyphicon glyphicon-warning-sign"></span> Please correct form errors <a href="#reg_form">below</a>.</strong>
+</span>
+{% endif %}
 {% if registration.test %}
 <h1>***Test registration***</h1>
 {% endif %}
