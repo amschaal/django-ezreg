@@ -106,7 +106,7 @@ class Event(models.Model):
     def registration_open(self):
         return self.registration_enabled and (self.can_register() or self.can_apply() or self.can_waitlist())
     def delete_expired_registrations(self):
-        self.registrations.filter(registered__lte=(timezone.now()-timedelta(minutes=self.expiration_time)),status__in=[Registration.STATUS_PENDING_INCOMPLETE]).delete()
+        self.registrations.filter(registered__lte=(timezone.now()-timedelta(minutes=self.expiration_time)),status__in=[Registration.STATUS_APPLY_INCOMPLETE,Registration.STATUS_PENDING_INCOMPLETE,Registration.STATUS_WAITLIST_INCOMPLETE]).delete()
     def generate_event_ical(self):
         from icalendar import Calendar, Event, vText, vCalAddress
         calendar = Calendar()
