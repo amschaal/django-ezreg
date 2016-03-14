@@ -27,6 +27,7 @@ function EventEmailsController($scope,$http,growl,NgTableParams) {
 //	var registrations = Registration.query({event: '2Z89K20AZ3'});
 	$scope.tableParams = new NgTableParams({
 //	      page: 1, // show first page
+		  sorting: { 'last_attempt': 'desc'},
 	      count: 10 // count per page
 	    }, {
 	      filterDelay: 0,

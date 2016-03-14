@@ -61,6 +61,7 @@ function RegistrationController($scope,$http,$modal,growl,Registration,NgTablePa
 //	var registrations = Registration.query({event: '2Z89K20AZ3'});
 	$scope.tableParams = new NgTableParams({
 //	      page: 1, // show first page
+		  sorting: { 'registered': 'desc'},
 	      count: 10 // count per page
 	    }, {
 	      filterDelay: 0,
@@ -206,8 +207,62 @@ app.controller('exportCtrl', function ($scope, $http, growl, $modalInstance, eve
 	});
 
 app.controller('vizCtrl', function ($scope, $http, growl, $modalInstance, event_id, selected) {
-
 	  $scope.selected = selected;
+	  $scope.fields = [{label:'Select variable'}];
+	  $scope.data = [];
+	  $http.get($scope.getURL('api_export_registrations',{event:event_id})).then(function(response){
+		  console.log('data',response)
+		  angular.forEach(response.data.fields,function(field,index){
+			console.log(index,field);
+			if (['radio','datetime'].indexOf(field.type) != -1){
+				$scope.fields.push({key:index,label:field.label,type:field.type})
+			}
+		  });
+		  $scope.data = response.data.data;
+	  });
+	  function getData(field){
+		  switch(field.type){
+		  	case 'radio':
+		  		return d3.nest()
+		  		.key(function(d){return d[field.key]})
+		  		.rollup(function(v){return v.length})
+		  		.entries($scope.data);
+		  	case 'datetime':
+		  		return d3.nest()
+		  		.key(function(d){return new Date(d[field.key].substr(0,10))})
+		  		.rollup(function(v){return v.length})
+		  		.entries($scope.data);
+		  }
+	  }
+	  $scope.updateChart = function(){
+		  if (!$scope.field)
+			  return;
+		  if (!$scope.field.type)
+			  return;
+		  switch ($scope.field.type){
+		  	case 'radio':
+		  		var chart = nv.models.pieChart()
+			      .x(function(d) { return d.key })
+			      .y(function(d) { return d.values })
+			      .showLabels(true);
+		  		break;
+		  	case 'datetime':
+		  		var chart = nv.models.lineWithFocusChart()
+		  		  .x(function(d) { return d.key })
+			      .y(function(d) { return d.values })
+			      .showLabels(true);
+		  		break;
+		  }
+		  nv.addGraph(function() {
+			    d3.select("#chart svg")
+			        .datum(getData($scope.field))
+			        .transition().duration(350)
+			        .call(chart);
+//			  nv.utils.windowResize(chart.update);
+			  return chart;
+			});
+	  }
+	  
 	  function exampleData() {
 		  return  [
 		      { 
@@ -245,19 +300,7 @@ app.controller('vizCtrl', function ($scope, $http, growl, $modalInstance, event_
 		    ];
 		}
 	  $scope.init = function(){
-		  nv.addGraph(function() {
-			  var chart = nv.models.pieChart()
-			      .x(function(d) { return d.label })
-			      .y(function(d) { return d.value })
-			      .showLabels(true);
-
-			    d3.select("#chart svg")
-			        .datum(exampleData())
-			        .transition().duration(350)
-			        .call(chart);
-
-			  return chart;
-			});
+		  
 	  };
 		  
 	  $scope.get_data = function () {
