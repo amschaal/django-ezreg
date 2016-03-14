@@ -85,13 +85,14 @@ class RegistrationWizard(SessionWizardView):
     def get_registration(self):
         if hasattr(self, 'registration_instance'):
             return self.registration_instance
+        #A registration id was passed as part of the URL
         if self.kwargs.has_key('registration_id'):
             try:
                 self.registration_instance = Registration.objects.get(id=self.kwargs['registration_id'],status__in=[Registration.STATUS_WAITLIST_PENDING,Registration.STATUS_APPLIED_ACCEPTED])
             except Registration.DoesNotExist, e:
                 raise Exception("No registration was found that was eligible for completion.")
-        elif self.storage.data.has_key('registration_id'):
-            self.registration_instance = Registration.objects.filter(id=self.storage.data['registration_id']).first()
+        elif self.get_session_registration_id():
+            self.registration_instance = Registration.objects.filter(id=self.get_session_registration_id()).first()
         else:
             self.registration_instance = None
         return self.registration_instance
@@ -99,14 +100,18 @@ class RegistrationWizard(SessionWizardView):
     @property
     def registration(self):
         if not self.get_registration():
-            self.registration_instance = self.start_registration()
+            self.registration_instance = self.create_registration()
         return self.registration_instance
     @property
     def event(self):
         if not hasattr(self, 'event_instance'):
             self.event_instance = Event.objects.get(Q(id=self.kwargs['slug_or_id'])|Q(slug=self.kwargs['slug_or_id']))
         return self.event_instance
-    def start_registration(self):
+    def get_session_registration_id(self):
+            return self.storage.data['registration_id'] if self.storage.data.has_key('registration_id') else None
+    def set_session_registration_id(self,id):
+            self.storage.data['registration_id'] = id
+    def create_registration(self):
         self.delete_registration() #Don't allow past registrations to hang around.
         
         if self.event.can_apply():
@@ -118,7 +123,7 @@ class RegistrationWizard(SessionWizardView):
         else:
             raise RegistrationClosedException("Registration is closed")
         registration = Registration.objects.create(event=self.event,status=status,test=self.test)
-        self.storage.data['registration_id'] = registration.id
+        self.set_session_registration_id(registration.id)
         return registration
     def cancel_registration(self):
         self.delete_registration(force=True)
@@ -128,8 +133,8 @@ class RegistrationWizard(SessionWizardView):
             if self.registration.status in [Registration.STATUS_APPLY_INCOMPLETE,Registration.STATUS_PENDING_INCOMPLETE,Registration.STATUS_WAITLIST_INCOMPLETE] or force:
                 self.registration_instance.delete()
             del self.registration_instance
-        if self.storage.data.has_key('registration_id'):
-            Registration.objects.filter(id=self.storage.data['registration_id'],status__in=[Registration.STATUS_APPLY_INCOMPLETE,Registration.STATUS_PENDING_INCOMPLETE,Registration.STATUS_WAITLIST_INCOMPLETE]).delete()
+        if self.get_session_registration_id():
+            Registration.objects.filter(id=self.get_session_registration_id(),status__in=[Registration.STATUS_APPLY_INCOMPLETE,Registration.STATUS_PENDING_INCOMPLETE,Registration.STATUS_WAITLIST_INCOMPLETE]).delete()
         self.storage.reset()
     def get_payment_processor(self):
         cleaned_data = self.get_cleaned_data_for_step('price_form') or None
@@ -162,6 +167,9 @@ class RegistrationWizard(SessionWizardView):
 #     def dispatch(self, request, *args, **kwargs):
 #         self.event = Event.objects.get(Q(id=self.kwargs['slug_or_id'])|Q(slug=self.kwargs['slug_or_id']))
 #         return SessionWizardView.dispatch(self, request, *args, **kwargs)
+    #prefix is used to key session storage
+    def get_prefix(self, request, *args, **kwargs):
+        return self.event.id
     def get(self, request, *args, **kwargs):
         #If there is already a registration started, resume it
         self.event.delete_expired_registrations()
