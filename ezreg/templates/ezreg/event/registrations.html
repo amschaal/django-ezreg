@@ -52,8 +52,8 @@
 			    <li role="menuitem"><a href="{[registrationLink(row)]}">View details</a></li>
 			    {% if 'admin' in permissions %}
 			    	<li role="menuitem"><a href="{[modifyRegistrationLink(row)]}">Modify</a></li>
-			    	<li role="menuitem"><a href="{[getURL('modify_payment',{id:row.id})]}">Modify Payment</a></li>
-			    	<li role="menuitem"><a href="{[updateRegistrationStatusLink(row)]}">Update status</a></li>
+			    	<li role="menuitem" ng-if="row.payment__status"><a href="{[getURL('modify_payment',{id:row.id})]}">Modify Payment</a></li>
+			    	<!-- <li role="menuitem"><a href="{[updateRegistrationStatusLink(row)]}">Update status</a></li> -->
 			    {% endif %}
 			  </ul>
 			</div>
@@ -133,6 +133,10 @@
             <h3 class="modal-title">Visualize (<span title="{[params.selected.join(', ')]}">{[params.selected.length]}</span>)</h3>
         </div>
         <div class="modal-body" ng-init="init()">
+		<select ng-options="field as field.label for field in fields track by field.key" ng-model="field" ng-change="updateChart()">
+			<option value="" ng-if="false"></option>
+		</select>
+		<h3 ng-if="field">{[field.label]}
         <div id="chart"><svg></svg></div>
         </div>
         <div class="modal-footer">

@@ -11,6 +11,7 @@
 <div ng-controller="EventsController" ng-init="init()">
 	<table ng-table="tableParams" class="table table-condensed table-bordered table-striped">
       <tr ng-repeat="row in $data">
+        <td data-title="'Date'" sortable="'start_time'"><a href="{[ getURL('manage_event',{event:row.id}) ]}">{[row.start_time | date:'MM/dd/yyyy']}</a></td>
         <td data-title="'Title'" filter="{title: 'text'}" sortable="'title'"><a href="{[ getURL('manage_event',{event:row.id}) ]}">{[row.title]}</a></td>
         <td data-title="'Capacity'" sortable="'capacity'">{[row.capacity]}</td>
         <td data-title="'Registered'" sortable="'registered'">{[row.registered]}</td>

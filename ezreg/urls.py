@@ -64,7 +64,8 @@ urlpatterns = [
     url(r'^payment_processors/(?P<id>\d+)/configure/$', 'ezreg.views.configure_payment_processor',name='configure_payment_processor'),
     url(r'^tinymce/', include('tinymce.urls')),
     url(r'^api/', include(router.urls)),
-    url(r'^api/event/(?P<event>[A-Za-z0-9_\-]{10})/payment_processors/$', 'ezreg.api.views.event_payment_processors', name="event_payment_processors"),
+    url(r'^api/events/(?P<event>[A-Za-z0-9_\-]{10})/payment_processors/$', 'ezreg.api.views.event_payment_processors', name="event_payment_processors"),
+    url(r'^api/events/(?P<event>[A-Za-z0-9_\-]{10})/export_registrations/$', 'ezreg.api.views.export_registrations', name="api_export_registrations"),
     url(r'^json_forms/', include(json_form_urls.urlpatterns)),
     url(r'^jsurls.js$', 'ezreg.jsutils.jsurls', {}, 'jsurls'), 
     # CAS

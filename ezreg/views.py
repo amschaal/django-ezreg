@@ -296,7 +296,7 @@ def export_registrations(request, event):
     
     #write data
     for row in data['data']:
-        writer.writerow([unicode(row.get(field,'')).encode("utf-8") for field in fields])
+        writer.writerow([row.get(field,'') for field in fields])
     
 
     return response

@@ -12,6 +12,7 @@ from ezreg.decorators import event_access_decorator
 from django.template.defaultfilters import removetags
 from django_bleach.utils import get_bleach_default_options
 import bleach
+from ezreg.utils import format_registration_data
 
 # @todo: Secure these for ALL methods (based on price.event.group)!!!
 class PriceViewset(viewsets.ModelViewSet):
@@ -118,4 +119,14 @@ def send_event_emails(request, event):
         email.send_mail()
     return Response({'status':'success'})
 
+@api_view(['GET'])
+@event_access_decorator([OrganizerUserPermission.PERMISSION_VIEW])
+def export_registrations(request, event):
+    selection = request.POST.getlist('selection',None)
+    if selection:
+        registrations = event.registrations.filter(id__in=request.POST.getlist('selection')).prefetch_related('payment','payment__processor')
+    else:
+        registrations = event.registrations.all().prefetch_related('payment','payment__processor')
+    data = format_registration_data(event, registrations)
+    return Response(data)
     

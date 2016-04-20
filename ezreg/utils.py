@@ -1,9 +1,9 @@
-def format_registration_data(event,registrations):
+def format_registration_data(event,registrations,encode_utf8=True):
     form_fields = []
     if event.form_fields:
         form_fields = [field for field in event.form_fields if 'layout' not in field['type']]
     reg_data = {
-                'fields':{'registered':{'label':'Registered'},
+                'fields':{'registered':{'label':'Registered','type':'datetime'},
                           'first_name':{'label':'First Name'},
                           'last_name':{'label':'Last Name'},
                           'email':{'label':'Email'},
@@ -44,5 +44,8 @@ def format_registration_data(event,registrations):
                         val = payment.data.get(name,None)
                         if val:
                             data['processor_%d_%s'%(processor.id,name)] = val
+        if encode_utf8:
+            for key, val in data.iteritems():
+                data[key] = unicode(val).encode("utf-8") if val else None
         reg_data['data'].append(data)
     return reg_data

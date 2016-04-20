@@ -40,7 +40,7 @@ class EventSerializer(serializers.ModelSerializer):
     registration_enabled = serializers.ReadOnlyField()
     class Meta:
         model = Event
-        fields = ('id','title','capacity','registered','waitlisted','applied','cancelled','pending','registration_enabled')
+        fields = ('id','start_time','end_time','title','capacity','registered','waitlisted','applied','cancelled','pending','registration_enabled')
 
 class RegistrationSerializer(serializers.ModelSerializer):
     payment__amount = serializers.ReadOnlyField(source='payment.amount')
