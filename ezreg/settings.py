@@ -143,11 +143,11 @@ BLEACH_ALLOWED_TAGS = [
     "ul", "ol", "li", "dd", "dt",
     "img",
     "table", "thead", "tbody", "tfoot", "tr", "th", "td",
-    "a",
+    "a","iframe"
 ]
 
 # Which HTML attributes are allowed
-BLEACH_ALLOWED_ATTRIBUTES = ['href', 'title', 'style']
+BLEACH_ALLOWED_ATTRIBUTES = ['href', 'title', 'style','src','width','height']
 
 # Which CSS properties are allowed in 'style' attributes (assuming
 # style is an allowed attribute)
