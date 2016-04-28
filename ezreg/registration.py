@@ -224,5 +224,5 @@ class RegistrationWizard(SessionWizardView):
                 processor = manager.get_processor(processor_method.processor_id)
                 form_class = processor.get_form()
                 if form_class:
-                    form = form_class(data,event=self.event)
+                    form = form_class(data,event=self.event,config=processor_method.config)
         return form

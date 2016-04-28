@@ -22,6 +22,7 @@ class BasePaymentProcessor:
 class BasePaymentForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.event = kwargs.pop('event')
+        self.config = kwargs.pop('config',{})
         super(BasePaymentForm,self).__init__(*args, **kwargs)
     template = 'ezreg/registration/payment.html'
 #         raise NotImplementedError("get_form is not implemented for this payment processor")
