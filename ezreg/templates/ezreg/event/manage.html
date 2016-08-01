@@ -22,6 +22,7 @@
 		  <ul class="dropdown-menu" role="menu" aria-labelledby="Action">
 		    	<li role="menuitem"><a href="{% url 'register' slug_or_id=event.slug_or_id %}">Register</a></li>
 		    	<li role="menuitem"><a href="{% url 'register' slug_or_id=event.slug_or_id %}?test">Test</a></li>
+		    	{% if 'admin' in permissions %}<li role="menuitem"><a href="{% url 'admin_register' slug_or_id=event.slug_or_id %}">Admin register</a></li> {% endif %}
 		  </ul>
 		</div>
 		 {% if 'admin' in permissions %}
