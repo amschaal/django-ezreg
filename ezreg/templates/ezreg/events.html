@@ -12,7 +12,8 @@
 	<table ng-table="tableParams" class="table table-condensed table-bordered table-striped">
       <tr ng-repeat="row in $data">
         <td data-title="'Date'" sortable="'start_time'"><a href="{[ getURL('manage_event',{event:row.id}) ]}">{[row.start_time | date:'MM/dd/yyyy']}</a></td>
-        <td data-title="'Title'" filter="{title: 'text'}" sortable="'title'"><a href="{[ getURL('manage_event',{event:row.id}) ]}">{[row.title]}</a></td>
+        <td data-title="'Title'" filter="{title__icontains: 'text'}" sortable="'title'"><a href="{[ getURL('manage_event',{event:row.id}) ]}">{[row.title]}</a></td>
+        <td data-title="'Organizer'" filter="{organizer__name__icontains: 'text'}" sortable="'organizer__name'">{[row.organizer.name]}</td>
         <td data-title="'Capacity'" sortable="'capacity'">{[row.capacity]}</td>
         <td data-title="'Registered'" sortable="'registered'">{[row.registered]}</td>
         <td data-title="'Waitlisted'" sortable="'waitlisted'">{[row.waitlisted]}</td>

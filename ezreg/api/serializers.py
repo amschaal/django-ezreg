@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from ezreg.models import Price, PaymentProcessor, EventProcessor, EventPage, Registration,\
-    Event
+    Event, Organizer
 from mailqueue.models import MailerMessage
 
 class JSONSerializerField(serializers.Field):
@@ -31,6 +31,10 @@ class EventPageSerializer(serializers.ModelSerializer):
         model = EventPage
         fields = ('id','event','slug','heading','body')
 
+class OrganizerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Organizer
+
 class EventSerializer(serializers.ModelSerializer):
     registered = serializers.ReadOnlyField()
     waitlisted = serializers.ReadOnlyField()
@@ -38,9 +42,10 @@ class EventSerializer(serializers.ModelSerializer):
     cancelled = serializers.ReadOnlyField()
     pending = serializers.ReadOnlyField()
     registration_enabled = serializers.ReadOnlyField()
+    organizer = OrganizerSerializer(read_only=True)
     class Meta:
         model = Event
-        fields = ('id','start_time','end_time','title','capacity','registered','waitlisted','applied','cancelled','pending','registration_enabled')
+        fields = ('id','organizer','start_time','end_time','title','capacity','registered','waitlisted','applied','cancelled','pending','registration_enabled')
 
 class RegistrationSerializer(serializers.ModelSerializer):
     payment__amount = serializers.ReadOnlyField(source='payment.amount')
