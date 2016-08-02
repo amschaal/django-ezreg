@@ -35,9 +35,11 @@ class AngularDatePickerInput(TextInput):
 class EventForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
         super(EventForm,self).__init__(*args, **kwargs)
-#         self.fields['group'].queryset = user.groups.all()
         self.fields['organizer'].queryset = Organizer.objects.filter(user_permissions__user=user,user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN)
-#         self.fields['open_until'].widget.attrs['ng-init']="dt='%s';"% self.instance.open_until
+        #Make open_until default to start_time if not provided
+        data = self.data.copy()
+        data['open_until'] = self.data.get('open_until') or self.data.get('start_time','')[:10]
+        self.data = data
     body = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     cancellation_policy = forms.CharField(required=False,widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     class Meta:
@@ -62,7 +64,8 @@ class EventForm(forms.ModelForm):
             'from_addr':'Email address that registration emails should be sent from, if different from the default.',
             'display_address':'Should the location be shown on the event page?',
             'address':'Where is the event located?  This will be included in the ical event sent with confirmation emails.',
-            'expiration_time':'Registrations must be completed within this time limit.'
+            'expiration_time':'Registrations must be completed within this time limit.',
+            'open_until':'Defaults to start time if not provided.'
         }
         widgets = {
 #                     'open_until':forms.TextInput(attrs={'datepicker-popup':"yyyy-MM-dd", 'is-open':"blah", 'ng-click':"blah=true", 'ng-model':"dt"})
@@ -71,7 +74,25 @@ class EventForm(forms.ModelForm):
                         'start_time': DateTimeWidget(attrs={'id':"start_time"},options={'format': 'yyyy-mm-dd hh:ii','minuteStep':15}, usel10n = False, bootstrap_version=3),
                         'end_time': DateTimeWidget(attrs={'id':"end_time"}, options={'format': 'yyyy-mm-dd hh:ii','minuteStep':15}, usel10n = False, bootstrap_version=3)
                    }
-
+        
+#     def clean(self):
+# #         cc_myself = cleaned_data.get("cc_myself")
+# #         subject = cleaned_data.get("subject")
+# # 
+# #         if cc_myself and subject:
+# #             # Only do something if both fields are valid so far.
+# #             if "help" not in subject:
+# #                 raise forms.ValidationError(
+# #                     "Did not send for 'help' in the subject despite "
+# #                     "CC'ing yourself."
+# #                 )
+#         data = self.data.copy()
+#         data['open_until'] = self.data['open_until'] or self.data['start_time'][:10]
+#         self.data = data
+# #         print 'open_until!!!!!!!!!!!!!!!!!!!!!!!!!'
+# #         self
+# #         print data
+#         super(EventForm, self).clean()
 class PaymentProcessorForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
         super(PaymentProcessorForm,self).__init__(*args, **kwargs)

@@ -7,16 +7,18 @@ from formtools.wizard.views import SessionWizardView
 
 from ezreg.email import send_email, email_status
 from ezreg.forms import PriceForm, ConfirmationForm, RegistrationForm
-from ezreg.models import Event, Registration, Payment, EventPage
+from ezreg.models import Event, Registration, Payment, EventPage,\
+    OrganizerUserPermission
 from ezreg.payment import PaymentProcessorManager
 from ezreg.payment.base import BasePaymentForm
 from django_json_forms.forms import JSONForm
 from ezreg.exceptions import RegistrationClosedException
+from django.http.response import HttpResponseForbidden
 
 
 def show_payment_form_condition(wizard):
     if wizard.registration:
-        if wizard.registration.is_waitlisted or wizard.registration.is_application:
+        if wizard.registration.is_waitlisted or wizard.registration.is_application or wizard.registration.registered_by:
             return False
     processor = wizard.get_payment_processor()
     if processor:
@@ -27,7 +29,7 @@ def show_payment_form_condition(wizard):
 
 def show_price_form_condition(wizard):
     if wizard.registration:
-        if wizard.registration.is_waitlisted or wizard.registration.is_application:
+        if wizard.registration.is_waitlisted or wizard.registration.is_application or wizard.registration.registered_by:
             return False
     return wizard.event.prices.count() > 0
 
@@ -122,7 +124,10 @@ class RegistrationWizard(SessionWizardView):
             status = Registration.STATUS_WAITLIST_INCOMPLETE
         else:
             raise RegistrationClosedException("Registration is closed")
-        registration = Registration.objects.create(event=self.event,status=status,test=self.test)
+        if getattr(self,'admin', False):
+            registration = Registration.objects.create(event=self.event,status=status,test=self.test, registered_by=self.request.user)
+        else:
+            registration = Registration.objects.create(event=self.event,status=status,test=self.test)
         self.set_session_registration_id(registration.id)
         return registration
     def cancel_registration(self):
@@ -178,6 +183,10 @@ class RegistrationWizard(SessionWizardView):
             self.render_goto_step(self.steps.first)
         
         self.test = request.GET.has_key('test')
+        if kwargs.get('admin',False):
+            if not request.user.is_authenticated() or not OrganizerUserPermission.objects.get(user=request.user,permission=OrganizerUserPermission.PERMISSION_ADMIN):
+                return HttpResponseForbidden('Only event admininstrators may register participants')
+            self.admin = True
         test_redirect_parameter = '?test' if self.test else ''
         
         try:

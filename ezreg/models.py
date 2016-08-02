@@ -189,6 +189,7 @@ class Registration(models.Model):
     price = models.ForeignKey('Price',null=True,blank=True)
     email_messages = models.ManyToManyField(MailerMessage,related_name='registrations')
     test = models.BooleanField(default=False)
+    registered_by = models.ForeignKey(User,null=True,blank=True)
     data = JSONField(null=True, blank=True)
     def get_form_value(self,name):
         if not self.data:

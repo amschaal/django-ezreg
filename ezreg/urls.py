@@ -47,6 +47,7 @@ urlpatterns = [
     url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/register/$', RegistrationWizard.as_view(), name="register",kwargs={'waitlist':False,'register':True}),
     url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/waitlist/$', RegistrationWizard.as_view(), name="waitlist",kwargs={'waitlist':True}),
     url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/apply/$', RegistrationWizard.as_view(), name="apply",kwargs={'apply':True}),
+    url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/admin/register/$', RegistrationWizard.as_view(), name="admin_register",kwargs={'waitlist':False,'register':True,'admin':True}),
     url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/complete_registration/(?P<registration_id>[A-Za-z0-9_\-]{10})/$', RegistrationWizard.as_view(), name="complete_registration",kwargs={'complete':True}),
     url(r'^events/(?P<event>[A-Za-z0-9_\-]{5,100})/update_statuses/$', 'ezreg.api.views.update_event_statuses', name="update_event_statuses"),
     url(r'^events/(?P<event>[A-Za-z0-9_\-]{5,100})/export_registrations/$', 'ezreg.views.export_registrations', name="export_registrations"),

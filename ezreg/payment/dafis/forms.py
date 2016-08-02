@@ -9,7 +9,7 @@ class DafisConfigurationForm(forms.Form):
     
 class PaymentForm(BasePaymentForm):
     chart = forms.CharField(max_length=3,required=True)
-    account = forms.CharField(required=True)
+    account = forms.CharField(required=True,help_text='Account will be charged the week of the event')
     sub_account = forms.CharField(required=False)
     financial_contact = forms.CharField(required=True,widget=forms.widgets.Textarea)
     def __init__(self,*args,**kwargs):
