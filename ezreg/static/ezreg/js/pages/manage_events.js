@@ -4,6 +4,6 @@ app.controller('EventsController', ['$scope','DRFNgTableParams', EventsControlle
 
 function EventsController($scope,DRFNgTableParams) {
 	$scope.init = function(id,statuses,processors,payment_statuses){
-		$scope.tableParams = DRFNgTableParams('/api/events/',{sorting: { start_date: "desc" }});
+		$scope.tableParams = DRFNgTableParams('/api/events/',{sorting: { start_time: "desc" }});
 	};
 };
