@@ -3,7 +3,7 @@ from django.template.context import RequestContext
 from ezreg.models import Event,  Registration, PaymentProcessor, EventPage,\
     id_generator, EventProcessor, OrganizerUserPermission, Payment
 from ezreg.forms import EventForm, PaymentProcessorForm,  AdminRegistrationForm,\
-    AdminRegistrationStatusForm, PriceForm, AdminPriceForm
+    AdminRegistrationStatusForm, PriceForm, AdminPriceForm, AdminPaymentForm
 from django.contrib.auth.decorators import login_required
 from django.db.models.query_utils import Q
 from ezreg.email import  email_status
@@ -120,24 +120,24 @@ def modify_registration(request,id=None):
 def modify_payment(request,id=None):
     registration = Registration.objects.get(id=id)
     payment = registration.get_payment()
-    if payment.status == Payment.STATUS_PAID:
-        return render(request, 'ezreg/modify_payment.html', {'registration':registration,'payment':payment} ,context_instance=RequestContext(request))
-
     form_class = payment.get_form()
     if request.method == 'GET':
         price_form = AdminPriceForm({'price':registration.price_id},event=registration.event)
         payment_form = form_class(payment.data,event=registration.event)
+        admin_payment_form = AdminPaymentForm(instance=payment,prefix="admin_payment_form")
     elif request.method == 'POST':
         payment_form = form_class(request.POST,event=registration.event)
+        admin_payment_form = AdminPaymentForm(request.POST,instance=payment,prefix="admin_payment_form")
         price_form = AdminPriceForm(request.POST,event=registration.event)
-        if payment_form.is_valid() and price_form.is_valid():
+        if payment_form.is_valid() and price_form.is_valid() and admin_payment_form.is_valid():
+            payment = admin_payment_form.save(commit=False)
             payment.data = payment_form.cleaned_data
             registration.price = price_form.cleaned_data['price']
             payment.amount = price_form.cleaned_data['price'].amount
             payment.save()
             registration.save()
-            return render(request, 'ezreg/modify_payment.html', {'payment_form':payment_form,'price_form':price_form,'registration':registration,'payment':payment} ,context_instance=RequestContext(request))
-    return render(request, 'ezreg/modify_payment.html', {'payment_form':payment_form,'price_form':price_form,'registration':registration,'payment':payment} ,context_instance=RequestContext(request))
+            return render(request, 'ezreg/modify_payment.html', {'payment_form':payment_form,'admin_payment_form':admin_payment_form,'price_form':price_form,'registration':registration,'payment':payment} ,context_instance=RequestContext(request))
+    return render(request, 'ezreg/modify_payment.html', {'payment_form':payment_form,'price_form':price_form,'admin_payment_form':admin_payment_form,'registration':registration,'payment':payment} ,context_instance=RequestContext(request))
 
 
 @generic_permission_decorator([OrganizerUserPermission.PERMISSION_ADMIN],'organizer__events__registrations__id','id')

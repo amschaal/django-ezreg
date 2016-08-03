@@ -245,6 +245,7 @@ class Payment(models.Model):
     paid_at = models.DateTimeField(blank=True,null=True)
     registration = models.OneToOneField(Registration,related_name='payment')
     amount = models.DecimalField(decimal_places=2,max_digits=7)
+    refunded = models.DecimalField(decimal_places=2,max_digits=7,null=True,blank=True)
     external_id = models.CharField(max_length=50,null=True,blank=True)
     data = JSONField(null=True,blank=True)
     def get_post_form(self):

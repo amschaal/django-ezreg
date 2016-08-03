@@ -6,7 +6,7 @@ from tinymce.widgets import TinyMCE
 from datetime import datetime
 
 from ezreg.models import Event, Price, Registration, PaymentProcessor, Organizer,\
-    OrganizerUserPermission
+    OrganizerUserPermission, Payment
 from ezreg.payment import PaymentProcessorManager
 from django.forms.widgets import  TextInput
 from django.db.models.query_utils import Q
@@ -68,31 +68,12 @@ class EventForm(forms.ModelForm):
             'open_until':'Defaults to start time if not provided.'
         }
         widgets = {
-#                     'open_until':forms.TextInput(attrs={'datepicker-popup':"yyyy-MM-dd", 'is-open':"blah", 'ng-click':"blah=true", 'ng-model':"dt"})
                       'open_until':DateWidget(attrs={'id':"open_until"}, usel10n = True, bootstrap_version=3),
                         #Use localization and bootstrap 3
                         'start_time': DateTimeWidget(attrs={'id':"start_time"},options={'format': 'yyyy-mm-dd hh:ii','minuteStep':15}, usel10n = False, bootstrap_version=3),
                         'end_time': DateTimeWidget(attrs={'id':"end_time"}, options={'format': 'yyyy-mm-dd hh:ii','minuteStep':15}, usel10n = False, bootstrap_version=3)
                    }
         
-#     def clean(self):
-# #         cc_myself = cleaned_data.get("cc_myself")
-# #         subject = cleaned_data.get("subject")
-# # 
-# #         if cc_myself and subject:
-# #             # Only do something if both fields are valid so far.
-# #             if "help" not in subject:
-# #                 raise forms.ValidationError(
-# #                     "Did not send for 'help' in the subject despite "
-# #                     "CC'ing yourself."
-# #                 )
-#         data = self.data.copy()
-#         data['open_until'] = self.data['open_until'] or self.data['start_time'][:10]
-#         self.data = data
-# #         print 'open_until!!!!!!!!!!!!!!!!!!!!!!!!!'
-# #         self
-# #         print data
-#         super(EventForm, self).clean()
 class PaymentProcessorForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
         super(PaymentProcessorForm,self).__init__(*args, **kwargs)
@@ -188,6 +169,12 @@ class AdminPriceForm(forms.Form):
         return prices
 
 
+class AdminPaymentForm(forms.ModelForm):
+    class Meta:
+        model=Payment
+        fields = ('status','refunded')
+
+
 class PriceFormsetHelper(FormHelper):
     def __init__(self, *args, **kwargs):
         super(PriceFormsetHelper, self).__init__(*args, **kwargs)
@@ -201,7 +188,7 @@ class PriceFormsetHelper(FormHelper):
             'hidden',
         )
         self.render_required_fields = True
-        
+
 #Dummy form for skipping/replacing in registration wizard (because we can't dynamically set forms based on previous form input)
 class ConfirmationForm(forms.Form):
     template = 'ezreg/registration/confirm.html'

@@ -24,7 +24,7 @@ class PriceSerializer(serializers.ModelSerializer):
 class PaymentProcessorSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaymentProcessor
-        fields = ('id','processor_id','name','description','hidden','config')
+        fields = ('id','processor_id','name','description','hidden')#,'config'
         
 class EventPageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -44,12 +44,13 @@ class EventSerializer(serializers.ModelSerializer):
 
 class RegistrationSerializer(serializers.ModelSerializer):
     payment__amount = serializers.ReadOnlyField(source='payment.amount')
+    payment__refunded = serializers.ReadOnlyField(source='payment.refunded')
     payment__processor = serializers.ReadOnlyField(source='payment.processor.name')
     payment__status = serializers.ReadOnlyField(source='payment.status')
     data = JSONSerializerField()
     class Meta:
         model = Registration
-        fields = ('id','status','event','registered','first_name','last_name','email','test','data','payment__amount','payment__processor','payment__status')
+        fields = ('id','status','event','registered','first_name','last_name','email','test','data','payment__amount','payment__processor','payment__status','payment__refunded')
 
 class MailerMessageSerializer(serializers.ModelSerializer):
 #     registrations = serializers.ReadOnlyField(source='registrations',many=True)
