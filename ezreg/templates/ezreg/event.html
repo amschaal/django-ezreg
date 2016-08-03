@@ -1,8 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>{{event.title}}</h1>
-<h3>Organizer - {{event.organizer}}</h3>
-<h4>{% if event.start_time %}{{event.start_time}}{% endif %}{% if event.end_time %} - {{event.end_time}}{% endif %}</h4>
+{% include 'ezreg/partials/event_header.html' %}
 {% if event.display_address and event.address%}<h4>Location: {{event.address}}</h4>{% endif %}
 {% if event.pages.all.count > 0%}
 <div class="navbar-collapse collapse navbar-default">

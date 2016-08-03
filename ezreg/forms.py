@@ -63,6 +63,7 @@ class EventForm(forms.ModelForm):
             'bcc':'Comma delimited email addresses that should be BCCed with each registration email.',
             'from_addr':'Email address that registration emails should be sent from, if different from the default.',
             'display_address':'Should the location be shown on the event page?',
+            'contact':'Who is the contact for the event?  Include details like name, email or phone number.',
             'address':'Where is the event located?  This will be included in the ical event sent with confirmation emails.',
             'expiration_time':'Registrations must be completed within this time limit.',
             'open_until':'Defaults to start time if not provided.'

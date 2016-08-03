@@ -58,6 +58,7 @@ class Event(models.Model):
     open_until = models.DateField()
     start_time = models.DateTimeField(blank=True,null=True)
     end_time = models.DateTimeField(blank=True,null=True)
+    contact = models.TextField()
     display_address = models.BooleanField(default=True)
     address = models.TextField(blank=True,null=True)
     advertise = models.BooleanField(default=False)
