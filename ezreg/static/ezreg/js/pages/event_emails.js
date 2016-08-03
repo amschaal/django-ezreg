@@ -10,8 +10,6 @@ function EventEmailsController($scope,$http,growl,NgTableParams) {
 		$scope.event_id = event_id;
 	};
 	$scope.registrationLink = function(registration){return django_js_utils.urls.resolve('registration', { id: registration })};
-//	$scope.modifyRegistrationLink = function(registration){return django_js_utils.urls.resolve('modify_registration', { id: registration.id })};
-//	$scope.updateRegistrationStatusLink = function(registration){return django_js_utils.urls.resolve('update_registration_status', { id: registration.id })};
 	$scope.send_event_emails = function (selected) {
 		var url = django_js_utils.urls.resolve('send_event_emails', { event: $scope.event_id });
 		$http.post(url,{selected:selected}).then(function(response){
@@ -24,7 +22,7 @@ function EventEmailsController($scope,$http,growl,NgTableParams) {
 	    
 	  };
 	
-//	var registrations = Registration.query({event: '2Z89K20AZ3'});
+//	$scope.tableParams = DRFNgTableParams('/api/emails/',{sorting: { last_attempt: "desc" }});
 	$scope.tableParams = new NgTableParams({
 //	      page: 1, // show first page
 		  sorting: { 'last_attempt': 'desc'},

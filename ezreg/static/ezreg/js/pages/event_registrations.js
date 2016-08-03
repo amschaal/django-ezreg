@@ -58,7 +58,7 @@ function RegistrationController($scope,$http,$modal,growl,Registration,NgTablePa
 			$scope.checked = {};
 	}
 	
-//	var registrations = Registration.query({event: '2Z89K20AZ3'});
+//	$scope.tableParams = DRFNgTableParams('/api/registrations/',{sorting: { registered: "desc" }});
 	$scope.tableParams = new NgTableParams({
 //	      page: 1, // show first page
 		  sorting: { 'registered': 'desc'},
@@ -77,20 +77,8 @@ function RegistrationController($scope,$http,$modal,growl,Registration,NgTablePa
 		  		params.total(response.data.count);
 		  		return response.data.results;
 		  	});
-//	        return Registration.query({event: '2Z89K20AZ3',page_size:3}).$promise.then(function(data) {
-//	          console.log(data,data.length);
-////	          params.total(data.count); // recal. page nav controls
-//	          return data;
-//	        });
 	      }
 	    });
-//	getData: function(params) {
-//        // ajax request to api
-//        return Registration.query({event: '2Z89K20AZ3').$promise.then(function(data) {
-//          params.total(data.inlineCount); // recal. page nav controls
-//          return data.results;
-//        });
-//      }
 		$scope.getSelected = function(){
 			var ids = [];
 			angular.forEach($scope.checked,function(value,key){
