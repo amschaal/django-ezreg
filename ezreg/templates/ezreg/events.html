@@ -9,6 +9,7 @@
 {% endif %}
 </h1></div>
 <div ng-controller="EventsController" ng-init="init()">
+	<label><input type="checkbox" ng-model="filters.active" ng-true-value="'True'", ng-false-value="''"/> Only show active events</label>
 	<table ng-table="tableParams" class="table table-condensed table-bordered table-striped">
       <tr ng-repeat="row in $data">
         <td data-title="'Date'" sortable="'start_time'"><a href="{[ getURL('manage_event',{event:row.id}) ]}">{[row.start_time | date:'MM/dd/yyyy']}</a></td>
