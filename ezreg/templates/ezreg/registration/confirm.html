@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load crispy_forms_tags %}
+{% load ezreg_filters %}
 
 {% block endhead %}
 {{ wizard.form.media }}
@@ -17,7 +18,7 @@
 	<tr><th>Email:</th><td>{{registration_form.email}}</td></tr>
 	{% if registration_form_custom %}
 		{% for field in registration_form_custom %}
-		<tr><th>{{field.label}}</th><td>{{field.value}}</td></tr>
+		<tr><th>{{field.label}}</th><td>{{field.value|form_value}}</td></tr>
 		{% endfor %}
 	{% endif %}
 </table>

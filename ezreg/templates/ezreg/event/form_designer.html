@@ -14,7 +14,7 @@
 			<td ng-if="field.type != 'layout_html'"><input ng-model="field.label"/></td>
 			<td ng-if="field.type != 'layout_html'"><textarea ng-model="field.help_text"></textarea></td>
 			<td ng-if="field.type != 'layout_html'">
-				<div ng-if="['select','radio'].indexOf(field.type) != -1">
+				<div ng-if="['select','radio','multicheckbox'].indexOf(field.type) != -1">
 					<p><b>Options:</b></p>
 					<div ng-repeat="choice in field.choices">
 						<input ng-model="choice.name" placeholder="name">
