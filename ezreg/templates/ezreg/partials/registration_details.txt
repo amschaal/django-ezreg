@@ -1,9 +1,10 @@
+{% load ezreg_filters %}
 Event: {{registration.event.title}}
 
 -Registration details-
 
 {% for field in registration.get_registration_fields %}
-{{field.label}}:	{{field.value}}
+{{field.label}}:	{{field.value|form_value}}
 {% endfor %}
 
 {% include 'ezreg/partials/payment.txt' %}

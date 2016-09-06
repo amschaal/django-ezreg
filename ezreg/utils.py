@@ -1,3 +1,4 @@
+from ezreg.templatetags.ezreg_filters import form_value
 def format_registration_data(event,registrations,encode_utf8=True):
     form_fields = []
     if event.form_fields:
@@ -47,6 +48,6 @@ def format_registration_data(event,registrations,encode_utf8=True):
                             data['processor_%d_%s'%(processor.id,name)] = val
         if encode_utf8:
             for key, val in data.iteritems():
-                data[key] = unicode(val).encode("utf-8") if val else None
+                data[key] = unicode(form_value(val)).encode("utf-8") if val else None
         reg_data['data'].append(data)
     return reg_data

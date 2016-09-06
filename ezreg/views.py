@@ -18,6 +18,7 @@ from django_json_forms.forms import JSONForm
 from django.utils import timezone
 from collections import OrderedDict
 from ezreg.utils import format_registration_data
+from ezreg.templatetags.ezreg_filters import form_value
 
 def home(request):
     upcoming = Event.objects.filter(advertise=True,active=True,open_until__gte=datetime.today()).order_by('start_time')[:5]
@@ -296,7 +297,7 @@ def export_registrations(request, event):
     
     #write data
     for row in data['data']:
-        writer.writerow([row.get(field,'') for field in fields])
+        writer.writerow([form_value(row.get(field,'')) for field in fields])
     
 
     return response

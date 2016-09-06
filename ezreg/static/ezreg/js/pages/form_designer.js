@@ -10,6 +10,7 @@ app.controller('DesignerController', function($scope,$http) {
                           {'class':'field','type':'integer', 'label': 'Integer Field'},
                           {'class':'field','type':'select', 'label': 'Select Field'},
                           {'class':'field','type':'checkbox', 'label': 'Checkbox Field'},
+                          {'class':'field','type':'multicheckbox', 'label': 'Multiple Checkbox Field'},
                           {'class':'layout','type':'layout_html', 'label': 'HTML Label'}
                           ];
     
