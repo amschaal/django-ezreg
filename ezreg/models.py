@@ -101,7 +101,7 @@ class Event(models.Model):
     def can_register(self):
         return self.registration_enabled and not self.is_full and not self.enable_application
     def can_waitlist(self):
-        return self.registration_enabled and self.enable_waitlist and self.registrations.exclude(status=Registration.STATUS_CANCELLED).exclude(test=True).count() >= self.capacity
+        return self.registration_enabled and self.enable_waitlist and self.is_full
     def can_apply(self):
         return self.registration_enabled and self.enable_application
     def registration_open(self):

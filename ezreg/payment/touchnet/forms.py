@@ -10,7 +10,9 @@ class TouchnetConfigurationForm(forms.Form):
 class TouchnetPostForm(forms.Form):
     UPAY_SITE_ID = forms.CharField(widget=forms.HiddenInput())
     EXT_TRANS_ID = forms.CharField(widget=forms.HiddenInput())
-    EXT_TRANS_LABEL = forms.CharField(widget=forms.HiddenInput())
+    EXT_TRANS_ID_LABEL = forms.CharField(widget=forms.HiddenInput())
+    SUCCESS_LINK = forms.URLField(required=False,widget=forms.HiddenInput())
+    CANCEL_LINK = forms.URLField(required=False,widget=forms.HiddenInput())
     AMT = forms.CharField(widget=forms.HiddenInput)
     VALIDATION_KEY = forms.CharField(widget=forms.HiddenInput())
  
