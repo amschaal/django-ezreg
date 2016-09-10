@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-{{message}}
+<h3>{{message}}</h3>
 {% include 'ezreg/partials/registration_details.html' %}
 <b>Registration status:</b> {{registration.get_status_display}}
 

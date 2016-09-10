@@ -1,6 +1,6 @@
 Dear {{registration.first_name}} {{registration.last_name}},
 <p>
-You have been moved off of the waitlist for the event, "{{registration.event.title}}".  Please complete your registration using the following link:<br>
+It looks like a spot has opened up for the event you previously waitlisted, "{{registration.event.title}}".  Please complete your registration using the following link:<br>
 <a href="{{site_url}}{% url 'complete_registration' registration_id=registration.id slug_or_id=registration.event.slug_or_id %}">{{site_url}}{% url 'complete_registration' registration_id=registration.id slug_or_id=registration.event.slug_or_id %}</a>
 </p>
-If you do not complete registration within the next 24 hours, your registration will be cancelled in order to offer the place to the next person on the waitlist.
+Please complete registration within the next 24 hours, otherwise your registration may be cancelled.  If you are no longer interested in attending, please <a href="{{site_url}}{% url 'cancel_registration' id=registration.id %}?key={{registration.key}}">cancel</a> so we may offer the spot to the next waitlisted person.

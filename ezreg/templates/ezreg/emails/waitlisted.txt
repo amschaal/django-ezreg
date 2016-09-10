@@ -4,4 +4,5 @@ You have successfully been waitlisted for the event, "{{registration.event.title
 
 {% include 'ezreg/partials/registration_details.txt' %}
 
-If a spot opens up from the waitlist, you will be emailed a link to confirm your reservation.
+If a spot opens up from the waitlist, you will be emailed a link to confirm your reservation.  If your plans change, please cancel using the following link:
+{{site_url}}{% url 'cancel_registration' id=registration.id %}?key={{registration.key}}

@@ -55,6 +55,7 @@ urlpatterns = [
     url(r'^events/(?P<event>[A-Za-z0-9_\-]{5,100})/send_event_emails/$', 'ezreg.api.views.send_event_emails', name="send_event_emails"),
     
     url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/$', 'ezreg.views.registration', name="registration"),
+    url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/cancel/$', 'ezreg.views.cancel_registration', name="cancel_registration"),
     url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/modify/$', 'ezreg.views.modify_registration', name="modify_registration"),
     url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/modify_payment/$', 'ezreg.views.modify_payment', name="modify_payment"),
     url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/update_status/$', 'ezreg.views.update_registration_status', name="update_registration_status"),

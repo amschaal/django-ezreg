@@ -178,6 +178,7 @@ class Registration(models.Model):
                 
                 )
     id = models.CharField(max_length=10,default=id_generator,primary_key=True)
+    key = models.CharField(max_length=10,default=id_generator)
     status = models.CharField(max_length=25,choices=STATUSES,null=True,blank=True)
     event = models.ForeignKey('Event',related_name='registrations')
     registered = models.DateTimeField(auto_now_add=True)

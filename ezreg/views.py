@@ -159,6 +159,18 @@ def registration(request,id):
     registration = Registration.objects.get(id=id)
     return render(request, 'ezreg/registration.html', {'registration':registration},context_instance=RequestContext(request))
 
+def cancel_registration(request,id):
+    key = request.GET.get('key',None)
+    registration = Registration.objects.get(id=id,key=key)
+    if registration.status in [Registration.STATUS_WAITLIST_PENDING,Registration.STATUS_WAITLISTED]:
+        registration.status = Registration.STATUS_CANCELLED
+        registration.save()
+        email_status(registration)
+        message = 'Your registration has been cancelled'
+    else:
+        message = 'Registration can only be cancelled if you are currently waitlisted'
+    return render(request, 'ezreg/registration.html', {'registration':registration,'message':message},context_instance=RequestContext(request))
+
 def pay(request,id):
     registration = Registration.objects.get(id=id)
     return render(request, registration.payment.processor.get_processor().payment_template, {'registration':registration},context_instance=RequestContext(request))
