@@ -22,7 +22,8 @@ from ezreg.templatetags.ezreg_filters import form_value
 
 def home(request):
     upcoming = Event.objects.filter(advertise=True,active=True,open_until__gte=datetime.today()).order_by('start_time')[:5]
-    return render(request, 'ezreg/home.html', {'upcoming':upcoming},context_instance=RequestContext(request))
+    past = Event.objects.filter(advertise=True,open_until__lt=datetime.today()).order_by('-start_time')[:5]
+    return render(request, 'ezreg/home.html', {'upcoming':upcoming,'past':past},context_instance=RequestContext(request))
 
 @has_permissions([OrganizerUserPermission.PERMISSION_ADMIN,OrganizerUserPermission.PERMISSION_VIEW],require_all=False)
 def events(request):

@@ -43,4 +43,34 @@
              {% endif %}
           	</div>
 </div>
+ {% if past.count > 0 %}
+<div class="panel panel-primary">
+            <div class="panel-heading">
+              <h3 class="panel-title">Recent events</h3>
+            </div>
+            <div class="panel-body">
+              <table class="table table-condensed borderless">
+                <tr><th>Date(s)</th><th>Event title</th><th>Organizer</th></tr>
+              {% for event in past %}
+	            
+	            <tr>
+	              <td>
+	              	{% if event.start_time|date == event.end_time|date %}
+	              		{{event.start_time|date:'M j'}}
+	              	{% else%}
+	              		{{event.start_time|date:'M j'}}{% if event.end_time %} - {{event.end_time|date:'M j'}}{%endif%}
+	              	{% endif %}
+	              </td>
+	              <td>
+	              		<a href="{% url 'event' slug_or_id=event.slug_or_id %}">{{event.title}}</a>
+	              </td>
+	              <td>
+	              		{{event.organizer}}
+	              </td>
+	            </tr>
+              {% endfor %}
+              </table>
+          	</div>
+</div>
+{% endif %}
 {% endblock %}
