@@ -103,6 +103,7 @@ def event_page(request,slug_or_id,page_slug):
 def modify_registration(request,id=None):
     registration = Registration.objects.get(id=id)
     fields = registration.event.form_fields if isinstance(registration.event.form_fields,list) else None
+    extra_fields_form = None
     if request.method == 'GET':
         form = AdminRegistrationForm(instance=registration)
         if fields:
