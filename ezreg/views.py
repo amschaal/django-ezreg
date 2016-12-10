@@ -114,8 +114,9 @@ def modify_registration(request,id=None):
             extra_fields_form = JSONForm(request.POST,fields=fields)  
         if form.is_valid() and (not extra_fields_form or extra_fields_form.is_valid()):
             registration = form.save()
-            registration.data = extra_fields_form.cleaned_data
-            registration.save()
+            if extra_fields_form:
+                registration.data = extra_fields_form.cleaned_data
+                registration.save()
             return redirect('manage_event',event=registration.event_id) #event.get_absolute_url()
     return render(request, 'ezreg/modify_registration.html', {'form':form,'registration':registration,'extra_fields_form':extra_fields_form} ,context_instance=RequestContext(request))
 
