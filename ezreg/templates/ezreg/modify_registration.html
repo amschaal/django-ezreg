@@ -7,7 +7,9 @@
 <form method="POST" action=".">
 {%csrf_token%}
 {{form|crispy}}
-{% crispy extra_fields_form %}
+{% if extra_fields_form %}
+	{% crispy extra_fields_form %}
+{% endif %}
 <button class="btn" type="submit">Update</button>
 </form>
 
