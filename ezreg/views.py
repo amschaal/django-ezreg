@@ -112,7 +112,7 @@ def modify_registration(request,id=None):
         form = AdminRegistrationForm(request.POST,instance=registration)
         if fields:
             extra_fields_form = JSONForm(request.POST,fields=fields)  
-        if form.is_valid() and extra_fields_form.is_valid():
+        if form.is_valid() and (not extra_fields_form or extra_fields_form.is_valid()):
             registration = form.save()
             registration.data = extra_fields_form.cleaned_data
             registration.save()
