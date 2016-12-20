@@ -1,10 +1,11 @@
 from ezreg.payment.base import BasePaymentProcessor
 from ezreg.payment.dafis.forms import DafisConfigurationForm, PaymentForm
+from collections import OrderedDict
 
 class DafisPaymentProcessor(BasePaymentProcessor):
     id = 'dafis_payment_processor'
     name = 'UC Davis Account Processor'
-    exportable_fields = {'account':'Account','sub_account':'Sub account','chart':'Chart','financial_contact':'Financial Contact'}
+    exportable_fields = OrderedDict([('chart','Chart'),('account','Account'),('sub_account','Sub account'),('financial_contact','Financial Contact')])
     @staticmethod
     def get_form(data=None, request=None):
         return PaymentForm
