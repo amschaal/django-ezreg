@@ -4,12 +4,13 @@
 {% endblock %}
     
 {% block content %}
+<a href="{% url 'manage_event' event=registration.event.id %}">Back</a> to event management
 <h2>Modify payment</h2>
 {% include 'ezreg/partials/registration_details.html' %}
 <form method="POST" action=".">
 {%csrf_token%}
 {{price_form|crispy}}
-{{payment_form|crispy}}
+{% if payment_form %}{{payment_form|crispy}}{% endif %}
 {{admin_payment_form|crispy}}
 <button class="btn">Update</button>
 </form>

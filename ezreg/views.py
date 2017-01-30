@@ -127,15 +127,16 @@ def modify_payment(request,id=None):
     form_class = payment.get_form()
     if request.method == 'GET':
         price_form = AdminPriceForm({'price':registration.price_id},event=registration.event)
-        payment_form = form_class(payment.data,event=registration.event)
+        payment_form = form_class(payment.data,event=registration.event) if form_class else None
         admin_payment_form = AdminPaymentForm(instance=payment,prefix="admin_payment_form")
     elif request.method == 'POST':
-        payment_form = form_class(request.POST,event=registration.event)
+        payment_form = form_class(request.POST,event=registration.event) if form_class else None
         admin_payment_form = AdminPaymentForm(request.POST,instance=payment,prefix="admin_payment_form")
         price_form = AdminPriceForm(request.POST,event=registration.event)
-        if payment_form.is_valid() and price_form.is_valid() and admin_payment_form.is_valid():
+        if price_form.is_valid() and admin_payment_form.is_valid() and (payment_form is None or payment_form.is_valid()):
             payment = admin_payment_form.save(commit=False)
-            payment.data = payment_form.cleaned_data
+            if payment_form:
+                payment.data = payment_form.cleaned_data
             registration.price = price_form.cleaned_data['price']
             payment.amount = price_form.cleaned_data['price'].amount
             payment.save()
