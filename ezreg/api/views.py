@@ -4,7 +4,7 @@ from ezreg.api.serializers import PriceSerializer, PaymentProcessorSerializer,\
     EventSerializer
 from ezreg.models import Price, PaymentProcessor, Event, EventProcessor,\
     EventPage, Registration, OrganizerUserPermission
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from mailqueue.models import MailerMessage
 from ezreg.email import email_status
@@ -13,6 +13,7 @@ from django.template.defaultfilters import removetags
 from django_bleach.utils import get_bleach_default_options
 import bleach
 from ezreg.utils import format_registration_data
+from ezreg.api.permissions import EventPermission
 
 # @todo: Secure these for ALL methods (based on price.event.group)!!!
 class PriceViewset(viewsets.ModelViewSet):
@@ -35,8 +36,9 @@ class EventViewset(viewsets.ModelViewSet):
     filter_fields = {'title':[ 'icontains'],'organizer__name':['icontains'],'active':['exact']}
     search_fields = ('title',)
     ordering_fields = ('start_time','title','organizer__name')
+    permission_classes = (EventPermission,)
     def get_queryset(self):
-        return Event.objects.filter(organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN,organizer__user_permissions__user=self.request.user)
+        return Event.objects.filter(organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_VIEW,organizer__user_permissions__user=self.request.user)
 
 class EventPageViewset(viewsets.ModelViewSet):
     serializer_class = EventPageSerializer
