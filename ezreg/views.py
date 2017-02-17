@@ -56,6 +56,7 @@ def copy_event(request,event):
     if event.slug:
         event.slug = 'copy_of_'+event.slug
     event.title = 'Copy of '+event.title
+    event.active = event.advertise = False
     event.save()
     for processor in copied.payment_processors.all():
         EventProcessor.objects.create(event=event,processor=processor)
