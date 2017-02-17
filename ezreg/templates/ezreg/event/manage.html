@@ -26,7 +26,7 @@
 		  </ul>
 		</div>
 		 {% if 'admin' in permissions %}
-		 <a href="{% url 'copy_event' event=event.id%}" class="btn btn-default" onClick="return confirm('Are you sure you want to make a copy of this event?')">Copy</a>
+		 <a href="{% url 'copy_event' event=event.id%}" class="btn btn-default" onClick="return confirm('Are you sure you want to make a copy of this event?  Be aware that the copied event will retain all event details including dates, prices, etc from the original event.')">Copy</a>
 		 <a href="{% url 'delete_event' event=event.id%}" class="btn btn-danger" onClick="return confirm('Are you sure you want to delete this event?')">Delete</a>
 		 {% endif %}
 	</span>
