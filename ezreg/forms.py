@@ -44,7 +44,10 @@ class EventForm(forms.ModelForm):
     cancellation_policy = forms.CharField(required=False,widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     class Meta:
         model=Event
-        exclude = ('id','payment_processors','ical','form_fields','group')
+        fields = ('organizer','title','active','advertise','enable_waitlist','enable_application','capacity',
+                  'slug','title','description','body','cancellation_policy','open_until',
+                  'start_time','end_time','contact','display_address','address','waitlist_message','bcc','from_addr','expiration_time')
+#         exclude = ('id','payment_processors','ical','form_fields','group')
         labels = {
                   'start_time': 'Event Start Time',
                   'end_time': 'Event End Time',
@@ -52,10 +55,11 @@ class EventForm(forms.ModelForm):
                   'from_addr':'From address',
                   'address':'Location',
                   'display_address': 'Display location',
-                  'expiration_time': 'Expiration time (minutes)'
+                  'expiration_time': 'Expiration time (minutes)',
+                  'slug':'Friendly URL'
         }
         help_texts = {
-            'slug': 'The slug will be used in the event URL.  Use only alphanumeric characters and underscores.',
+            'slug': 'This will be used in the event URL.  Use only alphanumeric characters and underscores.',
             'description': 'This description will appear during the registration process.',
             'advertise':'Select this if you want the event to show up on the home page.',
             'enable_waitlist':'Once the event fills up, allow users to waitlist.',
