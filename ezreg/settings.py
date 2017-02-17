@@ -121,7 +121,9 @@ TINYMCE_DEFAULT_CONFIG = {
     'paste_text_sticky': True,
     'paste_text_sticky_default' : True,
     'valid_styles' : 'font-weight,font-style,text-decoration',
-    'relative_urls': False
+    'relative_urls': False,
+    'plugins': "table",
+    'theme_advanced_buttons3_add' : "tablecontrols",
 }
 
 ANONYMOUS_USER_ID = None
