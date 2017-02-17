@@ -287,18 +287,11 @@ def export_registrations_old(request, event):
     return response
 
 
-
 @event_access_decorator([OrganizerUserPermission.PERMISSION_VIEW])
 def export_registrations(request, event):
-    import re
-#     print request.POST.getlist('selection')
+    import re, tablib
     registrations = event.registrations.filter(id__in=request.POST.getlist('selection')).prefetch_related('payment','payment__processor')
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="%s_registrations_%s.csv"'%(re.sub('[^0-9a-zA-Z_]+', '', event.title.replace(' ','_')) ,timezone.now().strftime("%Y_%m_%d__%H_%M"))
     data = format_registration_data(event, registrations)
-    
-    writer = csv.writer(response)
-
     fields = ['registered','first_name','last_name','email','status']
     if event.form_fields:
         fields += [field['name'] for field in event.form_fields if 'layout' not in field['type'] and field['name'] in request.POST.getlist('custom_fields')]
@@ -309,12 +302,21 @@ def export_registrations(request, event):
     #get rid of fields that aren't available
     fields = [field for field in fields if data['fields'].has_key(field)]
     
-    #write headers
-    writer.writerow([data['fields'][field].get('label',field) for field in fields])
+    #add headers
+    dataset = tablib.Dataset(headers=[data['fields'][field].get('label',field) for field in fields])
     
     #write data
     for row in data['data']:
-        writer.writerow([form_value(row.get(field,'')) for field in fields])
-    
+        dataset.append([form_value(row.get(field,'')) for field in fields])
 
+    filetype = request.POST.get('format','xls')
+    filetype = filetype if filetype in ['xls','xlsx','csv','tsv','json'] else 'xls'
+    content_types = {'xls':'application/vnd.ms-excel','csv':'text/csv','json':'text/json','xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
+    response_kwargs = {
+            'content_type': content_types[filetype]
+        }
+    filename = "%s_registrations_%s.%s"%(re.sub('[^0-9a-zA-Z_]+', '', event.title.replace(' ','_')) ,timezone.now().strftime("%Y_%m_%d__%H_%M"),filetype)
+    response = HttpResponse(getattr(dataset, filetype), **response_kwargs)
+    response['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
     return response
+
