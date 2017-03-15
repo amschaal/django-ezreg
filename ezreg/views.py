@@ -52,10 +52,10 @@ def copy_event(request,event):
     copied = Event.objects.get(id=event.id)
     event.pk = id_generator() #this will make copy on save
     event.id = id_generator()
-#     event.pk = 
+    tstamp = timezone.now().strftime("%Y_%m_%d__%H_%M")
     if event.slug:
-        event.slug = 'copy_of_'+event.slug
-    event.title = 'Copy of '+event.title
+        event.slug = 'copy_of_%s_%s'%(event.slug,tstamp)
+    event.title = 'Copy of %s %s'%(event.title,tstamp)
     event.active = event.advertise = False
     event.save()
     for processor in copied.payment_processors.all():
