@@ -48,7 +48,7 @@ def postback(request):
     req = {k.upper():v for k,v in request.POST.items()} #Touchnet seems inconsistent about case
     logger = logging.getLogger('touchnet')
     try:
-        fid, registration_id = req.get('EXT_TRANS_ID').split(";")
+        registration_id = req.get('EXT_TRANS_ID').split(";").pop() #FID=12345;{FAU==12345;}REGISTRATION_ID
         registration = Registration.objects.get(id=registration_id)
         payment = registration.payment
         posting_key = TouchnetPaymentProcessor.get_posting_key(payment)
