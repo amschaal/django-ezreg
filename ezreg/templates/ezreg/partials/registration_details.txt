@@ -1,5 +1,9 @@
 {% load ezreg_filters %}
 Event: {{registration.event.title}}
+{% if registration.event.start_time %}Date: {{registration.event.start_time}}{% if registration.event.end_time %} - {{registration.event.end_time}}{% endif %}{% endif %}
+Organizer: {{registration.event.organizer}}
+{% if registration.event.address and registration.event.display_address  %}Location: {{registration.event.address}}{% endif %}
+{% if registration.event.contact %}Contact: {{registration.event.contact}}{% endif %}
 
 -Registration details-
 

@@ -1,5 +1,9 @@
 {% load ezreg_filters %}
 <h1>{{registration.event.title}}</h1>
+{% if registration.event.start_time %}<h4>{{registration.event.start_time}}{% if registration.event.end_time %} - {{registration.event.end_time}}{% endif %}</h4>{% endif %}
+<h4>Organizer - {{registration.event.organizer}}</h4>
+{% if registration.event.address and registration.event.display_address  %}<h4>{{registration.event.address}}</h4>{% endif %}
+{% if registration.event.contact %}<h4>Contact - {{registration.event.contact}}</h4>{% endif %}
 
 <h2>Registration details</h2>
 <table class="table">
