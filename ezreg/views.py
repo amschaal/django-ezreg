@@ -83,7 +83,7 @@ def manage_event(request,event):
     if request.method == 'GET':
         form = EventForm(request.user,instance=event)
     elif request.method == 'POST':
-        form = EventForm(request.user,request.POST,instance=event)
+        form = EventForm(request.user,request.POST,request.FILES,instance=event)
         if form.is_valid():
             event = form.save()
             return redirect('manage_event',event=event.id) #event.get_absolute_url()

@@ -35,6 +35,8 @@ class AngularDatePickerInput(TextInput):
 class EventForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
         super(EventForm,self).__init__(*args, **kwargs)
+        print 'ARGS'
+        print args
         self.fields['organizer'].queryset = Organizer.objects.filter(user_permissions__user=user,user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN)
         #Make open_until default to start_time if not provided
         data = self.data.copy()
@@ -45,7 +47,7 @@ class EventForm(forms.ModelForm):
     class Meta:
         model=Event
         fields = ('organizer','title','active','advertise','enable_waitlist','enable_application','capacity',
-                  'slug','title','description','body','cancellation_policy','open_until',
+                  'slug','logo','title','description','body','cancellation_policy','open_until',
                   'start_time','end_time','contact','display_address','address','waitlist_message','bcc','from_addr','expiration_time')
 #         exclude = ('id','payment_processors','ical','form_fields','group')
         labels = {
@@ -70,7 +72,8 @@ class EventForm(forms.ModelForm):
             'contact':'Who is the contact for the event?  Include details like name, email or phone number.',
             'address':'Where is the event located?  This will be included in the ical event sent with confirmation emails.',
             'expiration_time':'Registrations must be completed within this time limit.',
-            'open_until':'Defaults to start time if not provided.'
+            'open_until':'Defaults to start time if not provided.',
+            'logo': 'Optionally upload a logo to replace the default website logo.  Image will be scaled to a maximum height of 100px.',
         }
         widgets = {
                       'open_until':DateWidget(attrs={'id':"open_until"}, usel10n = True, bootstrap_version=3),

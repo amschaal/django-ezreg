@@ -70,6 +70,7 @@ class Event(models.Model):
     from_addr = models.EmailField(max_length=50,blank=True,null=True)
     expiration_time = models.PositiveSmallIntegerField(default=30)
     ical = models.FilePathField(path=settings.FILES_ROOT,match='*.ics',blank=True,null=True)
+    logo = models.ImageField(upload_to='logos/',null=True,blank=True)
     form_fields = JSONField(null=True, blank=True)
     @property
     def slug_or_id(self):
@@ -135,7 +136,10 @@ class Event(models.Model):
             ('admin_event', 'Can modify event'),
             ('view_event', 'Can view event details and registrations'),
         )
-        
+def event_logo_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return 'logos/{0}/{1}'.format(instance.organizer.id, filename)
+   
 class EventPage(models.Model):
     event = models.ForeignKey('Event',related_name='pages')
     slug = models.SlugField(max_length=50,blank=True)
