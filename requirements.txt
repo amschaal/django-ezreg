@@ -1,4 +1,5 @@
 Django==1.8.4
+Pillow==2.9.0
 Unidecode==0.04.18
 argparse==1.2.1
 bleach==1.4.2
