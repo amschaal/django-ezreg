@@ -81,8 +81,11 @@ class RegistrationWizard(SessionWizardView):
         return 'ezreg/registration/register.html'
     def get_form_kwargs(self, step):
         kwargs = {'event':self.event}
-        if step == 'registration_form' and self.registration:
-            kwargs['instance'] = self.registration
+        if step == 'registration_form':
+            if self.registration:
+                kwargs['instance'] = self.registration
+            if getattr(self, 'admin',False):
+                kwargs['admin'] = True
         return kwargs
     def get_registration(self):
         if hasattr(self, 'registration_instance'):
@@ -184,7 +187,7 @@ class RegistrationWizard(SessionWizardView):
         
         self.test = request.GET.has_key('test')
         if kwargs.get('admin',False):
-            if not request.user.is_authenticated() or not OrganizerUserPermission.objects.get(user=request.user,permission=OrganizerUserPermission.PERMISSION_ADMIN):
+            if not request.user.is_authenticated() or not OrganizerUserPermission.objects.filter(user=request.user,permission=OrganizerUserPermission.PERMISSION_ADMIN,organizer=self.event.organizer):
                 return HttpResponseForbidden('Only event admininstrators may register participants')
             self.admin = True
         test_redirect_parameter = '?test' if self.test else ''

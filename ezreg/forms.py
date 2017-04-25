@@ -95,7 +95,10 @@ class RegistrationForm(forms.ModelForm):
     template = 'ezreg/registration/form.html'
     def __init__(self, *args, **kwargs):
         self.event = kwargs.pop('event',None)
+        self.admin = kwargs.pop('admin',False)
         super(RegistrationForm,self).__init__(*args, **kwargs)
+        if not self.admin:
+            self.fields.pop('admin_notes')
         for field in ['first_name','last_name','email']:
             self.fields[field].required=True
     def clean_email(self):
@@ -108,12 +111,12 @@ class RegistrationForm(forms.ModelForm):
     class Meta:
         model=Registration
 #         exclude = ('id','event','price','status')
-        fields = ('first_name','last_name','email')#,'institution','department','special_requests'
+        fields = ('first_name','last_name','email','admin_notes')#,'institution','department','special_requests'
         
 class AdminRegistrationForm(forms.ModelForm):
     class Meta:
         model=Registration
-        fields = ('first_name','last_name','email')
+        fields = ('first_name','last_name','email','admin_notes')
 
 class AdminRegistrationStatusForm(forms.ModelForm):
     email = forms.CheckboxInput()
