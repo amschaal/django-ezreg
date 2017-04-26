@@ -1,0 +1,207 @@
+var app = angular.module('ezreg');
+app.requires.push('ngTable');
+app.controller('RegistrationSearchController', ['$scope','$http',"NgTableParams", RegistrationSearchController])
+
+app.config(setConfigPhaseSettings);
+setConfigPhaseSettings.$inject = ["ngTableFilterConfigProvider"];
+function setConfigPhaseSettings(ngTableFilterConfigProvider) {
+    var filterAliasUrls = {
+      "checkbox": "checkbox_filter.html",
+      "sent": "checkbox_filter.html"
+    };
+    ngTableFilterConfigProvider.setConfig({
+      aliasUrls: filterAliasUrls
+    });
+
+//    // optionally set a default url to resolve alias names that have not been explicitly registered
+//    // if you don't set one, then 'ng-table/filters/' will be used by default
+//    ngTableFilterConfigProvider.setConfig({
+//      defaultBaseUrl: "ng-table/filters/"
+//    });
+
+  }
+
+function RegistrationSearchController($scope,$http,NgTableParams) {
+	var defaults={};
+	var create_filter_choices = function(choices){
+		filter_choices = [];
+		for(var id in choices)
+			filter_choices.push({id:id,title:choices[id]});
+		console.log(filter_choices);
+		return filter_choices;
+	};
+	$scope.init = function(statuses,payment_statuses){
+		$scope.statuses = statuses;
+		$scope.payment_statuses = payment_statuses;
+		$scope.statuses_filter_choices = create_filter_choices(statuses);
+		$scope.payment_status_filter_choices = create_filter_choices(payment_statuses);
+	};
+	$scope.tableParams = new NgTableParams({
+//	      page: 1, // show first page
+		  sorting: { 'registered': 'desc'},
+	      count: 10 // count per page
+	    }, {
+	      filterDelay: 0,
+		  	getData: function(params) {
+		  		var url = params.url();
+		  	var query_params = {test:'False',page:url.page,page_size:url.count,ordering:params.orderBy().join(',').replace('+','')};
+		  	angular.extend(query_params, params.filter());
+	        // ajax request to api
+		  	$scope.registrationParameters = angular.copy(query_params);
+		  	angular.extend($scope.registrationParameters, {page_size:10000,page:1});
+		  	return $http.get('/api/registrations/',{params:query_params}).then(function(response){
+		  		params.total(response.data.count);
+		  		return response.data.results;
+		  	});
+	      }
+	    });
+  }
+
+
+app.controller('updateStatusCtrl', function ($scope, $http, growl, $modalInstance, event_id, selected) {
+
+	  $scope.params = {selected:selected};
+
+	  $scope.update_statuses = function () {
+		var url = django_js_utils.urls.resolve('update_event_statuses', { event: event_id });
+		$http.post(url,$scope.params).then(function(response){
+			$modalInstance.close($scope.params.selected);
+	  	}, function(response){
+			if (response.data.detail)
+				growl.error(response.data.detail ,{ttl: 5000});
+		}
+		);
+	    
+	  };
+
+	  $scope.cancel = function () {
+	    $modalInstance.dismiss('cancel');
+	  };
+	});
+app.controller('exportCtrl', function ($scope, $http, growl, $modalInstance, event_id, selected) {
+
+	  $scope.selected = selected;
+	  $scope.export_registrations = function (){
+		  $('#exportForm').submit();
+		  $modalInstance.close();
+	  };
+	  $scope.toggleSelect = function(key){
+		  console.log(key,$scope.select_all[key]);
+		  $('.'+key).prop('checked',$scope.select_all[key]);
+	  };
+	  $scope.cancel = function () {
+	    $modalInstance.dismiss('cancel');
+	  };
+	});
+
+app.controller('vizCtrl', function ($scope, $http, growl, $modalInstance, event_id, selected) {
+	  $scope.selected = selected;
+	  $scope.fields = [{label:'Select variable'}];
+	  $scope.data = [];
+	  $http.get($scope.getURL('api_export_registrations',{event:event_id})).then(function(response){
+		  console.log('data',response)
+		  angular.forEach(response.data.fields,function(field,index){
+			console.log(index,field);
+			if (['radio','datetime'].indexOf(field.type) != -1){
+				$scope.fields.push({key:index,label:field.label,type:field.type})
+			}
+		  });
+		  $scope.data = response.data.data;
+	  });
+	  function getData(field){
+		  switch(field.type){
+		  	case 'radio':
+		  		return d3.nest()
+		  		.key(function(d){return d[field.key]})
+		  		.rollup(function(v){return v.length})
+		  		.entries($scope.data);
+		  	case 'datetime':
+		  		return d3.nest()
+		  		.key(function(d){return new Date(d[field.key].substr(0,10))})
+		  		.rollup(function(v){return v.length})
+		  		.entries($scope.data);
+		  }
+	  }
+	  $scope.updateChart = function(){
+		  if (!$scope.field)
+			  return;
+		  if (!$scope.field.type)
+			  return;
+		  switch ($scope.field.type){
+		  	case 'radio':
+		  		var chart = nv.models.pieChart()
+			      .x(function(d) { return d.key })
+			      .y(function(d) { return d.values })
+			      .showLabels(true);
+		  		break;
+		  	case 'datetime':
+		  		var chart = nv.models.lineWithFocusChart()
+		  		  .x(function(d) { return d.key })
+			      .y(function(d) { return d.values })
+			      .showLabels(true);
+		  		break;
+		  }
+		  nv.addGraph(function() {
+			    d3.select("#chart svg")
+			        .datum(getData($scope.field))
+			        .transition().duration(350)
+			        .call(chart);
+//			  nv.utils.windowResize(chart.update);
+			  return chart;
+			});
+	  }
+	  
+	  function exampleData() {
+		  return  [
+		      { 
+		        "label": "One",
+		        "value" : 29.765957771107
+		      } , 
+		      { 
+		        "label": "Two",
+		        "value" : 0
+		      } , 
+		      { 
+		        "label": "Three",
+		        "value" : 32.807804682612
+		      } , 
+		      { 
+		        "label": "Four",
+		        "value" : 196.45946739256
+		      } , 
+		      { 
+		        "label": "Five",
+		        "value" : 0.19434030906893
+		      } , 
+		      { 
+		        "label": "Six",
+		        "value" : 98.079782601442
+		      } , 
+		      { 
+		        "label": "Seven",
+		        "value" : 13.925743130903
+		      } , 
+		      { 
+		        "label": "Eight",
+		        "value" : 5.1387322875705
+		      }
+		    ];
+		}
+	  $scope.init = function(){
+		  
+	  };
+		  
+	  $scope.get_data = function () {
+//		var url = django_js_utils.urls.resolve('export_registrations', { event: event_id });
+		$http.get(url,{selected:$scope.selected}).then(function(response){
+			$modalInstance.close($scope.params.selected);
+	  	}, function(response){
+			if (response.data.detail)
+				growl.error(response.data.detail ,{ttl: 5000});
+		});
+	    
+	  };
+	  $scope.cancel = function () {
+	    $modalInstance.dismiss('cancel');
+	  };
+});

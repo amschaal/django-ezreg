@@ -30,6 +30,12 @@ def events(request):
     events = Event.objects.filter(organizer__user_permissions__user=request.user).distinct()
     return render(request, 'ezreg/events.html', {'events':events},context_instance=RequestContext(request))
 
+@has_permissions([OrganizerUserPermission.PERMISSION_ADMIN,OrganizerUserPermission.PERMISSION_VIEW],require_all=False)
+def registration_search(request):
+    statuses = json.dumps({status[0]:status[1] for status in Registration.STATUSES})
+    payment_statuses = json.dumps({status[0]:status[1] for status in Payment.STATUS_CHOICES})
+    return render(request, 'ezreg/registration_search.html', {'statuses':statuses,'payment_statuses':payment_statuses},context_instance=RequestContext(request))
+
 @has_permissions([OrganizerUserPermission.PERMISSION_ADMIN])
 def create_event(request):
     if request.method == 'GET':

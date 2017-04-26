@@ -38,6 +38,7 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'ezreg.views.home',name='home'),
     url(r'^events/$', 'ezreg.views.events',name='events'),
+    url(r'^registrations/$', 'ezreg.views.registration_search',name='registration_search'),
     url(r'^events/create/$', 'ezreg.views.create_event',name='create_event'),
     url(r'^events/(?P<event>[A-Z0-9]{10})/manage/$', 'ezreg.views.manage_event',name='manage_event'),
     url(r'^events/(?P<event>[A-Z0-9]{10})/copy/$', 'ezreg.views.copy_event',name='copy_event'),
