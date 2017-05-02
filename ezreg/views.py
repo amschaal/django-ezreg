@@ -21,7 +21,7 @@ from ezreg.utils import format_registration_data
 from ezreg.templatetags.ezreg_filters import form_value
 
 def home(request):
-    upcoming = Event.objects.filter(advertise=True,active=True,open_until__gte=datetime.today()).order_by('start_time')[:5]
+    upcoming = Event.objects.filter(advertise=True,active=True,open_until__gte=datetime.today()).order_by('start_time')
     past = Event.objects.filter(advertise=True,open_until__lt=datetime.today()).order_by('-start_time')[:5]
     return render(request, 'ezreg/home.html', {'upcoming':upcoming,'past':past},context_instance=RequestContext(request))
 
