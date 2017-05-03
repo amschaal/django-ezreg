@@ -9,7 +9,7 @@
               {% for event in events %}
 	            
 	            <tr>
-	              <td style="min-width:150px">
+	              <td style="min-width:170px">
 	              	{% if event.start_time|date == event.end_time|date %}
 	              		{{event.start_time|date:'M j, Y'}}
 	              	{% else%}
