@@ -1,0 +1,44 @@
+<div class="panel panel-success">
+            <div class="panel-heading">
+              <h3 class="panel-title">Upcoming events</h3>
+            </div>
+            <div class="panel-body">
+              {% if events.count > 0 %}
+              <table class="table table-condensed borderless">
+                <tr><th>Date(s)</th><th>Event title</th><th>Organizer</th><th>Status</th><th class="pull-right">Registration closes</th></tr>
+              {% for event in events %}
+	            
+	            <tr>
+	              <td>
+	              	{% if event.start_time|date == event.end_time|date %}
+	              		{{event.start_time|date:'M j'}}
+	              	{% else%}
+	              		{{event.start_time|date:'M j'}}{% if event.end_time %} - {{event.end_time|date:'M j'}}{%endif%}
+	              	{% endif %}
+	              </td>
+	              <td>
+	              		<a href="{% url 'event' slug_or_id=event.slug_or_id %}">{{event.title}}</a>
+	              </td>
+	              <td>
+	              		{{event.organizer}}
+	              </td>
+	              <td>
+	              	{% if event.can_apply %}<span class="status apply">Application process open</span>
+					{% elif event.can_register%}<span class="status open">Registration open</span>
+					{% elif event.can_waitlist %}<span class="status waitlisted">Waitlist open</span>
+					{% elif not event.registration_enabled %}<span class="status closed">Closed</span>
+					{% else %}<span class="status full">Full</span>
+					{% endif %}
+	              </td>
+	              <td class="pull-right">
+	              		{{event.open_until|date:'M j'}}
+	              </td>
+	            </tr>
+              {% endfor %}
+              {% if more %}<tr><td colspan="3"><a href="{% url 'upcoming_events'%}">More...</a></td></tr>{% endif %}
+              </table>
+             {% else %}
+             	<h3>There are currently no upcoming events.</h3>
+             {% endif %}
+          	</div>
+</div>
