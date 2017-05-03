@@ -1,27 +1,4 @@
-{% extends 'base.html' %}
-{% block headend %}
-<script src="/static/ezreg/js/pages/manage_events.js"></script>
-{% endblock %}
+{% extends 'base_with_banner.html' %}
 {% block content %}
-<div class="page-header"><h1>Events 
-{% if OrganizerUserPermission.PERMISSION_ADMIN in all_user_permissions %}
-<a class="btn btn-primary pull-right" href="{% url 'create_event'%}">Create</a>
-{% endif %}
-</h1></div>
-<div ng-controller="EventsController" ng-init="init()">
-	<label><input type="checkbox" ng-model="filters.active" ng-true-value="'True'", ng-false-value="''"/> Only show active events</label>
-	<table ng-table="tableParams" class="table table-condensed table-bordered table-striped">
-      <tr ng-repeat="row in $data">
-        <td data-title="'Date'" sortable="'start_time'"><a href="{[ getURL('manage_event',{event:row.id}) ]}">{[row.start_time | date:'MM/dd/yyyy']}</a></td>
-        <td data-title="'Title'" filter="{title__icontains: 'text'}" sortable="'title'"><a href="{[ getURL('manage_event',{event:row.id}) ]}">{[row.title]}</a></td>
-        <td data-title="'Organizer'" filter="{organizer__name__icontains: 'text'}" sortable="'organizer__name'">{[row.organizer.name]}</td>
-        <td data-title="'Capacity'">{[row.capacity]}</td>
-        <td data-title="'Registered'">{[row.registered]}</td>
-        <td data-title="'Waitlisted'">{[row.waitlisted]}</td>
-        <td data-title="'Applied'">{[row.applied]}</td>
-        <td data-title="'Pending'">{[row.pending]}</td>
-        <td data-title="'Cancelled'">{[row.cancelled]}</td>
-      </tr>
-    </table>
-</div>
+{% include template with events=events %}
 {% endblock %}

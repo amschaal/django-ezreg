@@ -98,7 +98,7 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
           {%if user.is_authenticated%}
-            <li><a href="{% url 'events' %}">Events</a></li>
+            <li><a href="{% url 'manage_events' %}">Events</a></li>
             <li><a href="{% url 'registration_search' %}">Registrations</a></li>
             {% if OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS in all_user_permissions %}
             <li class="dropdown">

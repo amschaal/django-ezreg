@@ -37,7 +37,9 @@ router.register(r'emails', MailerMessageViewset, 'Email')
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'ezreg.views.home',name='home'),
-    url(r'^events/$', 'ezreg.views.events',name='events'),
+    url(r'^events/upcoming/$', 'ezreg.views.events',name='upcoming_events',kwargs={'page':'upcoming'}),
+    url(r'^events/past/$', 'ezreg.views.events',name='past_events',kwargs={'page':'past'}),
+    url(r'^manage_events/$', 'ezreg.views.manage_events',name='manage_events'),
     url(r'^registrations/$', 'ezreg.views.registration_search',name='registration_search'),
     url(r'^events/create/$', 'ezreg.views.create_event',name='create_event'),
     url(r'^events/(?P<event>[A-Z0-9]{10})/manage/$', 'ezreg.views.manage_event',name='manage_event'),

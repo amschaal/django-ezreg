@@ -25,10 +25,19 @@ def home(request):
     past = Event.objects.filter(advertise=True,open_until__lt=datetime.today()).order_by('-start_time')[:5]
     return render(request, 'ezreg/home.html', {'upcoming':upcoming,'past':past},context_instance=RequestContext(request))
 
+def events(request,page='upcoming'):
+    if page == 'past':
+        events = Event.objects.filter(advertise=True,open_until__lt=datetime.today()).order_by('-start_time')
+        template = 'ezreg/partials/past_events.html'
+    else:
+        events = Event.objects.filter(advertise=True,active=True,open_until__gte=datetime.today()).order_by('start_time')
+        template = 'ezreg/partials/upcoming_events.html'
+    return render(request, 'ezreg/events.html', {'events':events,'template':template},context_instance=RequestContext(request))
+
 @has_permissions([OrganizerUserPermission.PERMISSION_ADMIN,OrganizerUserPermission.PERMISSION_VIEW],require_all=False)
-def events(request):
+def manage_events(request):
     events = Event.objects.filter(organizer__user_permissions__user=request.user).distinct()
-    return render(request, 'ezreg/events.html', {'events':events},context_instance=RequestContext(request))
+    return render(request, 'ezreg/manage_events.html', {'events':events},context_instance=RequestContext(request))
 
 @has_permissions([OrganizerUserPermission.PERMISSION_ADMIN,OrganizerUserPermission.PERMISSION_VIEW],require_all=False)
 def registration_search(request):
