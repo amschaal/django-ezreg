@@ -8,11 +8,11 @@
               {% for event in events %}
 	            
 	            <tr>
-	              <td>
+	              <td style="min-width:150px">
 	              	{% if event.start_time|date == event.end_time|date %}
-	              		{{event.start_time|date:'M j'}}
+	              		{{event.start_time|date:'M j, Y'}}
 	              	{% else%}
-	              		{{event.start_time|date:'M j'}}{% if event.end_time %} - {{event.end_time|date:'M j'}}{%endif%}
+	              		{{event.start_time|date:'M j'}}{% if event.end_time %} - {{event.end_time|date:'M j, Y'}}{%endif%}
 	              	{% endif %}
 	              </td>
 	              <td>
