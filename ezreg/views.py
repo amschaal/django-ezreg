@@ -21,8 +21,8 @@ from ezreg.utils import format_registration_data
 from ezreg.templatetags.ezreg_filters import form_value
 
 def home(request):
-    upcoming = Event.objects.filter(advertise=True,active=True,open_until__gte=datetime.today()).order_by('start_time')
-    past = Event.objects.filter(advertise=True,open_until__lt=datetime.today()).order_by('-start_time')[:5]
+    upcoming = Event.objects.filter(advertise=True,active=True,start_time__gte=datetime.today()).order_by('start_time')
+    past = Event.objects.filter(advertise=True,start_time__lt=datetime.today()).order_by('-start_time')[:5]
     return render(request, 'ezreg/home.html', {'upcoming':upcoming,'past':past},context_instance=RequestContext(request))
 
 def events(request,page='upcoming'):
@@ -305,7 +305,7 @@ def export_registrations_old(request, event):
 @event_access_decorator([OrganizerUserPermission.PERMISSION_VIEW])
 def export_registrations(request, event):
     import re, tablib
-    registrations = event.registrations.filter(id__in=request.POST.getlist('selection')).prefetch_related('payment','payment__processor')
+    registrations = event.registrations.filter(id__in=request.POST.getlist('selection')).prefetch_related('payment','payment__processor').order_by('registered')
     data = format_registration_data(event, registrations)
     fields = ['registered','first_name','last_name','email','admin_notes','status']
     if event.form_fields:
