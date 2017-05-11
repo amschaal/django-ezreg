@@ -72,6 +72,7 @@ class Event(models.Model):
     ical = models.FilePathField(path=settings.FILES_ROOT,match='*.ics',blank=True,null=True)
     logo = models.ImageField(upload_to='logos/',null=True,blank=True)
     form_fields = JSONField(null=True, blank=True)
+    outside_url = models.URLField(null=True,blank=True)
     @property
     def slug_or_id(self):
         return self.slug if self.slug else self.id

@@ -20,7 +20,9 @@
 	<p><i>Registration closes on: {{event.open_until}}</i></p>
 {% endif %}
 	{% endif %}
-	{% if event.can_apply %}
+	{% if event.outside_url %}
+		<a href="{{event.outside_url}}"  class="btn btn-primary">Event website</a>
+	{% elif event.can_apply %}
 		<a href="{% url 'apply' slug_or_id=event.slug_or_id %}" class="btn btn-warning btn">Apply</a>
 	{% elif event.can_register%}
 		<a href="{% url 'register' slug_or_id=event.slug_or_id %}" class="btn btn-warning btn">Register</a>

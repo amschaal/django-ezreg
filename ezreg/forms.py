@@ -46,7 +46,7 @@ class EventForm(forms.ModelForm):
         model=Event
         fields = ('organizer','title','active','advertise','enable_waitlist','enable_application','capacity',
                   'slug','logo','title','description','body','cancellation_policy','open_until',
-                  'start_time','end_time','contact','display_address','address','waitlist_message','bcc','from_addr','expiration_time')
+                  'start_time','end_time','contact','display_address','address','waitlist_message','bcc','from_addr','expiration_time','outside_url')
 #         exclude = ('id','payment_processors','ical','form_fields','group')
         labels = {
                   'start_time': 'Event Start Time',
@@ -72,6 +72,7 @@ class EventForm(forms.ModelForm):
             'expiration_time':'Registrations must be completed within this time limit.',
             'open_until':'Defaults to start time if not provided.',
             'logo': 'Optionally upload a logo to replace the default website logo.  Image will be scaled to a maximum height of 100px.',
+            'outside_url': 'Optionally provide a URL to an outside event.  If this is set, registration through the system will not be possible.',
         }
         widgets = {
                       'open_until':DateWidget(attrs={'id':"open_until"}, usel10n = True, bootstrap_version=3),
