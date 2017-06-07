@@ -54,7 +54,7 @@ class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
 #     {'name': ['exact', 'icontains'],
 #                   'price': ['exact', 'gte', 'lte'],
 #                  }
-    ordering_fields = ('status','first_name','last_name','email','registered','payment__amount','payment__status')
+    ordering_fields = ('status','first_name','last_name','email','registered','payment__amount','payment__status','payment__processor__name')
     search_fields = ('status','email',)
     def get_queryset(self):
         return Registration.objects.filter(event__organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_VIEW,event__organizer__user_permissions__user=self.request.user)
