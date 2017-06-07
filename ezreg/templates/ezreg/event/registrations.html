@@ -39,9 +39,9 @@
         <td data-title="'Last Name'" filter="{last_name__icontains: 'text'}" sortable="'last_name'">{[row.last_name]}</td>
         <td data-title="'Email'" filter="{email__icontains: 'text'}" sortable="'email'">{[row.email]}</td>
         <td data-title="'Amount'" sortable="'payment__amount'">{[row.payment__amount]}<span ng-if="row.payment__refunded"> - {[row.payment__refunded]} refunded</span></td>
-        <td data-title="'Processor'">{[row.payment__processor]}</td>
-		<td data-title="'Status'" filter="{status: 'select'}" filter-data="statuses_filter_choices">{[statuses[row.status]]}</td>
-		<td data-title="'Payment Status'" filter="{payment__status: 'select'}" filter-data="payment_status_filter_choices">{[payment_statuses[row.payment__status]]}</td>
+        <td data-title="'Processor'" sortable="'payment__processor__name'">{[row.payment__processor]}</td>
+		<td data-title="'Status'" sortable="'status'" filter="{status: 'select'}" filter-data="statuses_filter_choices">{[statuses[row.status]]}</td>
+		<td data-title="'Payment Status'" sortable="'payment__status'" filter="{payment__status: 'select'}" filter-data="payment_status_filter_choices">{[payment_statuses[row.payment__status]]}</td>
 		<td data-title="'Test'" filter="{test: 'checkbox'}"><i ng-if="row.test" class="glyphicon glyphicon-ok"></i></td>
 		<td data-title="'Actions'">
 			<div class="btn-group" dropdown is-open="isopen[row.id]">
