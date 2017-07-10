@@ -1,6 +1,6 @@
 var app = angular.module('ezreg');
 app.requires.push('ngTable');
-app.controller('RegistrationSearchController', ['$scope','$http',"NgTableParams", RegistrationSearchController])
+app.controller('RegistrationSearchController', ['$scope','$http',"NgTableParams",'$httpParamSerializer', RegistrationSearchController])
 
 app.config(setConfigPhaseSettings);
 setConfigPhaseSettings.$inject = ["ngTableFilterConfigProvider"];
@@ -21,7 +21,7 @@ function setConfigPhaseSettings(ngTableFilterConfigProvider) {
 
   }
 
-function RegistrationSearchController($scope,$http,NgTableParams) {
+function RegistrationSearchController($scope,$http,NgTableParams,$httpParamSerializer) {
 	var defaults={};
 	var create_filter_choices = function(choices){
 		filter_choices = [];
@@ -55,6 +55,11 @@ function RegistrationSearchController($scope,$http,NgTableParams) {
 		  	});
 	      }
 	    });
+	$scope.exportRegistrations = function(){
+		var url = '/api/registrations/export_registrations/?'+$httpParamSerializer($scope.registrationParameters);
+		console.log('url',url);
+		window.location = url;
+	}
   }
 
 

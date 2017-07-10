@@ -4,7 +4,7 @@ from ezreg.api.serializers import PriceSerializer, PaymentProcessorSerializer,\
     EventSerializer
 from ezreg.models import Price, PaymentProcessor, Event, EventProcessor,\
     EventPage, Registration, OrganizerUserPermission
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, list_route
 from rest_framework.response import Response
 from mailqueue.models import MailerMessage
 from ezreg.email import email_status
@@ -14,6 +14,8 @@ from django_bleach.utils import get_bleach_default_options
 import bleach
 from ezreg.utils import format_registration_data
 from ezreg.api.permissions import EventPermission
+from django.utils import timezone
+from django.http.response import HttpResponse
 
 # @todo: Secure these for ALL methods (based on price.event.group)!!!
 class PriceViewset(viewsets.ModelViewSet):
@@ -50,7 +52,7 @@ class EventPageViewset(viewsets.ModelViewSet):
 class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = RegistrationSerializer
 #     filter_fields = ('status','event','email','first_name','last_name')
-    filter_fields = {'status':['exact', 'icontains'],'event':['exact'],'email':['exact', 'icontains'],'first_name':['exact', 'icontains'],'last_name':['exact', 'icontains'],'payment__processor__name':['exact'],'payment__status':['exact'],'test':['exact']} 
+    filter_fields = {'status':['exact', 'icontains'],'event':['exact'],'event__title':['icontains'],'event__organizer__name':['icontains'],'email':['exact', 'icontains'],'first_name':['exact', 'icontains'],'last_name':['exact', 'icontains'],'payment__processor__name':['exact'],'payment__status':['exact'],'test':['exact']} 
 #     {'name': ['exact', 'icontains'],
 #                   'price': ['exact', 'gte', 'lte'],
 #                  }
@@ -58,6 +60,32 @@ class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
     search_fields = ('status','email',)
     def get_queryset(self):
         return Registration.objects.filter(event__organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_VIEW,event__organizer__user_permissions__user=self.request.user)
+    @list_route()
+    def export_registrations(self,request):
+        import tablib
+        registrations = self.filter_queryset(self.get_queryset())
+        fields = ['registered','event','organizer','first_name','last_name','email','amount','processor','status','payment status','admin_notes','test']
+        
+        #add headers
+        dataset = tablib.Dataset(headers=fields)
+        
+        #write data
+        for r in registrations:
+            amount = None if not hasattr(r,'payment') else r.payment.amount
+            processor = None if not hasattr(r,'payment') else r.payment.processor.name
+            payment_status = None if not hasattr(r,'payment') else r.payment.status
+            dataset.append([r.registered.strftime("%Y-%m-%d %H:%M"),r.event.title,r.event.organizer.name,r.first_name,r.last_name,r.email,amount,processor,r.status,payment_status,r.admin_notes,r.test])
+    
+        filetype = request.data.get('format','xls')
+        filetype = filetype if filetype in ['xls','xlsx','csv','tsv','json'] else 'xls'
+        content_types = {'xls':'application/vnd.ms-excel','csv':'text/csv','json':'text/json','xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
+        response_kwargs = {
+                'content_type': content_types[filetype]
+            }
+        filename = "registrations_%s.%s"%(timezone.now().strftime("%Y_%m_%d__%H_%M"),filetype)
+        response = HttpResponse(getattr(dataset, filetype), **response_kwargs)
+        response['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
+        return response
 
 class MailerMessageViewset(viewsets.ReadOnlyModelViewSet):
 #     queryset = MailerMessage.objects.all().prefetch_related('registrations')
