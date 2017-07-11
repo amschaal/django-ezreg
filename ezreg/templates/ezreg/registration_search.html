@@ -10,6 +10,26 @@
     <input type="text" name="{{name}}" ng-disabled="$filterRow.disabled" ng-model="params.filter()[name]" class="input-filter form-control" maxlengh="4" angular-mask="0000" placeholder="nnnn" />
 </script>
 <div ng-controller="RegistrationSearchController" ng-init='init({{statuses|safe}},{{payment_statuses|safe}} );'>
+
+	<h4>Date range</h4>
+	<div class="row">
+      <div class="col-md-6">
+        <p class="input-group">
+          <input datepicker-popup ng-change="updateFilter()" placeholder="Start date (YYYY-MM-DD)" type="text" class="form-control" ng-model="registrationParameters.registered__gte" is-open="date_controls.start_date_open" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" />
+          <span class="input-group-btn">
+            <button type="button" class="btn btn-default" ng-click="date_controls.start_date_open=true;"><i class="glyphicon glyphicon-calendar" ng-click="date_controls.start_date_open=true;"></i></button>
+          </span>
+        </p>
+      </div>
+      <div class="col-md-6">
+        <p class="input-group">
+          <input datepicker-popup ng-change="updateFilter()" placeholder="End date (YYYY-MM-DD)" type="text" class="form-control" ng-model="registrationParameters.registered__lte" is-open="date_controls.end_date_open" ng-required="true" close-text="Close" alt-input-formats="altInputFormats" />
+          <span class="input-group-btn">
+            <button type="button" class="btn btn-default" ng-click="date_controls.end_date_open=true;"><i class="glyphicon glyphicon-calendar" ng-click="date_controls.end_date_open=true;"></i></button>
+          </span>
+        </p>
+      </div>
+    </div>
     <table ng-table="tableParams" show-filter="true" class="table table-bordered table-striped table-condensed">
       <tr ng-repeat="row in $data track by row.id">
         <td data-title="'Registered'" sortable="'registered'" style="width:170px">{[row.registered | date:'short']}</td>
