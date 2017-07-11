@@ -35,14 +35,14 @@ function RegistrationSearchController($scope,$filter,$http,NgTableParams,$httpPa
 		$scope.payment_statuses = payment_statuses;
 		$scope.statuses_filter_choices = create_filter_choices(statuses);
 		$scope.payment_status_filter_choices = create_filter_choices(payment_statuses);
-		console.log($scope);
-		
 	};
 	$scope.updateFilter = function(){
-		console.log($scope.registrationParameters.registered__gte,$scope.registrationParameters.registered__lte)
-		$scope.registrationParameters.registered__lte = $filter('date')($scope.registrationParameters.registered__lte, 'yyyy-MM-dd');
-		$scope.registrationParameters.registered__gte = $filter('date')($scope.registrationParameters.registered__gte, 'yyyy-MM-dd');
-		$scope.tableParams.filter($scope.registrationParameters);
+		var filters = {
+				registered__lte: $filter('date')($scope.end_date, 'yyyy-MM-dd'),
+				registered__gte: $filter('date')($scope.start_date, 'yyyy-MM-dd')
+		}
+		angular.extend($scope.tableParams.filter(), filters);
+//		$scope.tableParams.filter(angular.copy($scope.registrationParameters));
 	}
 	$scope.tableParams = new NgTableParams({
 //	      page: 1, // show first page
