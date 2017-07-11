@@ -23,6 +23,7 @@ function setConfigPhaseSettings(ngTableFilterConfigProvider) {
 
 function RegistrationSearchController($scope,$filter,$http,NgTableParams,$httpParamSerializer) {
 	var defaults={};
+	$scope.filters={};
 	var create_filter_choices = function(choices){
 		filter_choices = [];
 		for(var id in choices)
@@ -38,8 +39,8 @@ function RegistrationSearchController($scope,$filter,$http,NgTableParams,$httpPa
 	};
 	$scope.updateFilter = function(){
 		var filters = {
-				registered__lte: $filter('date')($scope.end_date, 'yyyy-MM-dd'),
-				registered__gte: $filter('date')($scope.start_date, 'yyyy-MM-dd')
+				registered__lte: $filter('date')($scope.filters.end_date, 'yyyy-MM-dd'),
+				registered__gte: $filter('date')($scope.filters.start_date, 'yyyy-MM-dd')
 		}
 		angular.extend($scope.tableParams.filter(), filters);
 //		$scope.tableParams.filter(angular.copy($scope.registrationParameters));
