@@ -75,10 +75,9 @@ class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
             processor = None if not hasattr(r,'payment') else r.payment.processor.name
             payment_status = None if not hasattr(r,'payment') else r.payment.status
             dataset.append([r.registered.strftime("%Y-%m-%d %H:%M"),r.event.title,r.event.organizer.name,r.first_name,r.last_name,r.email,amount,processor,r.status,payment_status,r.admin_notes,r.test])
-    
-        filetype = request.data.get('format','xls')
+        filetype = request.query_params.get('export_format','xls')
         filetype = filetype if filetype in ['xls','xlsx','csv','tsv','json'] else 'xls'
-        content_types = {'xls':'application/vnd.ms-excel','csv':'text/csv','json':'text/json','xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
+        content_types = {'xls':'application/vnd.ms-excel','tsv':'text/tsv','csv':'text/csv','json':'text/json','xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
         response_kwargs = {
                 'content_type': content_types[filetype]
             }

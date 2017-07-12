@@ -64,8 +64,8 @@ function RegistrationSearchController($scope,$filter,$http,NgTableParams,$httpPa
 		  	});
 	      }
 	    });
-	$scope.exportRegistrations = function(){
-		var url = '/api/registrations/export_registrations/?'+$httpParamSerializer($scope.registrationParameters);
+	$scope.exportRegistrations = function(format){
+		var url = '/api/registrations/export_registrations/?'+$httpParamSerializer($scope.registrationParameters)+'&export_format='+format;
 		console.log('url',url);
 		window.location = url;
 	}
