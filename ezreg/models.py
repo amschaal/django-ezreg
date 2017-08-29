@@ -155,11 +155,13 @@ class Price(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=250,blank=True)
     amount = models.DecimalField(decimal_places=2,max_digits=7)
-    coupon_code = models.CharField(max_length=25,unique=True,null=True)
+    coupon_code = models.CharField(max_length=25,null=True)
     start_date = models.DateField(null=True,blank=True)
     end_date = models.DateField(null=True,blank=True)
     def __unicode__(self):
         return mark_safe('<span title="%s"><b>$%s</b> - %s</span>' % (self.description,str(self.amount),self.name))
+    class Meta:
+        unique_together = (('event','coupon_code'))
     
 class Registration(models.Model):
     STATUS_REGISTERED = 'REGISTERED'
