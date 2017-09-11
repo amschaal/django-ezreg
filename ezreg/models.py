@@ -50,7 +50,7 @@ class Event(models.Model):
     organizer = models.ForeignKey(Organizer,related_name='events')
     slug = models.SlugField(max_length=100,unique=True,blank=True)
     title = models.CharField(max_length=150,blank=False)
-    description = models.TextField(blank=False)
+    description = BleachField(blank=False)
     body = BleachField(blank=False)
     active = models.BooleanField(default=False)
     capacity = models.PositiveSmallIntegerField(blank=True,null=True)

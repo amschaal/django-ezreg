@@ -41,6 +41,7 @@ class EventForm(forms.ModelForm):
         data['open_until'] = self.data.get('open_until') or self.data.get('start_time','')[:10]
         self.data = data
     body = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
+    description = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 15}))
     cancellation_policy = forms.CharField(required=False,widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     class Meta:
         model=Event
