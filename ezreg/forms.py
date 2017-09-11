@@ -40,8 +40,8 @@ class EventForm(forms.ModelForm):
         data = self.data.copy()
         data['open_until'] = self.data.get('open_until') or self.data.get('start_time','')[:10]
         self.data = data
-    body = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
-    description = forms.CharField(widget=TinyMCE(attrs={'cols': 80, 'rows': 15}))
+    body = forms.CharField(label='Event page',help_text='This is the main page for your event and should contain most information about your event.',widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
+    description = forms.CharField(label='Brief event description',help_text='This should be a brief description of your event, and will be displayed during the registration process.',widget=TinyMCE(attrs={'cols': 80, 'rows': 15}))
     cancellation_policy = forms.CharField(required=False,widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     class Meta:
         model=Event
@@ -57,7 +57,7 @@ class EventForm(forms.ModelForm):
                   'address':'Location',
                   'display_address': 'Display location',
                   'expiration_time': 'Expiration time (minutes)',
-                  'slug':'Friendly URL'
+                  'slug':'Friendly URL',
         }
         help_texts = {
             'slug': 'This will be used in the event URL.  Use only alphanumeric characters and underscores.',
