@@ -145,7 +145,7 @@ BLEACH_ALLOWED_TAGS = [
     "ul", "ol", "li", "dd", "dt",
     "img",
     "table", "thead", "tbody", "tfoot", "tr", "th", "td",
-    "a","iframe"
+    "a"
 ]
 
 # Which HTML attributes are allowed

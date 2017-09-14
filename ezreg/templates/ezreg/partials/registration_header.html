@@ -17,4 +17,4 @@
 <h2>{{event.title}}</h2>
 <h3>{% if event.start_time %}{{event.start_time}}{% endif %}{% if event.end_time %} - {{event.end_time}}{% endif %}</h3>
 <h3>Organizer - {{event.organizer}}</h3>
-<p>{{event.description}}</p>
+<p>{{event.description|safe}}</p>
