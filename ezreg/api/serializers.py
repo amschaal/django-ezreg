@@ -11,6 +11,7 @@ class JSONSerializerField(serializers.Field):
         return value
 
 class PriceSerializer(serializers.ModelSerializer):
+    coupon_code = serializers.CharField(allow_blank=True, allow_null=True)
     def to_internal_value(self, data):
         if data.has_key('coupon_code'):
             if not data['coupon_code']: 
