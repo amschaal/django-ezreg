@@ -38,7 +38,7 @@ class PaymentForm(BasePaymentForm):
                 cleaned_data['validated']=True
             except Exception, e:
                 cleaned_data['validated']=False
-            if valid == False:
+            if valid != True:
                 raise forms.ValidationError("The account is invalid.  Please ensure that chart, account, and (optionally) sub account refer to a valid account.")
         return cleaned_data
             
