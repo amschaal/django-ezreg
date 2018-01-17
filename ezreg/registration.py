@@ -128,7 +128,7 @@ class RegistrationWizard(SessionWizardView):
         else:
             raise RegistrationClosedException("Registration is closed")
         if getattr(self,'admin', False):
-            registration = Registration.objects.create(event=self.event,status=status,test=self.test, registered_by=self.request.user)
+            registration = Registration.objects.create(event=self.event,status=Registration.STATUS_REGISTERED,test=self.test, registered_by=self.request.user)
         else:
             registration = Registration.objects.create(event=self.event,status=status,test=self.test)
         self.set_session_registration_id(registration.id)
