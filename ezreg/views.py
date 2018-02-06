@@ -1,5 +1,4 @@
 from django.shortcuts import render, redirect
-from django.template.context import RequestContext
 from ezreg.models import Event,  Registration, PaymentProcessor, EventPage,\
     id_generator, EventProcessor, OrganizerUserPermission, Payment
 from ezreg.forms import EventForm, PaymentProcessorForm,  AdminRegistrationForm,\

@@ -128,9 +128,9 @@ class AdminRegistrationStatusForm(forms.ModelForm):
         
 class PriceForm(forms.Form):
     template = 'ezreg/registration/price.html'
-    price = forms.ModelChoiceField(Price,required=True,empty_label=None,widget=forms.widgets.RadioSelect)
+    price = forms.ModelChoiceField(queryset=Price.objects.all(),required=True,empty_label=None,widget=forms.widgets.RadioSelect)
     coupon_code = forms.CharField(required=False)
-    payment_method = forms.ModelChoiceField(PaymentProcessor,required=True,empty_label=None,widget=forms.widgets.RadioSelect)
+    payment_method = forms.ModelChoiceField(queryset=PaymentProcessor.objects.all(),required=True,empty_label=None,widget=forms.widgets.RadioSelect)
     def __init__(self, *args, **kwargs):
         self.event = kwargs.pop('event')
         super(PriceForm,self).__init__(*args, **kwargs)
