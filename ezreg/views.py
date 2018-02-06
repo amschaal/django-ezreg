@@ -23,7 +23,7 @@ from ezreg.templatetags.ezreg_filters import form_value
 def home(request):
     upcoming = Event.objects.filter(advertise=True,start_time__gte=datetime.today()).filter(Q(active=True)|Q(outside_url__isnull=False)).order_by('start_time')
     past = Event.objects.filter(advertise=True,start_time__lt=datetime.today()).order_by('-start_time')[:5]
-    return render(request, 'ezreg/home.html', {'upcoming':upcoming,'past':past},context_instance=RequestContext(request))
+    return render(request, 'ezreg/home.html', {'upcoming':upcoming,'past':past})
 
 def events(request,page='upcoming'):
     if page == 'past':
@@ -32,18 +32,18 @@ def events(request,page='upcoming'):
     else:
         events = Event.objects.filter(advertise=True,active=True,open_until__gte=datetime.today()).order_by('start_time')
         template = 'ezreg/partials/upcoming_events.html'
-    return render(request, 'ezreg/events.html', {'events':events,'template':template},context_instance=RequestContext(request))
+    return render(request, 'ezreg/events.html', {'events':events,'template':template})
 
 @has_permissions([OrganizerUserPermission.PERMISSION_ADMIN,OrganizerUserPermission.PERMISSION_VIEW],require_all=False)
 def manage_events(request):
     events = Event.objects.filter(organizer__user_permissions__user=request.user).distinct()
-    return render(request, 'ezreg/manage_events.html', {'events':events},context_instance=RequestContext(request))
+    return render(request, 'ezreg/manage_events.html', {'events':events})
 
 @has_permissions([OrganizerUserPermission.PERMISSION_ADMIN,OrganizerUserPermission.PERMISSION_VIEW],require_all=False)
 def registration_search(request):
     statuses = json.dumps({status[0]:status[1] for status in Registration.STATUSES})
     payment_statuses = json.dumps({status[0]:status[1] for status in Payment.STATUS_CHOICES})
-    return render(request, 'ezreg/registration_search.html', {'statuses':statuses,'payment_statuses':payment_statuses},context_instance=RequestContext(request))
+    return render(request, 'ezreg/registration_search.html', {'statuses':statuses,'payment_statuses':payment_statuses})
 
 @has_permissions([OrganizerUserPermission.PERMISSION_ADMIN])
 def create_event(request):
@@ -54,7 +54,7 @@ def create_event(request):
         if form.is_valid():
             event = form.save()
             return redirect('manage_event',event=event.id) #event.get_absolute_url()
-    return render(request, 'ezreg/create_event.html', {'form':form} ,context_instance=RequestContext(request))
+    return render(request, 'ezreg/create_event.html', {'form':form} )
 
 
 @event_access_decorator([OrganizerUserPermission.PERMISSION_ADMIN])
@@ -102,17 +102,17 @@ def manage_event(request,event):
         if form.is_valid():
             event = form.save()
             return redirect('manage_event',event=event.id) #event.get_absolute_url()
-    return render(request, 'ezreg/event/manage.html', {'form':form,'event':event,'Registration':Registration,'statuses':statuses,'payment_statuses':payment_statuses,'processors':processors,'form_fields':form_fields,'permissions':permissions} ,context_instance=RequestContext(request))
+    return render(request, 'ezreg/event/manage.html', {'form':form,'event':event,'Registration':Registration,'statuses':statuses,'payment_statuses':payment_statuses,'processors':processors,'form_fields':form_fields,'permissions':permissions} )
     
 
 def event(request,slug_or_id):
     event = Event.objects.get(Q(id=slug_or_id)|Q(slug=slug_or_id))
-    return render(request, 'ezreg/event.html', {'event':event},context_instance=RequestContext(request))
+    return render(request, 'ezreg/event.html', {'event':event})
 
 def event_page(request,slug_or_id,page_slug):
     event = Event.objects.get(Q(id=slug_or_id)|Q(slug=slug_or_id))
     page = EventPage.objects.get(event=event,slug=page_slug)
-    return render(request, 'ezreg/page.html', {'event':event,'page':page},context_instance=RequestContext(request))
+    return render(request, 'ezreg/page.html', {'event':event,'page':page})
 
 
 @generic_permission_decorator([OrganizerUserPermission.PERMISSION_ADMIN],'organizer__events__registrations__id','id')
@@ -134,7 +134,7 @@ def modify_registration(request,id=None):
                 registration.data = extra_fields_form.cleaned_data
                 registration.save()
             return redirect('manage_event',event=registration.event_id) #event.get_absolute_url()
-    return render(request, 'ezreg/modify_registration.html', {'form':form,'registration':registration,'extra_fields_form':extra_fields_form} ,context_instance=RequestContext(request))
+    return render(request, 'ezreg/modify_registration.html', {'form':form,'registration':registration,'extra_fields_form':extra_fields_form} )
 
 @generic_permission_decorator([OrganizerUserPermission.PERMISSION_ADMIN],'organizer__events__registrations__id','id')
 def modify_payment(request,id=None):
@@ -157,8 +157,8 @@ def modify_payment(request,id=None):
             payment.amount = price_form.cleaned_data['price'].amount
             payment.save()
             registration.save()
-            return render(request, 'ezreg/modify_payment.html', {'payment_form':payment_form,'admin_payment_form':admin_payment_form,'price_form':price_form,'registration':registration,'payment':payment} ,context_instance=RequestContext(request))
-    return render(request, 'ezreg/modify_payment.html', {'payment_form':payment_form,'price_form':price_form,'admin_payment_form':admin_payment_form,'registration':registration,'payment':payment} ,context_instance=RequestContext(request))
+            return render(request, 'ezreg/modify_payment.html', {'payment_form':payment_form,'admin_payment_form':admin_payment_form,'price_form':price_form,'registration':registration,'payment':payment} )
+    return render(request, 'ezreg/modify_payment.html', {'payment_form':payment_form,'price_form':price_form,'admin_payment_form':admin_payment_form,'registration':registration,'payment':payment} )
 
 
 @generic_permission_decorator([OrganizerUserPermission.PERMISSION_ADMIN],'organizer__events__registrations__id','id')
@@ -172,12 +172,12 @@ def update_registration_status(request,id):
             registration = form.save()
             email_status(registration)
             return redirect('registrations',slug_or_id=registration.event_id) #event.get_absolute_url()
-    return render(request, 'ezreg/update_registration_status.html', {'form':form,'registration':registration} ,context_instance=RequestContext(request))
+    return render(request, 'ezreg/update_registration_status.html', {'form':form,'registration':registration} )
 
 
 def registration(request,id):
     registration = Registration.objects.get(id=id)
-    return render(request, 'ezreg/registration.html', {'registration':registration},context_instance=RequestContext(request))
+    return render(request, 'ezreg/registration.html', {'registration':registration})
 
 def cancel_registration(request,id):
     key = request.GET.get('key',None)
@@ -189,17 +189,17 @@ def cancel_registration(request,id):
         message = 'Your registration has been cancelled'
     else:
         message = 'Registration can only be cancelled if you are currently waitlisted'
-    return render(request, 'ezreg/registration.html', {'registration':registration,'message':message},context_instance=RequestContext(request))
+    return render(request, 'ezreg/registration.html', {'registration':registration,'message':message})
 
 def pay(request,id):
     registration = Registration.objects.get(id=id)
-    return render(request, registration.payment.processor.get_processor().payment_template, {'registration':registration},context_instance=RequestContext(request))
+    return render(request, registration.payment.processor.get_processor().payment_template, {'registration':registration})
 
 @has_permissions([OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS])
 def payment_processors(request):
     OUPs = OrganizerUserPermission.objects.filter(user=request.user,permission=OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS)
     payment_processors = PaymentProcessor.objects.filter(organizer_id__in=[oup.organizer_id for oup in OUPs])
-    return render(request, 'ezreg/payment_processors.html', {'payment_processors':payment_processors},context_instance=RequestContext(request))
+    return render(request, 'ezreg/payment_processors.html', {'payment_processors':payment_processors})
 
 
 @generic_permission_decorator([OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS],'organizer__payment_processors__id','id')
@@ -212,7 +212,7 @@ def modify_payment_processor(request,id):
         if form.is_valid():
             processor = form.save()
             return redirect('configure_payment_processor',id=processor.id) #event.get_absolute_url()
-    return render(request, 'ezreg/create_modify_payment_processor.html', {'form':form} ,context_instance=RequestContext(request))
+    return render(request, 'ezreg/create_modify_payment_processor.html', {'form':form} )
 
 @has_permissions([OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS])
 def create_payment_processor(request):
@@ -223,7 +223,7 @@ def create_payment_processor(request):
         if form.is_valid():
             processor = form.save()
             return redirect('configure_payment_processor',id=processor.id) #event.get_absolute_url()
-    return render(request, 'ezreg/create_modify_payment_processor.html', {'form':form} ,context_instance=RequestContext(request))
+    return render(request, 'ezreg/create_modify_payment_processor.html', {'form':form} )
 
 @generic_permission_decorator([OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS],'organizer__payment_processors__id','id')
 def configure_payment_processor(request,id):
@@ -237,7 +237,7 @@ def configure_payment_processor(request,id):
             processor.config = form.cleaned_data
             processor.save()
             return redirect('payment_processors') #event.get_absolute_url()
-    return render(request, 'ezreg/configure_payment_processor.html', {'form':form,'processor':processor} ,context_instance=RequestContext(request))
+    return render(request, 'ezreg/configure_payment_processor.html', {'form':form,'processor':processor} )
 
 
 #@todo: Pretty ugly.  Should modularize this.  Handling custom payment data, custom form data, etc should be abstracted out of this function.

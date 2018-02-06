@@ -35,10 +35,12 @@ INSTALLED_APPS = (
     'ezreg',
     'crispy_forms',
     'rest_framework',
+    'rest_framework_filters',
     'datetimewidget',
     'mailqueue',
     'django_json_forms',
     'django_bleach',
+    'cas'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -131,7 +133,7 @@ ANONYMOUS_USER_ID = None
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend','rest_framework.filters.OrderingFilter','rest_framework.filters.SearchFilter',),
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend','rest_framework.filters.OrderingFilter','rest_framework.filters.SearchFilter',),
     'DEFAULT_PAGINATION_CLASS': 'ezreg.api.pagination.ResultsSetPagination',
 }
 

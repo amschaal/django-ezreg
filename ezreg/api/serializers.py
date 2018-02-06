@@ -35,6 +35,7 @@ class EventPageSerializer(serializers.ModelSerializer):
 class OrganizerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organizer
+        fields = '__all__'
 
 class EventSerializer(serializers.ModelSerializer):
     registered = serializers.ReadOnlyField()
