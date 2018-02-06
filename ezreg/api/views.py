@@ -15,6 +15,7 @@ from ezreg.utils import format_registration_data
 from ezreg.api.permissions import EventPermission
 from django.utils import timezone
 from django.http.response import HttpResponse
+from ezreg.api.filters import MultiFilter
 
 # @todo: Secure these for ALL methods (based on price.event.group)!!!
 class PriceViewset(viewsets.ModelViewSet):
@@ -50,8 +51,10 @@ class EventPageViewset(viewsets.ModelViewSet):
 
 class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = RegistrationSerializer
+    filter_backends = viewsets.ReadOnlyModelViewSet.filter_backends + [MultiFilter]
 #     filter_fields = ('status','event','email','first_name','last_name')
-    filter_fields = {'status':['exact', 'icontains','in'],'registered':['gte','lte'],'event':['exact'],'event__title':['icontains'],'event__organizer__name':['icontains'],'email':['exact', 'icontains'],'first_name':['exact', 'icontains'],'last_name':['exact', 'icontains'],'payment__processor__name':['exact'],'payment__status':['exact'],'test':['exact']} 
+    multi_filters = ['status__in']
+    filter_fields = {'status':['exact', 'icontains'],'registered':['gte','lte'],'event':['exact'],'event__title':['icontains'],'event__organizer__name':['icontains'],'email':['exact', 'icontains'],'first_name':['exact', 'icontains'],'last_name':['exact', 'icontains'],'payment__processor__name':['exact'],'payment__status':['exact'],'test':['exact']} 
 #     {'name': ['exact', 'icontains'],
 #                   'price': ['exact', 'gte', 'lte'],
 #                  }
