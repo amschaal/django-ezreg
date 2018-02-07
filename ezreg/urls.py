@@ -86,7 +86,7 @@ if hasattr(settings, 'PAYMENT_PROCESSOR_URLS'):
     for processor_urls in settings.PAYMENT_PROCESSOR_URLS:
         try:
 #             mod = import_module(processor_urls)
-            urlpatterns += url(r'^processors/',include(processor_urls))
+            urlpatterns += [url(r'^processors/',include(processor_urls))]
         except Exception, e:
             print e 
 
