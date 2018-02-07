@@ -19,7 +19,10 @@ def generate_email(to,from_addr,subject,template,html_template,context={},bcc=No
     body = render_to_string(template,context)
     message = MailerMessage(to_address=', '.join(to),from_address=from_addr,subject=subject,content=body,html_content=html)
     if bcc:
-        message.bcc_address = ', '.join(bcc)
+        if isinstance(bcc, basestring):
+            message.bcc_address = bcc
+        elif isinstance(bcc, (list, tuple)):
+            message.bcc_address = ', '.join(bcc)
 #     msg = EmailMultiAlternatives(subject, body, from_addr, to, bcc)
 #     msg.attach_alternative(html, 'text/html')
     return message
@@ -28,7 +31,10 @@ def send_text_email(to,from_addr,subject,body,context={},cc=[],bcc=[],registrati
     body = render_to_string(body,context)
     message = MailerMessage(to_address=', '.join(to),from_address=from_addr,subject=subject,content=body)
     if bcc:
-        message.bcc_address = ', '.join(bcc)
+        if isinstance(bcc, basestring):
+            message.bcc_address = bcc
+        elif isinstance(bcc, (list, tuple)):
+            message.bcc_address = ', '.join(bcc)
     message.save()
     if registration:
         registration.email_messages.add(message)

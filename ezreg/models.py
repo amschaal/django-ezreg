@@ -143,7 +143,7 @@ def event_logo_path(instance, filename):
    
 class EventPage(models.Model):
     event = models.ForeignKey('Event',related_name='pages')
-    slug = models.SlugField(max_length=50,blank=True)
+    slug = models.SlugField(max_length=50,blank=True,null=True)
     heading = models.CharField(max_length=40)
     body = BleachField()
     class Meta:

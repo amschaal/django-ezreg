@@ -1,4 +1,4 @@
-angular.module('DRFNgTable',['ngTable'])
+angular.module('DRFNgTable',['ngTable','btorfs.multiselect'])
 
 //Usage: $scope.tableParams = DRFNgTableParams('/api/users/',{sorting: { last_name: "asc" }});
 .factory('DRFNgTableParams', ['NgTableParams','$http', function(NgTableParams,$http) {
@@ -27,3 +27,8 @@ angular.module('DRFNgTable',['ngTable'])
 		});
 	};
 }])
+.run(function($templateCache) {
+  $templateCache.put('ng-table/filters/multi_select.html', '<multiselect ng-disabled="$filterRow.disabled" ng-model="params.filter()[name]" options="$column.data" show-select-all="true" show-unselect-all="true" id-as-value="true" id-prop="id" display-prop="title"></multiselect>');
+});
+
+//data.id as data.title for data in $column.data

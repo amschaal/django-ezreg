@@ -3,7 +3,7 @@ from django.db import models
 
 
 class EmailListField(models.CharField):
-    __metaclass__ = models.SubfieldBase
+#     __metaclass__ = models.SubfieldBase
 
     class EmailListValidator(validators.EmailValidator):
         def __call__(self, value):

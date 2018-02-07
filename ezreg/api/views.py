@@ -9,13 +9,13 @@ from rest_framework.response import Response
 from mailqueue.models import MailerMessage
 from ezreg.email import email_status
 from ezreg.decorators import event_access_decorator
-from django.template.defaultfilters import removetags
 from django_bleach.utils import get_bleach_default_options
 import bleach
 from ezreg.utils import format_registration_data
 from ezreg.api.permissions import EventPermission
 from django.utils import timezone
 from django.http.response import HttpResponse
+from ezreg.api.filters import MultiFilter
 
 # @todo: Secure these for ALL methods (based on price.event.group)!!!
 class PriceViewset(viewsets.ModelViewSet):
@@ -51,14 +51,17 @@ class EventPageViewset(viewsets.ModelViewSet):
 
 class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = RegistrationSerializer
+    filter_backends = viewsets.ReadOnlyModelViewSet.filter_backends + [MultiFilter]
 #     filter_fields = ('status','event','email','first_name','last_name')
+    multi_filters = ['status__in','payment__status__in']
     filter_fields = {'status':['exact', 'icontains'],'registered':['gte','lte'],'event':['exact'],'event__title':['icontains'],'event__organizer__name':['icontains'],'email':['exact', 'icontains'],'first_name':['exact', 'icontains'],'last_name':['exact', 'icontains'],'payment__processor__name':['exact'],'payment__status':['exact'],'test':['exact']} 
 #     {'name': ['exact', 'icontains'],
 #                   'price': ['exact', 'gte', 'lte'],
 #                  }
-    ordering_fields = ('status','first_name','last_name','email','registered','payment__amount','payment__status','payment__processor__name')
+    ordering_fields = ('status','first_name','last_name','email','registered','payment__amount','payment__status','payment__processor__name','event__title','event__organizer__name')
     search_fields = ('status','email',)
     def get_queryset(self):
+        print self.request.query_params
         return Registration.objects.filter(event__organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_VIEW,event__organizer__user_permissions__user=self.request.user)
     @list_route()
     def export_registrations(self,request):

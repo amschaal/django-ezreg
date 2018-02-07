@@ -14,16 +14,18 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
 from django.conf import settings
-from django.conf.urls import include, url, patterns
+from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from rest_framework import routers
 from django_json_forms import urls as json_form_urls
-
+from ezreg import views
+from ezreg.api import views as api_views
+from cas import views as cas_views
+from ezreg.jsutils import jsurls
 from ezreg.api.views import PriceViewset, PaymentProcessorViewset, \
     EventPageViewset, RegistrationViewset, MailerMessageViewset, EventViewset
 from ezreg.registration import RegistrationWizard
-from django.utils.importlib import import_module
 
 
 router = routers.DefaultRouter()
@@ -36,56 +38,55 @@ router.register(r'emails', MailerMessageViewset, 'Email')
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^$', 'ezreg.views.home',name='home'),
-    url(r'^events/upcoming/$', 'ezreg.views.events',name='upcoming_events',kwargs={'page':'upcoming'}),
-    url(r'^events/past/$', 'ezreg.views.events',name='past_events',kwargs={'page':'past'}),
-    url(r'^manage_events/$', 'ezreg.views.manage_events',name='manage_events'),
-    url(r'^registrations/$', 'ezreg.views.registration_search',name='registration_search'),
-    url(r'^events/create/$', 'ezreg.views.create_event',name='create_event'),
-    url(r'^events/(?P<event>[A-Z0-9]{10})/manage/$', 'ezreg.views.manage_event',name='manage_event'),
-    url(r'^events/(?P<event>[A-Z0-9]{10})/copy/$', 'ezreg.views.copy_event',name='copy_event'),
-    url(r'^events/(?P<event>[A-Z0-9]{10})/delete/$', 'ezreg.views.delete_event',name='delete_event'),
-    url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/$', 'ezreg.views.event',name='event'),
-    url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/page/(?P<page_slug>[\w-]+)/$', 'ezreg.views.event_page',name='event_page'),
+    url(r'^$', views.home, name='home'),
+    url(r'^events/upcoming/$', views.events, name='upcoming_events',kwargs={'page':'upcoming'}),
+    url(r'^events/past/$', views.events, name='past_events',kwargs={'page':'past'}),
+    url(r'^manage_events/$', views.manage_events, name='manage_events'),
+    url(r'^registrations/$', views.registration_search, name='registration_search'),
+    url(r'^events/create/$', views.create_event, name='create_event'),
+    url(r'^events/(?P<event>[A-Z0-9]{10})/manage/$', views.manage_event, name='manage_event'),
+    url(r'^events/(?P<event>[A-Z0-9]{10})/copy/$', views.copy_event, name='copy_event'),
+    url(r'^events/(?P<event>[A-Z0-9]{10})/delete/$', views.delete_event, name='delete_event'),
+    url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/$', views.event, name='event'),
+    url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/page/(?P<page_slug>[\w-]+)/$', views.event_page, name='event_page'),
     url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/register/$', RegistrationWizard.as_view(), name="register",kwargs={'waitlist':False,'register':True}),
     url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/waitlist/$', RegistrationWizard.as_view(), name="waitlist",kwargs={'waitlist':True}),
     url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/apply/$', RegistrationWizard.as_view(), name="apply",kwargs={'apply':True}),
     url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/admin/register/$', RegistrationWizard.as_view(), name="admin_register",kwargs={'waitlist':False,'register':True,'admin':True}),
     url(r'^events/(?P<slug_or_id>[A-Za-z0-9_\-]{5,100})/complete_registration/(?P<registration_id>[A-Za-z0-9_\-]{10})/$', RegistrationWizard.as_view(), name="complete_registration",kwargs={'complete':True}),
-    url(r'^events/(?P<event>[A-Za-z0-9_\-]{5,100})/update_statuses/$', 'ezreg.api.views.update_event_statuses', name="update_event_statuses"),
-    url(r'^events/(?P<event>[A-Za-z0-9_\-]{5,100})/export_registrations/$', 'ezreg.views.export_registrations', name="export_registrations"),
-    url(r'^events/(?P<event>[A-Za-z0-9_\-]{5,100})/update_event_form/$', 'ezreg.api.views.update_event_form', name="update_event_form"),
-    url(r'^events/(?P<event>[A-Za-z0-9_\-]{5,100})/send_event_emails/$', 'ezreg.api.views.send_event_emails', name="send_event_emails"),
+    url(r'^events/(?P<event>[A-Za-z0-9_\-]{5,100})/update_statuses/$', api_views.update_event_statuses, name="update_event_statuses"),
+    url(r'^events/(?P<event>[A-Za-z0-9_\-]{5,100})/export_registrations/$', views.export_registrations, name="export_registrations"),
+    url(r'^events/(?P<event>[A-Za-z0-9_\-]{5,100})/update_event_form/$', api_views.update_event_form, name="update_event_form"),
+    url(r'^events/(?P<event>[A-Za-z0-9_\-]{5,100})/send_event_emails/$', api_views.send_event_emails, name="send_event_emails"),
     
-    url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/$', 'ezreg.views.registration', name="registration"),
-    url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/cancel/$', 'ezreg.views.cancel_registration', name="cancel_registration"),
-    url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/modify/$', 'ezreg.views.modify_registration', name="modify_registration"),
-    url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/modify_payment/$', 'ezreg.views.modify_payment', name="modify_payment"),
-    url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/update_status/$', 'ezreg.views.update_registration_status', name="update_registration_status"),
-    url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/pay/$', 'ezreg.views.pay', name="pay"),
-    url(r'^payment_processors/$', 'ezreg.views.payment_processors',name='payment_processors'),
-    url(r'^payment_processors/create/$', 'ezreg.views.create_payment_processor',name='create_payment_processor'),
-    url(r'^payment_processors/(?P<id>\d+)/modify/$', 'ezreg.views.modify_payment_processor',name='modify_payment_processor'),
-    url(r'^payment_processors/(?P<id>\d+)/configure/$', 'ezreg.views.configure_payment_processor',name='configure_payment_processor'),
+    url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/$', views.registration, name="registration"),
+    url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/cancel/$', views.cancel_registration, name="cancel_registration"),
+    url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/modify/$', views.modify_registration, name="modify_registration"),
+    url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/modify_payment/$', views.modify_payment, name="modify_payment"),
+    url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/update_status/$', views.update_registration_status, name="update_registration_status"),
+    url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/pay/$', views.pay, name="pay"),
+    url(r'^payment_processors/$', views.payment_processors, name='payment_processors'),
+    url(r'^payment_processors/create/$', views.create_payment_processor, name='create_payment_processor'),
+    url(r'^payment_processors/(?P<id>\d+)/modify/$', views.modify_payment_processor, name='modify_payment_processor'),
+    url(r'^payment_processors/(?P<id>\d+)/configure/$', views.configure_payment_processor, name='configure_payment_processor'),
     url(r'^tinymce/', include('tinymce.urls')),
     url(r'^api/', include(router.urls)),
-    url(r'^api/events/(?P<event>[A-Za-z0-9_\-]{10})/payment_processors/$', 'ezreg.api.views.event_payment_processors', name="event_payment_processors"),
-    url(r'^api/events/(?P<event>[A-Za-z0-9_\-]{10})/export_registrations/$', 'ezreg.api.views.export_registrations', name="api_export_registrations"),
+    url(r'^api/events/(?P<event>[A-Za-z0-9_\-]{10})/payment_processors/$', api_views.event_payment_processors, name="event_payment_processors"),
+    url(r'^api/events/(?P<event>[A-Za-z0-9_\-]{10})/export_registrations/$', api_views.export_registrations, name="api_export_registrations"),
     url(r'^json_forms/', include(json_form_urls.urlpatterns)),
-    url(r'^jsurls.js$', 'ezreg.jsutils.jsurls', {}, 'jsurls'), 
+    url(r'^jsurls.js$', jsurls, {}, 'jsurls'), 
     # CAS
-    url(r'^accounts/login/$', 'cas.views.login', name='login'),
-    url(r'^accounts/logout/$', 'cas.views.logout', name='logout'),
+    url(r'^accounts/login/$', cas_views.login, name='login'),
+    url(r'^accounts/logout/$', cas_views.logout, name='logout'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # from django.utils.importlib import import_module
 #@todo: do something cleaner than this...
 if hasattr(settings, 'PAYMENT_PROCESSOR_URLS'):
     for processor_urls in settings.PAYMENT_PROCESSOR_URLS:
-        pass
         try:
 #             mod = import_module(processor_urls)
-            urlpatterns += patterns('',url(r'^processors/',include(processor_urls)))
+            urlpatterns += [url(r'^processors/',include(processor_urls))]
         except Exception, e:
             print e 
 
