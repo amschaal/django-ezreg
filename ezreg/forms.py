@@ -170,7 +170,7 @@ class PriceForm(forms.Form):
 
 #Form that allows admin to choose ANY price for an event 
 class AdminPriceForm(forms.Form):
-    price = forms.ModelChoiceField(Price,required=True,empty_label=None,widget=forms.widgets.RadioSelect)
+    price = forms.ModelChoiceField(Price.objects.all(),required=True,empty_label=None,widget=forms.widgets.RadioSelect)
     def __init__(self, *args, **kwargs):
         self.event = kwargs.pop('event')
         super(AdminPriceForm,self).__init__(*args, **kwargs)
