@@ -35,6 +35,7 @@ INSTALLED_APPS = (
     'ezreg',
     'crispy_forms',
     'rest_framework',
+    'django_filters',
     'rest_framework_filters',
     'datetimewidget',
     'mailqueue',
