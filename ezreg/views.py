@@ -59,7 +59,7 @@ def create_event(request):
 @event_access_decorator([OrganizerUserPermission.PERMISSION_ADMIN])
 def delete_event(request,event):
     event.delete()
-    return redirect('events')
+    return redirect('manage_events')
 
 @event_access_decorator([OrganizerUserPermission.PERMISSION_ADMIN])
 def copy_event(request,event):
