@@ -127,6 +127,7 @@ TINYMCE_DEFAULT_CONFIG = {
     'relative_urls': False,
     'plugins': "table",
     'theme_advanced_buttons3_add' : "tablecontrols",
+    'theme_advanced_resizing': True
 }
 
 ANONYMOUS_USER_ID = None
