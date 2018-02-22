@@ -12,6 +12,11 @@ from django.forms.widgets import  TextInput
 from django.db.models.query_utils import Q
 from datetimewidget.widgets import DateTimeWidget, DateWidget
 
+def _raw_value(form, fieldname):
+    field = form.fields[fieldname]
+    prefix = form.add_prefix(fieldname)
+    return field.widget.value_from_datadict(form.data, form.files, prefix)
+
 class AngularDatePickerInput(TextInput):
     def render(self, name, value, attrs={}):
         attrs.update({
@@ -144,7 +149,7 @@ class PriceForm(forms.Form):
         if not self.event.prices.filter(coupon_code__isnull=False).count():
             del self.fields['coupon_code']
         else:
-            coupon_code = self._raw_value('coupon_code')
+            coupon_code = _raw_value(self,'coupon_code')#self._raw_value('coupon_code') #This went away in 1.9
             if coupon_code:
                 self.coupon_price = self.event.prices.filter(coupon_code=coupon_code).first()
                 if self.coupon_price:
