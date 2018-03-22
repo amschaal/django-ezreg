@@ -67,8 +67,7 @@ def copy_event(request,event):
     event.pk = id_generator() #this will make copy on save
     event.id = id_generator()
     tstamp = timezone.now().strftime("%Y_%m_%d__%H_%M")
-    if event.slug:
-        event.slug = 'copy_of_%s_%s'%(event.slug,tstamp)
+    event.slug = 'copy_of_%s_%s'%(event.slug,tstamp)
     event.title = 'Copy of %s %s'%(event.title,tstamp)
     event.active = event.advertise = False
     event.save()
