@@ -16,4 +16,4 @@ class PaymentForm(BasePaymentForm):
     def __init__(self,*args,**kwargs):
         super(PaymentForm, self).__init__(*args,**kwargs)
         self.fields['confirm'].label = self.config.get('confirm_text')
-        self.fields['financial_contact'].help_text = self.config.get('financial_contact_text')
+        self.fields['financial_contact'].label = self.config.get('financial_contact_text')
