@@ -18,8 +18,14 @@ from django.http.response import HttpResponseForbidden
 
 def show_payment_form_condition(wizard):
     if wizard.registration:
+        print 'price'
+        price_data = wizard.get_cleaned_data_for_step('price_form') or None
+        if price_data and price_data['price'].amount == 0.0:
+            return False
         if wizard.registration.is_waitlisted or wizard.registration.is_application or wizard.registration.registered_by:
             return False
+#         if wizard.registration.price and wizard.registration.price.amount <= 0:
+#             return False
     processor = wizard.get_payment_processor()
     if processor:
         return processor.get_form()
@@ -57,17 +63,20 @@ class RegistrationWizard(SessionWizardView):
             price_data = self.get_cleaned_data_for_step('price_form') or None
             if price_data:
                 registration.price = price_data['price']
-                payment = Payment.objects.create(registration=registration,amount=registration.price.amount,processor=price_data['payment_method'])
-                payment_data = self.get_cleaned_data_for_step('payment_form') or None
-                if payment_data:
-                    payment.data = payment_data
-                    payment.save()
-                    processor = self.get_payment_processor()
-                    if processor:
-                        processor.post_process_form(payment, payment_data)
-                if payment.get_post_form():
-                    registration.save()
-                    return HttpResponseRedirect(reverse('pay',kwargs={'id':registration.id}))
+                if registration.price.amount > 0.0:
+                    payment = Payment.objects.create(registration=registration,amount=registration.price.amount,processor=price_data['payment_method'])
+                    payment_data = self.get_cleaned_data_for_step('payment_form') or None
+                    if payment_data:
+                        payment.data = payment_data
+                        payment.save()
+                        processor = self.get_payment_processor()
+                        if processor:
+                            processor.post_process_form(payment, payment_data)
+                    if payment.get_post_form():
+                        registration.save()
+                        return HttpResponseRedirect(reverse('pay',kwargs={'id':registration.id}))
+                else:
+                    registration.status = Registration.STATUS_REGISTERED
             else:
                 registration.status = Registration.STATUS_REGISTERED
         registration.save()
