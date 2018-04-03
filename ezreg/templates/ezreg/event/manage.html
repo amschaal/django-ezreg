@@ -42,6 +42,10 @@
 <button class="btn btn-primary">{% if event.id %}Save{% else %}Create{% endif %}</button>
 </form>
 </tab>
+<tab heading="Event Texts">
+<div ng-controller="EventTextController" ng-init="init({'event_id':'{{event.id}}'})">
+</div>
+</tab>
 <tab heading="Form">
 {% include 'ezreg/event/form_designer.html'%}
 </tab>
