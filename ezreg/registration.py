@@ -18,14 +18,11 @@ from django.http.response import HttpResponseForbidden
 
 def show_payment_form_condition(wizard):
     if wizard.registration:
-        print 'price'
         price_data = wizard.get_cleaned_data_for_step('price_form') or None
         if price_data and price_data['price'].amount == 0.0:
             return False
         if wizard.registration.is_waitlisted or wizard.registration.is_application or wizard.registration.registered_by:
             return False
-#         if wizard.registration.price and wizard.registration.price.amount <= 0:
-#             return False
     processor = wizard.get_payment_processor()
     if processor:
         return processor.get_form()
