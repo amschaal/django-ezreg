@@ -149,6 +149,17 @@ class EventPage(models.Model):
     class Meta:
         unique_together = (('event','slug'))
 
+class EventText(models.Model):
+    TYPE_POST_PRICE = 'POST_PRICE'
+    TYPE_EMAIL_CONFIRMATION = 'EMAIL_CONFIRMATION'
+    TYPES = ((TYPE_POST_PRICE,TYPE_POST_PRICE),(TYPE_EMAIL_CONFIRMATION,TYPE_EMAIL_CONFIRMATION))
+    type = models.CharField(max_length=25,choices=EventText.TYPES)
+    event = models.ForeignKey('Event',related_name='texts')
+    html = BleachField(null=True,blank=True)
+    text = models.TextField(null=True,blank=True)
+    class Meta:
+        unique_together = (('event','type'))
+
 class Price(models.Model):
     event = models.ForeignKey('Event',related_name='prices')
     order = models.PositiveSmallIntegerField(null=True,blank=True)
