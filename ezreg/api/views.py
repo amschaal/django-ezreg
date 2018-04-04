@@ -4,7 +4,8 @@ from ezreg.api.serializers import PriceSerializer, PaymentProcessorSerializer,\
     EventSerializer
 from ezreg.models import Price, PaymentProcessor, Event, EventProcessor,\
     EventPage, Registration, OrganizerUserPermission
-from rest_framework.decorators import api_view, permission_classes, list_route
+from rest_framework.decorators import api_view, permission_classes, list_route,\
+    detail_route
 from rest_framework.response import Response
 from mailqueue.models import MailerMessage
 from ezreg.email import email_status
@@ -41,6 +42,11 @@ class EventViewset(viewsets.ModelViewSet):
     permission_classes = (EventPermission,)
     def get_queryset(self):
         return Event.objects.filter(organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_VIEW,organizer__user_permissions__user=self.request.user)
+#     @detail_route(methods=['GET'])
+#     def get_config(self,request,*args,**kwargs):
+#         instance = self.get_object()
+#         serializer = self.get_serializer(instance)
+#         return Response(serializer.data)
 
 class EventPageViewset(viewsets.ModelViewSet):
     serializer_class = EventPageSerializer

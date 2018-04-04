@@ -18,6 +18,7 @@ from django.utils import timezone
 from collections import OrderedDict
 from ezreg.utils import format_registration_data
 from ezreg.templatetags.ezreg_filters import form_value
+from ezreg.custom_texts import CUSTOM_TEXTS
 
 def home(request):
     upcoming = Event.objects.filter(advertise=True,start_time__gte=datetime.today()).filter(Q(active=True)|Q(outside_url__isnull=False)).order_by('start_time')
@@ -100,7 +101,7 @@ def manage_event(request,event):
         if form.is_valid():
             event = form.save()
             return redirect('manage_event',event=event.id) #event.get_absolute_url()
-    return render(request, 'ezreg/event/manage.html', {'form':form,'event':event,'Registration':Registration,'statuses':statuses,'payment_statuses':payment_statuses,'processors':processors,'form_fields':form_fields,'permissions':permissions} )
+    return render(request, 'ezreg/event/manage.html', {'form':form,'event':event,'Registration':Registration,'statuses':statuses,'payment_statuses':payment_statuses,'processors':processors,'form_fields':form_fields,'permissions':permissions,'custom_texts':json.dumps(CUSTOM_TEXTS)} )
     
 
 def event(request,slug_or_id):
