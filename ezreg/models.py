@@ -17,6 +17,7 @@ from ezreg.fields import EmailListField
 from django.core.validators import MinLengthValidator
 from django_bleach.models import BleachField
 from django.utils import timezone
+from django.contrib.postgres import fields as postgres_fields
 
 def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -73,6 +74,7 @@ class Event(models.Model):
     logo = models.ImageField(upload_to='logos/',null=True,blank=True)
     form_fields = JSONField(null=True, blank=True)
     outside_url = models.URLField(null=True,blank=True)
+    config = postgres_fields.JSONField(default=dict)
     @property
     def slug_or_id(self):
         return self.slug if self.slug else self.id
@@ -148,6 +150,17 @@ class EventPage(models.Model):
     body = BleachField()
     class Meta:
         unique_together = (('event','slug'))
+
+# class EventText(models.Model):
+#     TYPE_POST_PRICE = 'POST_PRICE'
+#     TYPE_EMAIL_CONFIRMATION = 'EMAIL_CONFIRMATION'
+#     TYPES = ((TYPE_POST_PRICE,TYPE_POST_PRICE),(TYPE_EMAIL_CONFIRMATION,TYPE_EMAIL_CONFIRMATION))
+#     type = models.CharField(max_length=25,choices=EventText.TYPES)
+#     event = models.ForeignKey('Event',related_name='texts')
+#     html = BleachField(null=True,blank=True)
+#     text = models.TextField(null=True,blank=True)
+#     class Meta:
+#         unique_together = (('event','type'))
 
 class Price(models.Model):
     event = models.ForeignKey('Event',related_name='prices')

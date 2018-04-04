@@ -42,6 +42,18 @@
 <button class="btn btn-primary">{% if event.id %}Save{% else %}Create{% endif %}</button>
 </form>
 </tab>
+<tab heading="Custom Text">
+<div ng-controller="EventTextController" ng-init='init({event_id:"{{event.id}}",config:{{custom_texts|safe}} })'>
+<div ng-repeat="(id, c) in config">
+<h3>{[c.title]}</h3>
+<p>{[c.description]}</p>
+<textarea style="width:100%;height:200px;" ui-tinymce ng-model="event.config.CUSTOM_TEXTS[id].html" ng-if="c.html"></textarea>
+<textarea style="width:100%;height:200px;" ng-model="event.config.CUSTOM_TEXTS[id].text" ng-if="c.text"></textarea>
+</div>
+<button class="btn btn-primary" ng-click="save()">Save</button>
+
+</div>
+</tab>
 <tab heading="Form">
 {% include 'ezreg/event/form_designer.html'%}
 </tab>
