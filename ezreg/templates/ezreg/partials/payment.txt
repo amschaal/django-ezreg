@@ -2,7 +2,7 @@
 -Payment-
 
 Processor: {{registration.payment.processor}}
-Price: {{registration.price.name}}
+Price: {{registration.price.name}}{% if registration.price.description%} - {{registration.price.description}}{% endif %}
 Amount: ${{registration.payment.amount}}
 Status: {{registration.payment.get_status_display}}
 {% with registration.payment.get_populated_form as payment_form %}

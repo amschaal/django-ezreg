@@ -11,7 +11,7 @@
 <tr><th>{{field.label}}</th><td>{{field.value|form_value}}</td></tr>
 {% endfor %}
 {% if registration.price and not registration.payment %}
-<tr><th>Price</th><td>{{registration.price}}</td></tr>
+<tr><th>Price</th><td>{{registration.price}}{% if registration.price.description%} - {{registration.price.description}}{% endif %}</td></tr>
 {% endif %}
 </table>
 

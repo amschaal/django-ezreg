@@ -2,7 +2,7 @@
 <h2>Payment</h2>
 <table class="table">
 <tr><th>Processor</th><td>{{registration.payment.processor}}</td></tr>
-<tr><th>Price</th><td>{{registration.price.name}}</td></tr>
+<tr><th>Price</th><td>{{registration.price.name}}{% if registration.price.description%} - {{registration.price.description}}{% endif %}</td></tr>
 <tr><th>Amount</th><td>${{registration.payment.amount}}</td></tr>
 <tr><th>Status</th><td>{{registration.payment.get_status_display}}</td></tr>
 {% with registration.payment.get_populated_form as payment_form %}
