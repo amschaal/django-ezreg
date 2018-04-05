@@ -49,6 +49,12 @@ class EventForm(forms.ModelForm):
     body = forms.CharField(label='Event page',help_text='This is the main page for your event and should contain most information about your event.',widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     description = forms.CharField(label='Brief event description',help_text='This should be a brief description of your event, and will be displayed during the registration process.',widget=TinyMCE(attrs={'cols': 80, 'rows': 15}))
     cancellation_policy = forms.CharField(required=False,widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
+    def clean(self):
+        cleaned_data = super(EventForm, self).clean()
+        start_time = cleaned_data.get("start_time")
+        end_time = cleaned_data.get("end_time")
+        if start_time and end_time and (start_time > end_time):
+            self.add_error('start_time', 'Start time should not be later than end time.')
     class Meta:
         model=Event
         fields = ('organizer','title','active','advertise','enable_waitlist','enable_application','capacity',

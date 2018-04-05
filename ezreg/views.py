@@ -89,18 +89,18 @@ def copy_event(request,event):
 
 @event_access_decorator([OrganizerUserPermission.PERMISSION_ADMIN,OrganizerUserPermission.PERMISSION_VIEW],require_all=False)
 def manage_event(request,event):
-    statuses = json.dumps({status[0]:status[1] for status in Registration.STATUSES})
-    payment_statuses = json.dumps({status[0]:status[1] for status in Payment.STATUS_CHOICES})
-    processors = json.dumps({processor.name:processor.name for processor in event.payment_processors.all()})
-    form_fields = json.dumps(event.form_fields) if event.form_fields else '[]'
-    permissions = event.get_user_permissions(request.user)
     if request.method == 'GET':
         form = EventForm(request.user,instance=event)
     elif request.method == 'POST':
         form = EventForm(request.user,request.POST,request.FILES,instance=event)
         if form.is_valid():
             event = form.save()
-            return redirect('manage_event',event=event.id) #event.get_absolute_url()
+#             return redirect('manage_event',event=event.id) #event.get_absolute_url()
+    statuses = json.dumps({status[0]:status[1] for status in Registration.STATUSES})
+    payment_statuses = json.dumps({status[0]:status[1] for status in Payment.STATUS_CHOICES})
+    processors = json.dumps({processor.name:processor.name for processor in event.payment_processors.all()})
+    form_fields = json.dumps(event.form_fields) if event.form_fields else '[]'
+    permissions = event.get_user_permissions(request.user)
     return render(request, 'ezreg/event/manage.html', {'form':form,'event':event,'Registration':Registration,'statuses':statuses,'payment_statuses':payment_statuses,'processors':processors,'form_fields':form_fields,'permissions':permissions,'custom_texts':json.dumps(CUSTOM_TEXTS)} )
     
 

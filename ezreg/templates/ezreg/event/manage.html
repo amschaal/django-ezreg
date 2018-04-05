@@ -39,7 +39,7 @@
 <tabset ng-cloak>
 {% if 'admin' in permissions %}
 <tab heading="Event">
-
+{% if form.errors %}<h2 class="error">Please correct form errors below.</h2>{% endif %}
 <form method="POST" action="." enctype="multipart/form-data">
 {% csrf_token %}
 {{form|crispy}}
