@@ -2,12 +2,16 @@
 {% load crispy_forms_tags %}
 {% block headend %}
 
-<script src="/static/ezreg/js/pages/event.js"></script>
 <style>
 .datepicker{
 	max-width:200px;
 }
 </style>
+{% endblock %}
+
+{% block scripts %}
+{{block.super}}
+<script src="/static/ezreg/js/pages/event.js"></script>
 {% endblock %}
     
 {% block content %}
@@ -32,7 +36,7 @@
 	</span>
 	</h1>
 </div>
-<tabset>
+<tabset ng-cloak>
 {% if 'admin' in permissions %}
 <tab heading="Event">
 

@@ -41,7 +41,8 @@ INSTALLED_APPS = (
     'mailqueue',
     'django_json_forms',
     'django_bleach',
-    'cas'
+    'cas',
+    'compressor',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -75,6 +76,13 @@ TEMPLATES = [
         },
     },
 ]
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    # other finders..
+    'compressor.finders.CompressorFinder',
+)
 
 WSGI_APPLICATION = 'ezreg.wsgi.application'
 
@@ -167,6 +175,7 @@ BLEACH_STRIP_TAGS = True
 # Strip comments, or leave them in.
 BLEACH_STRIP_COMMENTS = False
 
+COMPRESS_ENABLED = True
 
 from config import *
 
