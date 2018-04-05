@@ -174,6 +174,7 @@ class Price(models.Model):
     def __unicode__(self):
         return mark_safe('<span title="%s"><b>$%s</b> - %s</span>' % (self.description,str(self.amount),self.name))
     class Meta:
+        ordering = ('order',)
         unique_together = (('event','coupon_code'))
     
 class Registration(models.Model):
