@@ -175,7 +175,7 @@ class Price(models.Model):
         return mark_safe('<span title="%s"><b>$%s</b> - %s</span>' % (self.description,str(self.amount),self.name))
     class Meta:
         ordering = ('order',)
-        unique_together = (('event','coupon_code'))
+#         unique_together = (('event','coupon_code'))
     
 class Registration(models.Model):
     STATUS_REGISTERED = 'REGISTERED'

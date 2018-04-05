@@ -151,14 +151,19 @@ class PriceForm(forms.Form):
         else:
             coupon_code = _raw_value(self,'coupon_code')#self._raw_value('coupon_code') #This went away in 1.9
             if coupon_code:
-                self.coupon_price = self.event.prices.filter(coupon_code=coupon_code).first()
+                self.coupon_price = self.available_prices_queryset(include_coupons=True).filter(coupon_code=coupon_code).first()
                 if self.coupon_price:
                     self.data[self.add_prefix('price')]=self.coupon_price.id
-                
     def get_payment_method_queryset(self):
         return self.event.payment_processors.filter(hidden=False)
+    def available_prices_queryset(self,include_coupons=False):
+        qs = self.event.prices.exclude(start_date__isnull=False,start_date__gt=datetime.today()).exclude(end_date__isnull=False,end_date__lt=datetime.today()).order_by('order')
+        if include_coupons:
+            return qs
+        else:
+            return qs.exclude(coupon_code__isnull=False)
     def get_price_queryset(self):
-        prices = self.event.prices.exclude(start_date__isnull=False,start_date__gt=datetime.today()).exclude(end_date__isnull=False,end_date__lt=datetime.today()).exclude(coupon_code__isnull=False).order_by('order')
+        prices = self.available_prices_queryset(include_coupons=False)#self.event.prices.exclude(start_date__isnull=False,start_date__gt=datetime.today()).exclude(end_date__isnull=False,end_date__lt=datetime.today()).exclude(coupon_code__isnull=False).order_by('order')
         #Add coupon price if available
         if self.coupon_price:
             price_ids = [p.id for p in prices]+[self.coupon_price.id]
