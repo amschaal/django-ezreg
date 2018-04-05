@@ -65,7 +65,7 @@
 <div ng-controller="PriceController" ng-init="init({'event_id':'{{event.id}}','organizer':'{{event.organizer_id}}','event_processors_url':'{% url 'event_payment_processors' event=event.id %}'})">
 	<h3>Prices</h3>
 	<table class="table" ng-if="prices.length > 0">
-		<tr><th>Order</th><th>* Name</th><th>* Amount</th><th>Description</th><th>Coupon Code</th><th>Start Date</th><th>End Date</th><th></th></tr>
+		<tr><th>Order</th><th>* Name</th><th>* Amount</th><th>Description</th><th>Coupon Code †</th><th>Start Date</th><th>End Date</th><th></th></tr>
 		<tr ng-repeat="price in prices">
 			<td ng-class="{'has-error':price.errors.order}">
 				<ul ng-if="price.errors.order"><li ng-repeat="error in price.errors.order">{[error]}</li></ul>
@@ -110,6 +110,7 @@
 			</td>
 		</tr>
 	</table>
+	<p><b>† When using coupon codes, please ensure that any duplicate coupon codes do not have overlapping dates.</b></p>
 	<button class="btn btn-primary" ng-click="addPrice()">Add</button> <button class="btn btn-success" ng-click="savePrices()">Save</button>
 	<h3>Payment Processors</h3>
 	<table class="table" ng-if="processors.length > 0">
