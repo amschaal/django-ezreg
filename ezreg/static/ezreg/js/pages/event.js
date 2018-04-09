@@ -16,7 +16,7 @@ function PriceController($scope,$http,growl,Price,PaymentProcessor) {
 		$scope.event_id = params.event_id;
 		$scope.organizer = params.organizer;
 		event_processors_url = params.event_processors_url;
-		$scope.prices = Price.query({event:$scope.event_id});
+		$scope.prices = Price.query({event:$scope.event_id,page_size:100});
 		$scope.processors = PaymentProcessor.query({organizer:$scope.organizer});
 		$http.get(event_processors_url).then(function(response){
 			console.log('proc',response.data);
@@ -74,7 +74,7 @@ function EventPageController($scope,$http,growl,EventPage) {
 		$scope.pages = EventPage.query({event:$scope.event_id});
 	}	
 	$scope.addPage = function(){
-		$scope.pages.push(new EventPage({event:$scope.event_id,heading:'New page'}));
+		$scope.pages.push(new EventPage({event:$scope.event_id,heading:'New page',page_size:100}));
 	}
 	$scope.savePage = function(page){
 		if (page.id)
