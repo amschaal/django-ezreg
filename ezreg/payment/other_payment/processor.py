@@ -4,7 +4,7 @@ from ezreg.payment.other_payment.forms import PaymentForm, OtherPaymentConfigura
 class OtherPaymentProcessor(BasePaymentProcessor):
     id = 'other_payment_processor'
     name = 'Other payment processor'
-    exportable_fields = {'other_payment_financial_contact':'Financial Contact'}
+    exportable_fields = {'financial_contact':'Payment info'}
     @staticmethod
     def get_form(data=None, request=None):
         return PaymentForm
