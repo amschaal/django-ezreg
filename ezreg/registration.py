@@ -131,10 +131,10 @@ class RegistrationWizard(SessionWizardView):
             status = Registration.STATUS_PENDING_INCOMPLETE
         elif self.event.can_waitlist():
             status = Registration.STATUS_WAITLIST_INCOMPLETE
-        else:
+        elif not getattr(self, 'admin',False):
             raise RegistrationClosedException("Registration is closed")
         if getattr(self,'admin', False):
-            registration = Registration.objects.create(event=self.event,status=Registration.STATUS_REGISTERED,test=self.test, registered_by=self.request.user)
+            registration = Registration.objects.create(event=self.event,status=Registration.STATUS_PENDING_INCOMPLETE,test=self.test, registered_by=self.request.user)
         else:
             registration = Registration.objects.create(event=self.event,status=status,test=self.test)
         self.set_session_registration_id(registration.id)
@@ -207,7 +207,7 @@ class RegistrationWizard(SessionWizardView):
             elif registration.status == Registration.STATUS_PENDING_INCOMPLETE and not kwargs.get('register',False):
                 return HttpResponseRedirect(reverse('register',kwargs={'slug_or_id':self.event.slug_or_id})+test_redirect_parameter)
         except RegistrationClosedException:
-            return render(request, 'ezreg/registration/closed.html', {'event':self.event},context_instance=RequestContext(request))
+            return render(request, 'ezreg/registration/closed.html', {'event':self.event})
         # reset the current step to the first step.
         self.storage.current_step = self.steps.first
         
