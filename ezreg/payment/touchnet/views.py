@@ -70,7 +70,7 @@ def postback(request):
                 payment.save()
                 raise Exception('Invalid amount posted %s, expecting %f' % (req.get('PMT_AMT'),payment.amount))
             payment.save()
-        elif req.get('PMT_STATUS')=='cancelled':
+        elif req.get('PMT_STATUS')=='cancelled' and payment.status != Payment.STATUS_PAID:
             payment.status = Payment.STATUS_CANCELLED
             payment.save()
             registration.status = Registration.STATUS_CANCELLED
