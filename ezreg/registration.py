@@ -14,6 +14,7 @@ from ezreg.payment.base import BasePaymentForm
 from django_json_forms.forms import JSONForm
 from ezreg.exceptions import RegistrationClosedException
 from django.http.response import HttpResponseForbidden
+from django.utils import timezone
 
 
 def show_payment_form_condition(wizard):
@@ -76,6 +77,7 @@ class RegistrationWizard(SessionWizardView):
                     registration.status = Registration.STATUS_REGISTERED
             else:
                 registration.status = Registration.STATUS_REGISTERED
+        registration.registered = timezone.now()
         registration.save()
         email_status(registration)
         self.storage.reset()
