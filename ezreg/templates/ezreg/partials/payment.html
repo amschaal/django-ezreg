@@ -5,6 +5,7 @@
 <tr><th>Price</th><td>{{registration.price.name}}{% if registration.price.description%} - {{registration.price.description}}{% endif %}</td></tr>
 <tr><th>Amount</th><td>${{registration.payment.amount}}</td></tr>
 <tr><th>Status</th><td>{{registration.payment.get_status_display}}</td></tr>
+{% if registration.payment.external_id %}<tr><th>External ID</th><td>{{registration.payment.external_id}}</td></tr>{% endif %}
 {% with registration.payment.get_populated_form as payment_form %}
 {% if payment_form %}
 {% for field in payment_form %}
