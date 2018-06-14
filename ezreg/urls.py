@@ -42,6 +42,7 @@ urlpatterns = [
     url(r'^events/upcoming/$', views.events, name='upcoming_events',kwargs={'page':'upcoming'}),
     url(r'^events/past/$', views.events, name='past_events',kwargs={'page':'past'}),
     url(r'^manage_events/$', views.manage_events, name='manage_events'),
+    url(r'^events/manage_events/revenue/$', views.export_event_revenue, name='export_event_revenue'),
     url(r'^registrations/$', views.registration_search, name='registration_search'),
     url(r'^events/create/$', views.create_event, name='create_event'),
     url(r'^events/(?P<event>[A-Z0-9]{10})/manage/$', views.manage_event, name='manage_event'),

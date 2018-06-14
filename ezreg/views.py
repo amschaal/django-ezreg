@@ -19,6 +19,8 @@ from collections import OrderedDict
 from ezreg.utils import format_registration_data
 from ezreg.templatetags.ezreg_filters import form_value
 from ezreg.custom_texts import CUSTOM_TEXTS
+from django.db.models.aggregates import Sum
+from decimal import Decimal
 
 def home(request):
     upcoming = Event.objects.filter(advertise=True,start_time__gte=datetime.today()).filter(Q(active=True)|Q(outside_url__isnull=False)).order_by('start_time')
@@ -334,3 +336,24 @@ def export_registrations(request, event):
     response['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
     return response
 
+@has_permissions([OrganizerUserPermission.PERMISSION_ADMIN,OrganizerUserPermission.PERMISSION_VIEW],require_all=False)
+def export_event_revenue(request):
+    import re, tablib
+    dataset = dataset = tablib.Dataset(headers=['closing date','event','organizer','registered revenue','registered refunds','registered total','all revenue','all refunds','all total'])
+    qs = Event.objects.all() if request.user.is_superuser else Event.objects(organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_VIEW,organizer__user_permissions__user=request.user)
+    for e in qs.order_by('organizer__name','-end_time'):
+        all_revenue = Payment.objects.filter(registration__event=e).aggregate(Sum('amount'),Sum('refunded'))
+        registered_revenue = Payment.objects.filter(registration__status=Registration.STATUS_REGISTERED,registration__event=e).aggregate(Sum('amount'),Sum('refunded'))
+        all_total = (all_revenue['amount__sum'] if all_revenue['amount__sum'] else Decimal(0.0))-(all_revenue['refunded__sum'] if all_revenue['refunded__sum'] else Decimal(0.0))
+        registered_total = (registered_revenue['amount__sum']if registered_revenue['amount__sum'] else Decimal(0.0))-(registered_revenue['refunded__sum'] if registered_revenue['refunded__sum'] else Decimal(0.0))
+        dataset.append([e.open_until.strftime("%Y_%m_%d"),e.title,e.organizer.name,registered_revenue['amount__sum'],registered_revenue['refunded__sum'],registered_total,all_revenue['amount__sum'],all_revenue['refunded__sum'],all_total])
+    filetype = request.POST.get('format','xls')
+    filetype = filetype if filetype in ['xls','xlsx','csv','tsv','json'] else 'xls'
+    content_types = {'xls':'application/vnd.ms-excel','csv':'text/csv','json':'text/json','xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
+    response_kwargs = {
+            'content_type': content_types[filetype]
+        }
+    filename = "event_revenue_%s.%s"%(timezone.now().strftime("%Y_%m_%d__%H_%M"),filetype)
+    response = HttpResponse(getattr(dataset, filetype), **response_kwargs)
+    response['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
+    return response
