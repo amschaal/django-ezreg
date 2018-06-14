@@ -342,8 +342,8 @@ def export_event_revenue(request):
     dataset = dataset = tablib.Dataset(headers=['closing date','event','organizer','registered revenue','registered refunds','registered total','all revenue','all refunds','all total'])
     qs = Event.objects.all() if request.user.is_superuser else Event.objects(organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_VIEW,organizer__user_permissions__user=request.user)
     for e in qs.order_by('organizer__name','-end_time'):
-        all_revenue = Payment.objects.filter(registration__event=e).aggregate(Sum('amount'),Sum('refunded'))
-        registered_revenue = Payment.objects.filter(registration__status=Registration.STATUS_REGISTERED,registration__event=e).aggregate(Sum('amount'),Sum('refunded'))
+        all_revenue = Payment.objects.filter(registration__event=e,registration__test=False).aggregate(Sum('amount'),Sum('refunded'))
+        registered_revenue = Payment.objects.filter(registration__status=Registration.STATUS_REGISTERED,registration__event=e,registration__test=False).aggregate(Sum('amount'),Sum('refunded'))
         all_total = (all_revenue['amount__sum'] if all_revenue['amount__sum'] else Decimal(0.0))-(all_revenue['refunded__sum'] if all_revenue['refunded__sum'] else Decimal(0.0))
         registered_total = (registered_revenue['amount__sum']if registered_revenue['amount__sum'] else Decimal(0.0))-(registered_revenue['refunded__sum'] if registered_revenue['refunded__sum'] else Decimal(0.0))
         dataset.append([e.open_until.strftime("%Y_%m_%d"),e.title,e.organizer.name,registered_revenue['amount__sum'],registered_revenue['refunded__sum'],registered_total,all_revenue['amount__sum'],all_revenue['refunded__sum'],all_total])
