@@ -26,6 +26,7 @@ from ezreg.jsutils import jsurls
 from ezreg.api.views import PriceViewset, PaymentProcessorViewset, \
     EventPageViewset, RegistrationViewset, MailerMessageViewset, EventViewset
 from ezreg.registration import RegistrationWizard
+from django_logger.api.views import LogViewset
 
 
 router = routers.DefaultRouter()
@@ -35,6 +36,7 @@ router.register(r'event_pages', EventPageViewset, 'EventPage')
 router.register(r'events', EventViewset, 'Event')
 router.register(r'registrations', RegistrationViewset, 'Registration')
 router.register(r'emails', MailerMessageViewset, 'Email')
+router.register(r'logs', LogViewset, 'Log')
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),

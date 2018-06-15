@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     'django_bleach',
     'cas',
     'compressor',
+    'django_logger',
 )
 
 MIDDLEWARE_CLASSES = (

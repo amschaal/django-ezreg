@@ -21,6 +21,7 @@ from ezreg.templatetags.ezreg_filters import form_value
 from ezreg.custom_texts import CUSTOM_TEXTS
 from django.db.models.aggregates import Sum
 from decimal import Decimal
+from django_logger.models import Log
 
 def home(request):
     upcoming = Event.objects.filter(advertise=True,start_time__gte=datetime.today()).filter(Q(active=True)|Q(outside_url__isnull=False)).order_by('start_time')
@@ -134,6 +135,7 @@ def modify_registration(request,id=None):
             if extra_fields_form:
                 registration.data = extra_fields_form.cleaned_data
                 registration.save()
+            Log.create(text='Registration for %s updated by %s.'%(registration.email,request.user.username),objects=[registration,registration.event,request.user])
             return redirect('manage_event',event=registration.event_id) #event.get_absolute_url()
     return render(request, 'ezreg/modify_registration.html', {'form':form,'registration':registration,'extra_fields_form':extra_fields_form} )
 
@@ -158,9 +160,9 @@ def modify_payment(request,id=None):
             payment.amount = price_form.cleaned_data['price'].amount
             payment.save()
             registration.save()
+            Log.create(text='Payment for %s updated by %s.  Price: %s, Refund: %s.'%(registration.email, request.user.username, payment.amount, payment.refunded),objects=[registration,registration.event,request.user])
             return render(request, 'ezreg/modify_payment.html', {'payment_form':payment_form,'admin_payment_form':admin_payment_form,'price_form':price_form,'registration':registration,'payment':payment} )
     return render(request, 'ezreg/modify_payment.html', {'payment_form':payment_form,'price_form':price_form,'admin_payment_form':admin_payment_form,'registration':registration,'payment':payment} )
-
 
 @generic_permission_decorator([OrganizerUserPermission.PERMISSION_ADMIN],'organizer__events__registrations__id','id')
 def update_registration_status(request,id):
@@ -172,9 +174,9 @@ def update_registration_status(request,id):
         if form.is_valid():
             registration = form.save()
             email_status(registration)
+            Log.create(text='Registration status for %s updated to %s by %s'%(registration.email,registration.status,request.user.username),objects=[registration,registration.event,request.user])
             return redirect('registrations',slug_or_id=registration.event_id) #event.get_absolute_url()
     return render(request, 'ezreg/update_registration_status.html', {'form':form,'registration':registration} )
-
 
 def registration(request,id):
     registration = Registration.objects.get(id=id)
@@ -188,6 +190,7 @@ def cancel_registration(request,id):
         registration.save()
         email_status(registration)
         message = 'Your registration has been cancelled'
+        Log.create(text='Registration for %s cancelled'%(registration.email),objects=[registration])
     else:
         message = 'Registration can only be cancelled if you are currently waitlisted'
     return render(request, 'ezreg/registration.html', {'registration':registration,'message':message})
@@ -212,6 +215,7 @@ def modify_payment_processor(request,id):
         form = PaymentProcessorForm(request.user,request.POST,instance=instance)
         if form.is_valid():
             processor = form.save()
+            Log.create(text='Payment processor updated by %s'%(request.user.username),objects=[request.user,processor])
             return redirect('configure_payment_processor',id=processor.id) #event.get_absolute_url()
     return render(request, 'ezreg/create_modify_payment_processor.html', {'form':form} )
 
@@ -223,6 +227,7 @@ def create_payment_processor(request):
         form = PaymentProcessorForm(request.user,request.POST)
         if form.is_valid():
             processor = form.save()
+            Log.create(text='Payment processor created by %s'%(request.user.username),objects=[request.user,processor])
             return redirect('configure_payment_processor',id=processor.id) #event.get_absolute_url()
     return render(request, 'ezreg/create_modify_payment_processor.html', {'form':form} )
 
@@ -237,6 +242,7 @@ def configure_payment_processor(request,id):
         if form.is_valid():
             processor.config = form.cleaned_data
             processor.save()
+            Log.create(text='Payment processor configured by %s'%(request.user.username),objects=[request.user,processor])
             return redirect('payment_processors') #event.get_absolute_url()
     return render(request, 'ezreg/configure_payment_processor.html', {'form':form,'processor':processor} )
 
