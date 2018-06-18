@@ -2,35 +2,29 @@
 angular.module("django-logger", ['ui.bootstrap'])
 .directive('logModal', function($modal,DRFNgTableParams) {
 	return {
-		restrict: 'AE',
-		templateUrl: 'template/django-logger/modal-button.html',
+		restrict: 'A',
 		scope: {
 			objectId:'=',
 			contentType:'='
 		},
-		controller: function ($scope,$rootScope) {
-			$scope.openModal = function(){
-				var modalInstance = $modal.open({
-				      templateUrl: 'template/django-logger/modal.html',
-				      controller: 'LogModalController',
-				      size: 'lg',
-				      resolve: {
-				        objectId: function () {
-				          return $scope.objectId;
-				        },
-						contentType: function () {
-						  return $scope.contentType;
-						}
-				      }
-				    });
-
-//				    modalInstance.result.then(function (selectedItem) {
-//				      $scope.selected = selectedItem;
-//				    }, function () {
-//				      $log.info('Modal dismissed at: ' + new Date());
-//				    });
-			}
-		}
+		link: function(scope, element, attrs, ctrl) {
+		       function openModal(){
+					var modalInstance = $modal.open({
+					      templateUrl: 'template/django-logger/modal.html',
+					      controller: 'LogModalController',
+					      size: 'lg',
+					      resolve: {
+					        objectId: function () {
+					          return scope.objectId;
+					        },
+							contentType: function () {
+							  return scope.contentType;
+							}
+					      }
+					    });
+				}
+		        element.on('click',openModal);
+		    },
 	}
 });
 angular.module("django-logger").directive('logs', function($modal,DRFNgTableParams) {
@@ -58,7 +52,7 @@ angular.module("django-logger").directive('logTable', ['DRFNgTableParams',functi
         },
         template: '<div><button ng-click="tableParams.reload()" class="btn btn-sm pull-right">Refresh</button>\
         			<table ng-table="tableParams" show-filter="true" class="table table-bordered table-striped table-condensed">\
-				  	      <tr ng-repeat="row in $data track by row.id">\
+				  	  <tr ng-repeat="row in $data track by row.id">\
 				        <td data-title="\'Created\'" sortable="\'created\'">{[row.created | date: \'short\']}</td>\
 				        <td data-title="\'Text\'" sortable="\'text\'" filter="{text__icontains: \'text\'}" >{[row.text]}</td>\
 				      </tr>\
@@ -86,16 +80,9 @@ angular.module("django-logger").controller('LogModalController', function ($scop
 	  };
 });
 
-
-angular.module("django-logger").run(['$templateCache', function($templateCache) {
-	$templateCache.put('template/django-logger/modal-button.html',
-		'<a ng-click="openModal()">Test</a>'
-	);
-}]);
-
 angular.module("django-logger").run(['$templateCache', function($templateCache) {
 	$templateCache.put('template/django-logger/modal.html',
-	'<div class="modal-header"><h3 class="modal-title">Title</h3></div>\
+	'<div class="modal-header"><h3 class="modal-title">Logs</h3></div>\
 			<div class="modal-body"><log-table content-type="contentType" object-id="objectId"></log-table></div>\
 			<div class="modal-footer"><button class="btn btn-primary" ng-click="close()">Close</button></div>'
 	);
