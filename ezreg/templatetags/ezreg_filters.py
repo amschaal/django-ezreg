@@ -1,4 +1,5 @@
 from django import template
+from django.contrib.contenttypes.models import ContentType
 
 register = template.Library()
 
@@ -18,3 +19,9 @@ def event_custom_text(event, id, html=True):
     if html:
         return bleach_value(custom_text.get('html',''))
     return bleach_value(custom_text.get('text',''))
+
+@register.filter
+def content_type_id(obj):
+    if not obj:
+        return False
+    return ContentType.objects.get_for_model(obj).pk

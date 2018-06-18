@@ -51,12 +51,13 @@
     <script src="/static/vendor/angular-tinymce/tinymce.js"></script>
     <script src="/static/vendor/bootstrap-multiselect/multiselect.js"></script>
     <script src="/static/vendor/ng-table/ng-table.js"></script>
+    <script src="/static/ezreg/js/directives/logs.js"></script>
     <!--<script src="{% static 'vendor/angular-remote-table/angular-remote-table.js'%}"></script>-->
         
     <script src="/static/vendor/django_js_utils.js"></script>
         
     <script>
-	    var ezreg = angular.module('ezreg', ['ui.bootstrap', 'ui.router', 'ngCookies', 'ngResource', 'ezregModels','angular-growl','DRFNgTable']);
+	    var ezreg = angular.module('ezreg', ['ui.bootstrap', 'ui.router', 'ngCookies', 'ngResource', 'ezregModels','angular-growl','DRFNgTable','django-logger']);
 	    ezreg.config(['$httpProvider', function($httpProvider) {
 		    $httpProvider.defaults.headers.common['X-CSRFToken'] = CSRF_TOKEN;
 		}])

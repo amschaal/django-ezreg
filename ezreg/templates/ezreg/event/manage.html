@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+{% load ezreg_filters %}
 {% block headend %}
 
 <style>
@@ -166,6 +167,9 @@
 </tab>
 <tab heading="Emails">
 {% include 'ezreg/event/emails.html'%}
+</tab>
+<tab heading="Logs">
+<log-table content-type="{{event|content_type_id}}" object-id="'{{event.id}}'"></log-table>
 </tab>
 </tabset>
 

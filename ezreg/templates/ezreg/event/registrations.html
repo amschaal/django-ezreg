@@ -1,3 +1,4 @@
+{% load ezreg_filters %}
 <script src="/static/vendor/d3/d3.min.js"></script>
 <script src="/static/vendor/d3/nv.d3.min.js"></script>
 <link rel="stylesheet" href="/static/vendor/d3/nv.d3.css">
@@ -53,6 +54,7 @@
 			    {% if 'admin' in permissions %}
 			    	<li role="menuitem"><a href="{[modifyRegistrationLink(row)]}">Modify</a></li>
 			    	<li role="menuitem" ng-if="row.payment__status"><a href="{[getURL('modify_payment',{id:row.id})]}">Modify Payment</a></li>
+			    	<li role="menuitem"><a log-modal content-type="{{Registration|content_type_id}}" object-id="row.id">Logs</a></li>
 			    	<!-- <li role="menuitem"><a href="{[updateRegistrationStatusLink(row)]}">Update status</a></li> -->
 			    {% endif %}
 			  </ul>

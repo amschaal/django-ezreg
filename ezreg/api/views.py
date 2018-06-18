@@ -17,6 +17,7 @@ from ezreg.api.permissions import EventPermission
 from django.utils import timezone
 from django.http.response import HttpResponse
 from ezreg.api.filters import MultiFilter
+from django_logger.models import Log
 
 # @todo: Secure these for ALL methods (based on price.event.group)!!!
 class PriceViewset(viewsets.ModelViewSet):
@@ -134,8 +135,9 @@ def event_payment_processors(request, event):
 def update_event_statuses(request, event):
     registrations = event.registrations.filter(id__in=request.data.get('selected'))
     registrations.update(status=request.data.get('status'))
-    if request.data.get('send_email'):
-        for registration in registrations:
+    for registration in registrations:
+        Log.create(text='Registration status for %s updated to %s by %s'%(registration.email,registration.status,request.user.username),objects=[registration,registration.event,request.user])
+        if request.data.get('send_email'):
             email_status(registration)
     return Response({'status':'success'})
 
