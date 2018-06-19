@@ -26,6 +26,7 @@ class Organizer(models.Model):
     slug = models.SlugField(max_length=50,unique=True)
     name = models.CharField(max_length=50)
     description = models.TextField()
+    config = postgres_fields.JSONField(default=dict)
     def __unicode__(self):
         return self.name
 
