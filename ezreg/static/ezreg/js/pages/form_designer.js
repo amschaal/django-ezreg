@@ -56,7 +56,7 @@ app.controller('DesignerController', function($scope,$http,Event) {
     $scope.copyEventForm = function($item, $model, $label){
     	if ($item.form_fields){
     		$scope.fields = $scope.fields.concat($item.form_fields);
-    		alert($item.form_fields.length+' fields have been copied.')
+    		alert($item.form_fields.length+' fields have been copied.');
     	}
     	$scope.asyncSelected = '';
     }
