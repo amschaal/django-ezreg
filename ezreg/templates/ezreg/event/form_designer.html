@@ -4,6 +4,10 @@
 	<div  ng-controller="DesignerController" ng-init='initialize({{form_fields|escape}},"{{event.id}}")'>
 	<h3>Form Fields</h3>
 	<h4>Add any additional fields you'd like here (first name, last name, and email are already included).</h4>
+	<h4>OR copy fields form another event:
+    	<input type="text" ng-model="asyncSelected" placeholder="Search events" typeahead="event.title+ ' ('+event.form_fields.length+' fields)' for event in getEvents($viewValue)" typeahead-loading="loadingEvents" class="form-control" typeahead-on-select="copyEventForm($item, $model, $label)">
+    	<i ng-show="loadingEvents" class="glyphicon glyphicon-refresh"></i>
+    </h4>
 		<table style="width:100%">
 		<tr><th></th><th>Required</th><th>Type</th><th>Name</th><th>Label</th><th>Help Text</th><th>Options</th><th></th></tr>
 		<tr ng-repeat="field in fields">

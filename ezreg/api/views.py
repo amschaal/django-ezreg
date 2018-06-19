@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from ezreg.api.serializers import PriceSerializer, PaymentProcessorSerializer,\
     EventPageSerializer, RegistrationSerializer, MailerMessageSerializer,\
-    EventSerializer
+    EventSerializer, DetailedEventSerializer
 from ezreg.models import Price, PaymentProcessor, Event, EventProcessor,\
     EventPage, Registration, OrganizerUserPermission
 from rest_framework.decorators import api_view, permission_classes, list_route,\
@@ -41,6 +41,12 @@ class EventViewset(viewsets.ModelViewSet):
     search_fields = ('title',)
     ordering_fields = ('start_time','title','organizer__name')
     permission_classes = (EventPermission,)
+    def get_serializer_class(self):
+        if self.request.query_params.get('serializer','simple') == 'simple':
+            return EventSerializer
+        else:
+            return DetailedEventSerializer
+        return viewsets.ModelViewSet.get_serializer_class(self)
     def get_queryset(self):
         return Event.objects.filter(organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_VIEW,organizer__user_permissions__user=self.request.user)
 #     @detail_route(methods=['GET'])
@@ -68,7 +74,6 @@ class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
     ordering_fields = ('status','first_name','last_name','email','registered','payment__amount','payment__status','payment__processor__name','event__title','event__organizer__name')
     search_fields = ('status','email',)
     def get_queryset(self):
-        print self.request.query_params
         return Registration.objects.filter(event__organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_VIEW,event__organizer__user_permissions__user=self.request.user)
     @list_route()
     def export_registrations(self,request):

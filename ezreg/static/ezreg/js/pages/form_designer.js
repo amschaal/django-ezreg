@@ -1,7 +1,7 @@
 var app = angular.module('ezreg');
 app.requires.push('ui.tinymce');
 
-app.controller('DesignerController', function($scope,$http) {
+app.controller('DesignerController', function($scope,$http,Event) {
     $scope.field_types = [
                           {'class':'field','type':'text', 'label': 'Text Field'},
                           {'class':'field','type':'textarea', 'label': 'TextArea Field'},
@@ -46,5 +46,18 @@ app.controller('DesignerController', function($scope,$http) {
     $scope.removeField = function(index){
     	if(confirm('Are you sure you want to remove this field?'))
     		$scope.fields.splice(index,1);
+    }
+    $scope.getEvents = function(val) {
+        return Event.query({serializer:'detailed',title__icontains:val}).$promise.then(function(response){
+        	console.log('response',response);
+        	return response;
+        });
+    }
+    $scope.copyEventForm = function($item, $model, $label){
+    	if ($item.form_fields){
+    		$scope.fields = $scope.fields.concat($item.form_fields);
+    		alert($item.form_fields.length+' fields have been copied.')
+    	}
+    	$scope.asyncSelected = '';
     }
   });
