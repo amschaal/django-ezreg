@@ -171,6 +171,7 @@ class Price(models.Model):
     coupon_code = models.CharField(max_length=25,null=True,blank=True)
     start_date = models.DateField(null=True,blank=True)
     end_date = models.DateField(null=True,blank=True)
+    quantity = models.PositiveIntegerField(null=True)
     def __unicode__(self):
         return mark_safe('<span title="%s"><b>$%s</b> - %s</span>' % (self.description,str(self.amount),self.name))
     class Meta:
@@ -209,7 +210,7 @@ class Registration(models.Model):
 #     institution = models.CharField(max_length=100,null=True,blank=True)
 #     department = models.CharField(max_length=100,null=True,blank=True)
 #     special_requests = models.TextField(null=True,blank=True)
-    price = models.ForeignKey('Price',null=True,blank=True)
+    price = models.ForeignKey('Price',null=True,blank=True,related_name='registrations')
     email_messages = models.ManyToManyField(MailerMessage,related_name='registrations')
     test = models.BooleanField(default=False)
     registered_by = models.ForeignKey(User,null=True,blank=True)

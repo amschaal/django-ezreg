@@ -164,10 +164,20 @@ class PriceForm(forms.Form):
         return self.event.payment_processors.filter(hidden=False)
     def available_prices_queryset(self,include_coupons=False):
         qs = self.event.prices.exclude(start_date__isnull=False,start_date__gt=datetime.today()).exclude(end_date__isnull=False,end_date__lt=datetime.today()).order_by('order')
+        
+        #Exclude any prices that are sold out
+        soldout_ids = []
+        for price in qs:
+            if price.quantity and price.quantity > 0:
+                if price.registrations.filter(status__in=[Registration.STATUS_REGISTERED,Registration.STATUS_PENDING_INCOMPLETE]).count() >= price.quantity:
+                    soldout_ids.append(price.id)
+        if len(soldout_ids)>0:
+            qs = qs.exclude(id__in=soldout_ids)
+
         if include_coupons:
             return qs
         else:
-            return qs.exclude(coupon_code__isnull=False)
+            return qs.filter(Q(coupon_code__isnull=True)|Q(coupon_code=''))
     def get_price_queryset(self):
         prices = self.available_prices_queryset(include_coupons=False)#self.event.prices.exclude(start_date__isnull=False,start_date__gt=datetime.today()).exclude(end_date__isnull=False,end_date__lt=datetime.today()).exclude(coupon_code__isnull=False).order_by('order')
         #Add coupon price if available

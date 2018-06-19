@@ -66,11 +66,11 @@
 <div ng-controller="PriceController" ng-init="init({'event_id':'{{event.id}}','organizer':'{{event.organizer_id}}','event_processors_url':'{% url 'event_payment_processors' event=event.id %}'})">
 	<h3>Prices</h3>
 	<table class="table" ng-if="prices.length > 0">
-		<tr><th>Order</th><th>* Name</th><th>* Amount</th><th>Description</th><th>Coupon Code †</th><th>Start Date (inclusive)</th><th>End Date (inclusive)</th><th></th></tr>
+		<tr><th>Order</th><th>* Name</th><th>* Amount</th><th>Description</th><th>Coupon Code †</th><th>Start Date (inclusive)</th><th>End Date (inclusive)</th><th>Quantity</th><th></th></tr>
 		<tr ng-repeat="price in prices">
 			<td ng-class="{'has-error':price.errors.order}">
 				<ul ng-if="price.errors.order"><li ng-repeat="error in price.errors.order">{[error]}</li></ul>
-				<input type="number" title="{[price.errors.order]}" style="width:80px;"class="form-control" ng-model="price.order"/>
+				<input type="number" title="{[price.errors.order]}" style="width:80px;" class="form-control" ng-model="price.order"/>
 			</td>
 			<td ng-class="{'has-error':price.errors.name}">
 				<ul ng-if="price.errors.name"><li ng-repeat="error in price.errors.name">{[error]}</li></ul>
@@ -105,6 +105,10 @@
 		                <button type="button" class="btn btn-default" ng-click="price.datepicker.end_date=true"><i class="glyphicon glyphicon-calendar"></i></button>
 		            </span>
 	            </p>
+			</td>
+			<td ng-class="{'has-error':price.errors.quantity}">
+				<ul ng-if="price.errors.quantity"><li ng-repeat="error in price.errors.quantity">{[error]}</li></ul>
+				<input type="number" title="{[price.errors.quantity]}" class="form-control" ng-model="price.quantity" style="width:80px;"/>
 			</td>
 			<td>
 				<button ng-click="deletePrice(price,$index)" class="btn btn-danger btn-sm">Delete</button>
