@@ -1,4 +1,8 @@
-<script src="/static/ezreg/js/pages/event_emails.js"></script>
+	{% load compress %}
+	{% compress js %}
+		<script src="/static/ezreg/js/pages/event_emails.js"></script>
+    {% endcompress %}
+
 
 <div ng-controller="EventEmailsController" ng-init='init("{{event.id}}");'>
 	<span class="pull-right">

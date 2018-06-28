@@ -1,5 +1,7 @@
-	<script src="/static/ezreg/js/pages/form_designer.js"></script>
-    
+   	{% load compress %}
+   	{% compress js %}
+		<script src="/static/ezreg/js/pages/form_designer.js"></script>
+    {% endcompress %}
   	
 	<div  ng-controller="DesignerController" ng-init='initialize({{form_fields|escape}},"{{event.id}}")'>
 	<h3>Form Fields</h3>

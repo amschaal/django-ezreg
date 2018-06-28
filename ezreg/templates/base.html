@@ -30,8 +30,10 @@
     </script>
     <!-- Bootstrap core JavaScript
     ================================================== -->
+    {% compress js %}
     <script src="/static/vendor/jquery.min.js"></script>
     <script src="/static/theme/js/bootstrap.min.js"></script>
+    {% endcompress %}
     {{ form.media }}
     {% compress js %}
     {% block scripts %}

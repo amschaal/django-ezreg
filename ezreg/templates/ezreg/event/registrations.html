@@ -1,9 +1,13 @@
 {% load ezreg_filters %}
-<script src="/static/vendor/d3/d3.min.js"></script>
-<script src="/static/vendor/d3/nv.d3.min.js"></script>
+{% load compress %}
 <link rel="stylesheet" href="/static/vendor/d3/nv.d3.css">
-<script src="/static/vendor/d3/angularjs-nvd3-directives.js"></script>
-<script src="/static/ezreg/js/pages/event_registrations.js"></script>
+   	{% compress js %}
+		<script src="/static/vendor/d3/d3.min.js"></script>
+		<script src="/static/vendor/d3/nv.d3.min.js"></script>
+		<script src="/static/vendor/d3/angularjs-nvd3-directives.js"></script>
+		<script src="/static/ezreg/js/pages/event_registrations.js"></script>
+    {% endcompress %}
+
 
 
 
