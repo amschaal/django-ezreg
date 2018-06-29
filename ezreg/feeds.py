@@ -16,7 +16,7 @@ class EventsFeed(Feed):
         return "Upcoming events"
 
     def item_link(self, item):
-        return reverse('event', args=[item.pk])
+        return reverse('event', args=[item.slug_or_id])
     def link(self):
         return getattr(settings,'SITE_URL') +'/foo/bar/'
     def item_title(self,item):
