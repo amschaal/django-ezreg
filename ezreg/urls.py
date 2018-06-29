@@ -27,7 +27,7 @@ from ezreg.api.views import PriceViewset, PaymentProcessorViewset, \
     EventPageViewset, RegistrationViewset, MailerMessageViewset, EventViewset
 from ezreg.registration import RegistrationWizard
 from django_logger.api.views import LogViewset
-from ezreg.feeds import EventsFeed
+from ezreg.feeds import EventsFeed, UpcomingEventsFeed, PastEventsFeed
 
 
 router = routers.DefaultRouter()
@@ -78,7 +78,9 @@ urlpatterns = [
     url(r'^api/events/(?P<event>[A-Za-z0-9_\-]{10})/payment_processors/$', api_views.event_payment_processors, name="event_payment_processors"),
     url(r'^api/events/(?P<event>[A-Za-z0-9_\-]{10})/export_registrations/$', api_views.export_registrations, name="api_export_registrations"),
     #RSS Feed
-    url(r'^feeds/events/(?P<organizer_slug>[A-Za-z0-9_\-]{3,})/rss/$', EventsFeed()),
+    url(r'^feeds/events/all/(?P<organizer_slug>[A-Za-z0-9_\-]{3,})/rss/$', EventsFeed()),
+    url(r'^feeds/events/upcoming/(?P<organizer_slug>[A-Za-z0-9_\-]{3,})/rss/$', UpcomingEventsFeed()),
+    url(r'^feeds/events/past/(?P<organizer_slug>[A-Za-z0-9_\-]{3,})/rss/$', PastEventsFeed()),
     url(r'^json_forms/', include(json_form_urls.urlpatterns)),
     url(r'^jsurls.js$', jsurls, {}, 'jsurls'), 
     # CAS
