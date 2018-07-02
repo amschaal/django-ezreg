@@ -50,11 +50,10 @@ def format_registration_data(event,registrations,encode_utf8=True):
                             data['processor_%d_%s'%(processor.id,name)] = val
         elif r.price:
             data.update({'payment.price':r.price.name})
-            if r.price.amount == 0:
-                data.update({'payment.price':0})
-            
+            if True:#r.price.amount == 0:
+                data.update({'payment.amount':r.price.amount})
         if encode_utf8:
             for key, val in data.iteritems():
-                data[key] = unicode(form_value(val)).encode("utf-8") if val else None
+                data[key] = unicode(form_value(val)).encode("utf-8") if val is not None else None
         reg_data['data'].append(data)
     return reg_data
