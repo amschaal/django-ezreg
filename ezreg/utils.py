@@ -48,8 +48,10 @@ def format_registration_data(event,registrations,encode_utf8=True):
                         val = payment.data.get(name,None)
                         if val:
                             data['processor_%d_%s'%(processor.id,name)] = val
-        elif r.price and r.price.amount == 0:
-            data.update({'payment.price':0})
+        elif r.price:
+            data.update({'payment.price':r.price.name})
+            if r.price.amount == 0:
+                data.update({'payment.price':0})
             
         if encode_utf8:
             for key, val in data.iteritems():
