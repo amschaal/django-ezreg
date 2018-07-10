@@ -49,7 +49,7 @@ class Event(models.Model):
 #     STATUSES = ((STATUS_OPEN,'Open'),(STATUS_CLOSED,'Closed'))
     id = models.CharField(max_length=10,default=id_generator,primary_key=True)
 #     group = models.ForeignKey(Group)
-    organizer = models.ForeignKey(Organizer,related_name='events')
+    organizer = models.ForeignKey(Organizer,on_delete=models.PROTECT,related_name='events')
     slug = models.SlugField(max_length=100,unique=True,blank=True)
     title = models.CharField(max_length=150,blank=False)
     description = BleachField(blank=False)
@@ -211,10 +211,10 @@ class Registration(models.Model):
 #     institution = models.CharField(max_length=100,null=True,blank=True)
 #     department = models.CharField(max_length=100,null=True,blank=True)
 #     special_requests = models.TextField(null=True,blank=True)
-    price = models.ForeignKey('Price',null=True,blank=True,related_name='registrations')
+    price = models.ForeignKey('Price',null=True,blank=True,on_delete=models.PROTECT,related_name='registrations')
     email_messages = models.ManyToManyField(MailerMessage,related_name='registrations')
     test = models.BooleanField(default=False)
-    registered_by = models.ForeignKey(User,null=True,blank=True)
+    registered_by = models.ForeignKey(User,on_delete=models.SET_NULL,null=True,blank=True)
     admin_notes = models.TextField(null=True,blank=True)
     data = JSONField(null=True, blank=True)
     def get_form_value(self,name):
@@ -266,7 +266,7 @@ class Payment(models.Model):
     STATUS_PAID = 'PAID'
     STATUS_ERROR = 'ERROR'
     STATUS_CHOICES = ((STATUS_UNPAID,'Unpaid'),(STATUS_PENDING,'Pending'),(STATUS_PAID,'Paid'),(STATUS_CANCELLED,'Cancelled'),(STATUS_INVALID_AMOUNT,'Invalid Amount'),(STATUS_ERROR,'Error'))
-    processor = models.ForeignKey('PaymentProcessor',null=True,blank=True)
+    processor = models.ForeignKey('PaymentProcessor',null=True,blank=True,on_delete=models.PROTECT)
     status = models.CharField(max_length=20,default=STATUS_UNPAID,choices=STATUS_CHOICES)
     paid_at = models.DateTimeField(blank=True,null=True)
     registration = models.OneToOneField(Registration,related_name='payment')
@@ -292,7 +292,7 @@ class Payment(models.Model):
 class PaymentProcessor(models.Model):
     processor_id = models.CharField(max_length=30)
 #     group = models.ForeignKey(Group)
-    organizer = models.ForeignKey(Organizer,related_name='payment_processors')
+    organizer = models.ForeignKey(Organizer,on_delete=models.PROTECT,related_name='payment_processors')
     name = models.CharField(max_length=50)
     description = models.TextField(blank=True)
     hidden = models.BooleanField(default=False)
