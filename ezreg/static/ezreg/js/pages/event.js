@@ -51,8 +51,11 @@ function PriceController($scope,$http,growl,Price,PaymentProcessor) {
 		if(!confirm('Are you sure you want to delete this price?'))
 			return;
 		price.$delete(function(){
-			$scope.prices.splice(index,1);
-		});
+				$scope.prices.splice(index,1);
+			},
+			function(){
+				growl.error("Deleting price failed.  It may be referenced by existing registrations.",{ttl: 5000});
+			});
 	}
 	$scope.saveProcessors = function(){
 		console.log(event_processors_url,{'processors':$scope.selected_processors});

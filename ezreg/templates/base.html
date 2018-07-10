@@ -127,6 +127,7 @@
     {% endblock %}
 
 	<div class="container theme-showcase" role="main">
+  <div growl></div>
 	{% block content %}
 	{% endblock %}
 	</div>
@@ -136,6 +137,5 @@
     <a class="pull-right" href="{% url 'login' %}">Log in</a>
     {% endif %}
   </div>
-  <div growl></div>
   </body>
 </html>
