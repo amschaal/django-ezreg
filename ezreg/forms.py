@@ -208,6 +208,14 @@ class AdminPriceForm(forms.Form):
 
 
 class AdminPaymentForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(AdminPaymentForm, self).__init__(*args, **kwargs)
+        instance = getattr(self, 'instance', None)
+        print "ADMIN PAYMENT FORM"
+        if instance and instance.status == Payment.STATUS_PAID:
+            print "PAID"
+            self.fields['status'].disabled = True
+            self.fields['status'].help_text = 'A status of PAID may not be changed.  Refunds may be issued, but the original status must remain.'
     class Meta:
         model=Payment
         fields = ('status','refunded')

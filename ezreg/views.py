@@ -135,7 +135,7 @@ def modify_registration(request,id=None):
             if extra_fields_form:
                 registration.data = extra_fields_form.cleaned_data
                 registration.save()
-            Log.create(text='Registration for %s updated by %s.'%(registration.email,request.user.username),objects=[registration,registration.event,request.user])
+            Log.create(text='Registration for %s (%s) updated by %s.'%(registration.email, registration.id,request.user.username),objects=[registration,registration.event,request.user])
             return redirect('manage_event',event=registration.event_id) #event.get_absolute_url()
     return render(request, 'ezreg/modify_registration.html', {'form':form,'registration':registration,'extra_fields_form':extra_fields_form} )
 
@@ -150,6 +150,7 @@ def modify_payment(request,id=None):
         admin_payment_form = AdminPaymentForm(instance=payment,prefix="admin_payment_form")
     elif request.method == 'POST':
         payment_form = form_class(request.POST,event=registration.event) if form_class else None
+        old_payment_status = payment.status
         admin_payment_form = AdminPaymentForm(request.POST,instance=payment,prefix="admin_payment_form")
         price_form = AdminPriceForm(request.POST,event=registration.event)
         if price_form.is_valid() and admin_payment_form.is_valid() and (payment_form is None or payment_form.is_valid()):
@@ -160,7 +161,9 @@ def modify_payment(request,id=None):
             payment.amount = price_form.cleaned_data['price'].amount
             payment.save()
             registration.save()
-            Log.create(text='Payment for %s updated by %s.  Price: %s, Refund: %s.'%(registration.email, request.user.username, payment.amount, payment.refunded),objects=[registration,registration.event,request.user])
+            if old_payment_status != admin_payment_form.cleaned_data['status']:
+                Log.create(text='Payment status for %s (%s) updated by %s: %s -> %s.'%(registration.email, registration.id, request.user.username, old_payment_status, admin_payment_form.cleaned_data['status']),objects=[registration,registration.event,request.user])
+            Log.create(text='Payment for %s (%s) updated by %s.  Price: %s, Refund: %s.'%(registration.email, registration.id, request.user.username, payment.amount, payment.refunded),objects=[registration,registration.event,request.user])
             return render(request, 'ezreg/modify_payment.html', {'payment_form':payment_form,'admin_payment_form':admin_payment_form,'price_form':price_form,'registration':registration,'payment':payment} )
     return render(request, 'ezreg/modify_payment.html', {'payment_form':payment_form,'price_form':price_form,'admin_payment_form':admin_payment_form,'registration':registration,'payment':payment} )
 
