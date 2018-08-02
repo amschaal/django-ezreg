@@ -94,7 +94,9 @@ class Event(models.Model):
     @property
     def pending(self):
         return self.registrations.filter(Q( status=Registration.STATUS_PENDING_INCOMPLETE)|Q( status=Registration.STATUS_WAITLIST_PENDING)|Q( status=Registration.STATUS_WAITLIST_INCOMPLETE)|Q( status=Registration.STATUS_APPLY_INCOMPLETE)).exclude(test=True).count()
-    
+    @property
+    def accepted(self):
+        return self.registrations.filter(status=Registration.STATUS_APPLIED_ACCEPTED).exclude(test=True).count()
     @property
     def registration_enabled(self):
 #         if self.enable_application:

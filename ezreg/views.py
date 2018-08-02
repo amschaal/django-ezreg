@@ -39,8 +39,8 @@ def events(request,page='upcoming'):
 
 @has_permissions([OrganizerUserPermission.PERMISSION_ADMIN,OrganizerUserPermission.PERMISSION_VIEW],require_all=False)
 def manage_events(request):
-    events = Event.objects.filter(organizer__user_permissions__user=request.user).distinct()
-    return render(request, 'ezreg/manage_events.html', {'events':events})
+#     events = Event.objects.filter(organizer__user_permissions__user=request.user).distinct()
+    return render(request, 'ezreg/manage_events.html')
 
 @has_permissions([OrganizerUserPermission.PERMISSION_ADMIN,OrganizerUserPermission.PERMISSION_VIEW],require_all=False)
 def registration_search(request):

@@ -43,6 +43,7 @@ class EventSerializer(serializers.ModelSerializer):
     applied = serializers.ReadOnlyField()
     cancelled = serializers.ReadOnlyField()
     pending = serializers.ReadOnlyField()
+    accepted = serializers.ReadOnlyField()
     registration_enabled = serializers.ReadOnlyField()
     organizer = OrganizerSerializer(read_only=True)
     class Meta:
