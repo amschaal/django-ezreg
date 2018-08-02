@@ -62,7 +62,10 @@ class RegistrationWizard(SessionWizardView):
             if price_data:
                 registration.price = price_data['price']
                 if registration.price.amount > 0.0:
-                    payment, created = Payment.objects.get_or_create(registration=registration,amount=registration.price.amount,processor=price_data['payment_method'])
+                    payment, created = Payment.objects.get_or_create(registration=registration)
+                    payment.amount=registration.price.amount
+                    payment.processor=price_data['payment_method']
+                    payment.save()
                     payment_data = self.get_cleaned_data_for_step('payment_form') or None
                     if payment_data:
                         payment.data = payment_data

@@ -18,7 +18,7 @@ class EventsFeed(Feed):
     def item_link(self, item):
         return reverse('event', args=[item.slug_or_id])
     def link(self):
-        return getattr(settings,'SITE_URL') +'/foo/bar/'
+        return getattr(settings,'SITE_URL')
     def item_title(self,item):
         return item.title
     def item_pubdate(self, item):
