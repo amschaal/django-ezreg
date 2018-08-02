@@ -1,0 +1,4 @@
+{% extends 'base.html' %}
+{% block content %}
+The registration URL entered is either invalid, or no longer eligible for registration.  If you believe this is an error, please contact the <a href="{% url 'event' slug_or_id=event.slug_or_id %}">event</a> coordinator. 
+{% endblock %}

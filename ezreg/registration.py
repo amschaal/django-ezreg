@@ -105,10 +105,7 @@ class RegistrationWizard(SessionWizardView):
             return self.registration_instance
         #A registration id was passed as part of the URL
         if self.kwargs.has_key('registration_id'):
-            try:
-                self.registration_instance = Registration.objects.get(id=self.kwargs['registration_id'],status__in=[Registration.STATUS_WAITLIST_PENDING,Registration.STATUS_APPLIED_ACCEPTED])
-            except Registration.DoesNotExist, e:
-                raise Exception("No registration was found that was eligible for completion.")
+            self.registration_instance = Registration.objects.get(id=self.kwargs['registration_id'],status__in=[Registration.STATUS_WAITLIST_PENDING,Registration.STATUS_APPLIED_ACCEPTED])
         elif self.get_session_registration_id():
             self.registration_instance = Registration.objects.filter(id=self.get_session_registration_id()).first()
         else:
@@ -194,7 +191,10 @@ class RegistrationWizard(SessionWizardView):
     def get(self, request, *args, **kwargs):
         #If there is already a registration started, resume it
         self.event.delete_expired_registrations()
-        existing_registration = self.get_registration()
+        try:
+            existing_registration = self.get_registration()
+        except Registration.DoesNotExist, e:
+            return render(request, 'ezreg/registration/doesnotexist.html', {'event':self.event})
         if existing_registration:
             self.render_goto_step(self.steps.first)
         
