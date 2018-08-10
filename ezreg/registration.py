@@ -144,7 +144,9 @@ class RegistrationWizard(SessionWizardView):
         self.set_session_registration_id(registration.id)
         return registration
     def cancel_registration(self):
-        self.delete_registration(force=True)
+        registration = self.get_registration()
+        if registration and registration.status in [Registration.STATUS_PENDING_INCOMPLETE, Registration.STATUS_APPLY_INCOMPLETE, Registration.STATUS_WAITLIST_INCOMPLETE]:
+            self.delete_registration(force=True)
         return HttpResponseRedirect(reverse('event',kwargs={'slug_or_id':self.event.id}))
     def delete_registration(self,force=False):
         if self.get_registration():
