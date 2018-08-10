@@ -88,9 +88,11 @@ class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
         for r in registrations:
             amount = None if not hasattr(r,'payment') else r.payment.amount
             refunded = None if not hasattr(r,'payment') else r.payment.refunded
+            price = None if not r.price else r.price.name
+            coupon_code = None if not r.price else r.price.coupon_code
             processor = None if not hasattr(r,'payment') or not r.payment.processor else r.payment.processor.name
             payment_status = None if not hasattr(r,'payment') else r.payment.status
-            dataset.append([r.registered.strftime("%Y-%m-%d %H:%M"),r.event.id,r.event.title,r.event.organizer.name,r.first_name,r.last_name,r.email,r.price.name,amount,r.price.coupon_code,refunded,processor,r.status,payment_status,r.admin_notes,r.test])
+            dataset.append([r.registered.strftime("%Y-%m-%d %H:%M"),r.event.id,r.event.title,r.event.organizer.name,r.first_name,r.last_name,r.email,price,amount,coupon_code,refunded,processor,r.status,payment_status,r.admin_notes,r.test])
         filetype = request.query_params.get('export_format','xls')
         filetype = filetype if filetype in ['xls','xlsx','csv','tsv','json'] else 'xls'
         content_types = {'xls':'application/vnd.ms-excel','tsv':'text/tsv','csv':'text/csv','json':'text/json','xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
