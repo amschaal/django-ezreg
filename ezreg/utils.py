@@ -15,6 +15,7 @@ def format_registration_data(event,registrations,encode_utf8=True):
                           'payment.status':{'label':'Payment Status'},
                           'payment.paid_at':{'label':'Paid at'},
                           'payment.amount':{'label':'Amount'},
+                          'payment.coupon':{'label':'Coupon code'},
                           'payment.refunded':{'label':'Refunded'},
                           'payment.external_id':{'label':'External_id'},
                           },
@@ -39,7 +40,7 @@ def format_registration_data(event,registrations,encode_utf8=True):
 
         #Add selected payment fields
         if payment:
-            data.update({'payment.price':r.price.name,'payment.processor':payment.processor,'payment.status':payment.status,'payment.paid_at':payment.paid_at,'payment.amount':payment.amount,'payment.refunded':payment.refunded, 'payment.external_id':payment.external_id})
+            data.update({'payment.price':r.price.name,'payment.processor':payment.processor,'payment.status':payment.status,'payment.paid_at':payment.paid_at,'payment.amount':payment.amount,'payment.coupon':r.price.coupon_code,'payment.refunded':payment.refunded, 'payment.external_id':payment.external_id})
             #Add selected payment processor fields
             for processor in event.payment_processors.all():
                 exportable_fields = processor.get_processor().exportable_fields

@@ -79,7 +79,7 @@ class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
     def export_registrations(self,request):
         import tablib
         registrations = self.filter_queryset(self.get_queryset())
-        fields = ['registered','event_id','event','organizer','first_name','last_name','email','amount','refunded','processor','status','payment status','admin_notes','test']
+        fields = ['registered','event_id','event','organizer','first_name','last_name','email','price','amount','coupon code','refunded','processor','status','payment status','admin_notes','test']
         
         #add headers
         dataset = tablib.Dataset(headers=fields)
@@ -90,7 +90,7 @@ class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
             refunded = None if not hasattr(r,'payment') else r.payment.refunded
             processor = None if not hasattr(r,'payment') or not r.payment.processor else r.payment.processor.name
             payment_status = None if not hasattr(r,'payment') else r.payment.status
-            dataset.append([r.registered.strftime("%Y-%m-%d %H:%M"),r.event.id,r.event.title,r.event.organizer.name,r.first_name,r.last_name,r.email,amount,refunded,processor,r.status,payment_status,r.admin_notes,r.test])
+            dataset.append([r.registered.strftime("%Y-%m-%d %H:%M"),r.event.id,r.event.title,r.event.organizer.name,r.first_name,r.last_name,r.email,r.price.name,amount,r.price.coupon_code,refunded,processor,r.status,payment_status,r.admin_notes,r.test])
         filetype = request.query_params.get('export_format','xls')
         filetype = filetype if filetype in ['xls','xlsx','csv','tsv','json'] else 'xls'
         content_types = {'xls':'application/vnd.ms-excel','tsv':'text/tsv','csv':'text/csv','json':'text/json','xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
