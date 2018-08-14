@@ -73,7 +73,7 @@ def postback(request):
         elif req.get('PMT_STATUS')=='cancelled' and payment.status != Payment.STATUS_PAID:
             payment.status = Payment.STATUS_CANCELLED
             payment.save()
-            if registration.status not in [Registration.STATUS_PENDING_INCOMPLETE, Registration.STATUS_APPLY_INCOMPLETE, Registration.STATUS_WAITLIST_INCOMPLETE]:
+            if registration.status in [Registration.STATUS_PENDING_INCOMPLETE, Registration.STATUS_APPLY_INCOMPLETE, Registration.STATUS_WAITLIST_INCOMPLETE]:
                 registration.status = Registration.STATUS_CANCELLED
                 registration.save()
 #             payment.delete()
