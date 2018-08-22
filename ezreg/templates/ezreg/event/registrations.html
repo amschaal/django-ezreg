@@ -1,8 +1,13 @@
-<script src="/static/vendor/d3/d3.min.js"></script>
-<script src="/static/vendor/d3/nv.d3.min.js"></script>
+{% load ezreg_filters %}
+{% load compress %}
 <link rel="stylesheet" href="/static/vendor/d3/nv.d3.css">
-<script src="/static/vendor/d3/angularjs-nvd3-directives.js"></script>
-<script src="/static/ezreg/js/pages/event_registrations.js"></script>
+   	{% compress js %}
+		<script src="/static/vendor/d3/d3.min.js"></script>
+		<script src="/static/vendor/d3/nv.d3.min.js"></script>
+		<script src="/static/vendor/d3/angularjs-nvd3-directives.js"></script>
+		<script src="/static/ezreg/js/pages/event_registrations.js"></script>
+    {% endcompress %}
+
 
 
 
@@ -40,8 +45,8 @@
         <td data-title="'Email'" filter="{email__icontains: 'text'}" sortable="'email'">{[row.email]}</td>
         <td data-title="'Amount'" sortable="'payment__amount'">{[row.payment__amount]}<span ng-if="row.payment__refunded"> - {[row.payment__refunded]} refunded</span></td>
         <td data-title="'Processor'" sortable="'payment__processor__name'">{[row.payment__processor]}</td>
-		<td data-title="'Status'" sortable="'status'" filter="{status: 'select'}" filter-data="statuses_filter_choices">{[statuses[row.status]]}</td>
-		<td data-title="'Payment Status'" sortable="'payment__status'" filter="{payment__status: 'select'}" filter-data="payment_status_filter_choices">{[payment_statuses[row.payment__status]]}</td>
+		<td data-title="'Status'" sortable="'status'" filter="{status__in: 'multi-select'}" filter-data="statuses_filter_choices">{[statuses[row.status]]}</td>
+		<td data-title="'Payment Status'" sortable="'payment__status'" filter="{payment__status__in: 'multi-select'}" filter-data="payment_status_filter_choices">{[payment_statuses[row.payment__status]]}</td>
 		<td data-title="'Test'" filter="{test: 'checkbox'}"><i ng-if="row.test" class="glyphicon glyphicon-ok"></i></td>
 		<td data-title="'Actions'">
 			<div class="btn-group" dropdown is-open="isopen[row.id]">
@@ -53,6 +58,7 @@
 			    {% if 'admin' in permissions %}
 			    	<li role="menuitem"><a href="{[modifyRegistrationLink(row)]}">Modify</a></li>
 			    	<li role="menuitem" ng-if="row.payment__status"><a href="{[getURL('modify_payment',{id:row.id})]}">Modify Payment</a></li>
+			    	<li role="menuitem"><a log-modal content-type="{{Registration|content_type_id}}" object-id="row.id">Logs</a></li>
 			    	<!-- <li role="menuitem"><a href="{[updateRegistrationStatusLink(row)]}">Update status</a></li> -->
 			    {% endif %}
 			  </ul>
@@ -106,6 +112,8 @@
 						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="payment.status"/> Payment Status </label>
 						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="payment.paid_at"/> Paid At </label>
 						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="payment.amount"/> Amount </label>
+						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="payment.coupon"/> Coupon code </label>
+						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="payment.refunded"/> Refunded </label>
 						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="payment.external_id"/> External ID </label>
 					</fieldset>
 					{% for processor in event.payment_processors.all %}
@@ -148,3 +156,6 @@
             <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
         </div>
     </script>
+<script type="text/ng-template" id="ng-table/filters/multi-select.html">
+	<multiselect ng-disabled="$filterRow.disabled" ng-model="params.filter()[name]" options="$column.data" show-select-all="true" show-unselect-all="true" id-as-value="true" id-prop="id" display-prop="title"></multiselect>
+</script>

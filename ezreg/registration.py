@@ -14,10 +14,14 @@ from ezreg.payment.base import BasePaymentForm
 from django_json_forms.forms import JSONForm
 from ezreg.exceptions import RegistrationClosedException
 from django.http.response import HttpResponseForbidden
+from django.utils import timezone
 
 
 def show_payment_form_condition(wizard):
     if wizard.registration:
+        price_data = wizard.get_cleaned_data_for_step('price_form') or None
+        if price_data and price_data['price'].amount == 0.0:
+            return False
         if wizard.registration.is_waitlisted or wizard.registration.is_application or wizard.registration.registered_by:
             return False
     processor = wizard.get_payment_processor()
@@ -57,19 +61,29 @@ class RegistrationWizard(SessionWizardView):
             price_data = self.get_cleaned_data_for_step('price_form') or None
             if price_data:
                 registration.price = price_data['price']
-                payment = Payment.objects.create(registration=registration,amount=registration.price.amount,processor=price_data['payment_method'])
-                payment_data = self.get_cleaned_data_for_step('payment_form') or None
-                if payment_data:
-                    payment.data = payment_data
-                    payment.save()
-                    processor = self.get_payment_processor()
-                    if processor:
-                        processor.post_process_form(payment, payment_data)
-                if payment.get_post_form():
-                    registration.save()
-                    return HttpResponseRedirect(reverse('pay',kwargs={'id':registration.id}))
+                if registration.price.amount > 0.0:
+                    payment = Payment.objects.filter(registration=registration).first()
+                    if payment:
+                        payment.amount = registration.price.amount
+                        payment.processor=price_data['payment_method']
+                        payment.save()
+                    else:
+                        payment = Payment.objects.create(registration=registration,amount=registration.price.amount,processor=price_data['payment_method'])
+                    payment_data = self.get_cleaned_data_for_step('payment_form') or None
+                    if payment_data:
+                        payment.data = payment_data
+                        payment.save()
+                        processor = self.get_payment_processor()
+                        if processor:
+                            processor.post_process_form(payment, payment_data)
+                    if payment.get_post_form():
+                        registration.save()
+                        return HttpResponseRedirect(reverse('pay',kwargs={'id':registration.id}))
+                else:
+                    registration.status = Registration.STATUS_REGISTERED
             else:
                 registration.status = Registration.STATUS_REGISTERED
+        registration.registered = timezone.now()
         registration.save()
         email_status(registration)
         self.storage.reset()
@@ -92,10 +106,7 @@ class RegistrationWizard(SessionWizardView):
             return self.registration_instance
         #A registration id was passed as part of the URL
         if self.kwargs.has_key('registration_id'):
-            try:
-                self.registration_instance = Registration.objects.get(id=self.kwargs['registration_id'],status__in=[Registration.STATUS_WAITLIST_PENDING,Registration.STATUS_APPLIED_ACCEPTED])
-            except Registration.DoesNotExist, e:
-                raise Exception("No registration was found that was eligible for completion.")
+            self.registration_instance = Registration.objects.get(id=self.kwargs['registration_id'],status__in=[Registration.STATUS_WAITLIST_PENDING,Registration.STATUS_APPLIED_ACCEPTED])
         elif self.get_session_registration_id():
             self.registration_instance = Registration.objects.filter(id=self.get_session_registration_id()).first()
         else:
@@ -125,16 +136,18 @@ class RegistrationWizard(SessionWizardView):
             status = Registration.STATUS_PENDING_INCOMPLETE
         elif self.event.can_waitlist():
             status = Registration.STATUS_WAITLIST_INCOMPLETE
-        else:
+        elif not getattr(self, 'admin',False):
             raise RegistrationClosedException("Registration is closed")
         if getattr(self,'admin', False):
-            registration = Registration.objects.create(event=self.event,status=status,test=self.test, registered_by=self.request.user)
+            registration = Registration.objects.create(event=self.event,status=Registration.STATUS_PENDING_INCOMPLETE,test=self.test, registered_by=self.request.user)
         else:
             registration = Registration.objects.create(event=self.event,status=status,test=self.test)
         self.set_session_registration_id(registration.id)
         return registration
     def cancel_registration(self):
-        self.delete_registration(force=True)
+        registration = self.get_registration()
+        if registration and registration.status in [Registration.STATUS_PENDING_INCOMPLETE, Registration.STATUS_APPLY_INCOMPLETE, Registration.STATUS_WAITLIST_INCOMPLETE]:
+            self.delete_registration(force=True)
         return HttpResponseRedirect(reverse('event',kwargs={'slug_or_id':self.event.id}))
     def delete_registration(self,force=False):
         if self.get_registration():
@@ -181,7 +194,10 @@ class RegistrationWizard(SessionWizardView):
     def get(self, request, *args, **kwargs):
         #If there is already a registration started, resume it
         self.event.delete_expired_registrations()
-        existing_registration = self.get_registration()
+        try:
+            existing_registration = self.get_registration()
+        except Registration.DoesNotExist, e:
+            return render(request, 'ezreg/registration/doesnotexist.html', {'event':self.event})
         if existing_registration:
             self.render_goto_step(self.steps.first)
         
@@ -201,7 +217,7 @@ class RegistrationWizard(SessionWizardView):
             elif registration.status == Registration.STATUS_PENDING_INCOMPLETE and not kwargs.get('register',False):
                 return HttpResponseRedirect(reverse('register',kwargs={'slug_or_id':self.event.slug_or_id})+test_redirect_parameter)
         except RegistrationClosedException:
-            return render(request, 'ezreg/registration/closed.html', {'event':self.event},context_instance=RequestContext(request))
+            return render(request, 'ezreg/registration/closed.html', {'event':self.event})
         # reset the current step to the first step.
         self.storage.current_step = self.steps.first
         

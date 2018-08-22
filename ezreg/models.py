@@ -17,6 +17,7 @@ from ezreg.fields import EmailListField
 from django.core.validators import MinLengthValidator
 from django_bleach.models import BleachField
 from django.utils import timezone
+from django.contrib.postgres import fields as postgres_fields
 
 def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -25,6 +26,7 @@ class Organizer(models.Model):
     slug = models.SlugField(max_length=50,unique=True)
     name = models.CharField(max_length=50)
     description = models.TextField()
+    config = postgres_fields.JSONField(default=dict)
     def __unicode__(self):
         return self.name
 
@@ -47,7 +49,7 @@ class Event(models.Model):
 #     STATUSES = ((STATUS_OPEN,'Open'),(STATUS_CLOSED,'Closed'))
     id = models.CharField(max_length=10,default=id_generator,primary_key=True)
 #     group = models.ForeignKey(Group)
-    organizer = models.ForeignKey(Organizer,related_name='events')
+    organizer = models.ForeignKey(Organizer,on_delete=models.PROTECT,related_name='events')
     slug = models.SlugField(max_length=100,unique=True,blank=True)
     title = models.CharField(max_length=150,blank=False)
     description = BleachField(blank=False)
@@ -73,6 +75,7 @@ class Event(models.Model):
     logo = models.ImageField(upload_to='logos/',null=True,blank=True)
     form_fields = JSONField(null=True, blank=True)
     outside_url = models.URLField(null=True,blank=True)
+    config = postgres_fields.JSONField(default=dict)
     @property
     def slug_or_id(self):
         return self.slug if self.slug else self.id
@@ -91,7 +94,9 @@ class Event(models.Model):
     @property
     def pending(self):
         return self.registrations.filter(Q( status=Registration.STATUS_PENDING_INCOMPLETE)|Q( status=Registration.STATUS_WAITLIST_PENDING)|Q( status=Registration.STATUS_WAITLIST_INCOMPLETE)|Q( status=Registration.STATUS_APPLY_INCOMPLETE)).exclude(test=True).count()
-    
+    @property
+    def accepted(self):
+        return self.registrations.filter(status=Registration.STATUS_APPLIED_ACCEPTED).exclude(test=True).count()
     @property
     def registration_enabled(self):
 #         if self.enable_application:
@@ -143,11 +148,22 @@ def event_logo_path(instance, filename):
    
 class EventPage(models.Model):
     event = models.ForeignKey('Event',related_name='pages')
-    slug = models.SlugField(max_length=50,blank=True)
+    slug = models.SlugField(max_length=50,blank=True,null=True)
     heading = models.CharField(max_length=40)
     body = BleachField()
     class Meta:
         unique_together = (('event','slug'))
+
+# class EventText(models.Model):
+#     TYPE_POST_PRICE = 'POST_PRICE'
+#     TYPE_EMAIL_CONFIRMATION = 'EMAIL_CONFIRMATION'
+#     TYPES = ((TYPE_POST_PRICE,TYPE_POST_PRICE),(TYPE_EMAIL_CONFIRMATION,TYPE_EMAIL_CONFIRMATION))
+#     type = models.CharField(max_length=25,choices=EventText.TYPES)
+#     event = models.ForeignKey('Event',related_name='texts')
+#     html = BleachField(null=True,blank=True)
+#     text = models.TextField(null=True,blank=True)
+#     class Meta:
+#         unique_together = (('event','type'))
 
 class Price(models.Model):
     event = models.ForeignKey('Event',related_name='prices')
@@ -158,10 +174,12 @@ class Price(models.Model):
     coupon_code = models.CharField(max_length=25,null=True,blank=True)
     start_date = models.DateField(null=True,blank=True)
     end_date = models.DateField(null=True,blank=True)
+    quantity = models.PositiveIntegerField(null=True)
     def __unicode__(self):
         return mark_safe('<span title="%s"><b>$%s</b> - %s</span>' % (self.description,str(self.amount),self.name))
     class Meta:
-        unique_together = (('event','coupon_code'))
+        ordering = ('order',)
+#         unique_together = (('event','coupon_code'))
     
 class Registration(models.Model):
     STATUS_REGISTERED = 'REGISTERED'
@@ -195,10 +213,10 @@ class Registration(models.Model):
 #     institution = models.CharField(max_length=100,null=True,blank=True)
 #     department = models.CharField(max_length=100,null=True,blank=True)
 #     special_requests = models.TextField(null=True,blank=True)
-    price = models.ForeignKey('Price',null=True,blank=True)
+    price = models.ForeignKey('Price',null=True,blank=True,on_delete=models.PROTECT,related_name='registrations')
     email_messages = models.ManyToManyField(MailerMessage,related_name='registrations')
     test = models.BooleanField(default=False)
-    registered_by = models.ForeignKey(User,null=True,blank=True)
+    registered_by = models.ForeignKey(User,on_delete=models.SET_NULL,null=True,blank=True)
     admin_notes = models.TextField(null=True,blank=True)
     data = JSONField(null=True, blank=True)
     def get_form_value(self,name):
@@ -250,7 +268,7 @@ class Payment(models.Model):
     STATUS_PAID = 'PAID'
     STATUS_ERROR = 'ERROR'
     STATUS_CHOICES = ((STATUS_UNPAID,'Unpaid'),(STATUS_PENDING,'Pending'),(STATUS_PAID,'Paid'),(STATUS_CANCELLED,'Cancelled'),(STATUS_INVALID_AMOUNT,'Invalid Amount'),(STATUS_ERROR,'Error'))
-    processor = models.ForeignKey('PaymentProcessor',null=True,blank=True)
+    processor = models.ForeignKey('PaymentProcessor',null=True,blank=True,on_delete=models.PROTECT)
     status = models.CharField(max_length=20,default=STATUS_UNPAID,choices=STATUS_CHOICES)
     paid_at = models.DateTimeField(blank=True,null=True)
     registration = models.OneToOneField(Registration,related_name='payment')
@@ -276,7 +294,7 @@ class Payment(models.Model):
 class PaymentProcessor(models.Model):
     processor_id = models.CharField(max_length=30)
 #     group = models.ForeignKey(Group)
-    organizer = models.ForeignKey(Organizer,related_name='payment_processors')
+    organizer = models.ForeignKey(Organizer,on_delete=models.PROTECT,related_name='payment_processors')
     name = models.CharField(max_length=50)
     description = models.TextField(blank=True)
     hidden = models.BooleanField(default=False)

@@ -12,6 +12,11 @@ from django.forms.widgets import  TextInput
 from django.db.models.query_utils import Q
 from datetimewidget.widgets import DateTimeWidget, DateWidget
 
+def _raw_value(form, fieldname):
+    field = form.fields[fieldname]
+    prefix = form.add_prefix(fieldname)
+    return field.widget.value_from_datadict(form.data, form.files, prefix)
+
 class AngularDatePickerInput(TextInput):
     def render(self, name, value, attrs={}):
         attrs.update({
@@ -36,6 +41,7 @@ class EventForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
         super(EventForm,self).__init__(*args, **kwargs)
         self.fields['organizer'].queryset = Organizer.objects.filter(user_permissions__user=user,user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN)
+        self.fields['open_until'].required = False
         #Make open_until default to start_time if not provided
         data = self.data.copy()
         data['open_until'] = self.data.get('open_until') or self.data.get('start_time','')[:10]
@@ -43,6 +49,12 @@ class EventForm(forms.ModelForm):
     body = forms.CharField(label='Event page',help_text='This is the main page for your event and should contain most information about your event.',widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     description = forms.CharField(label='Brief event description',help_text='This should be a brief description of your event, and will be displayed during the registration process.',widget=TinyMCE(attrs={'cols': 80, 'rows': 15}))
     cancellation_policy = forms.CharField(required=False,widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
+    def clean(self):
+        cleaned_data = super(EventForm, self).clean()
+        start_time = cleaned_data.get("start_time")
+        end_time = cleaned_data.get("end_time")
+        if start_time and end_time and (start_time > end_time):
+            self.add_error('start_time', 'Start time should not be later than end time.')
     class Meta:
         model=Event
         fields = ('organizer','title','active','advertise','enable_waitlist','enable_application','capacity',
@@ -128,9 +140,9 @@ class AdminRegistrationStatusForm(forms.ModelForm):
         
 class PriceForm(forms.Form):
     template = 'ezreg/registration/price.html'
-    price = forms.ModelChoiceField(Price,required=True,empty_label=None,widget=forms.widgets.RadioSelect)
+    price = forms.ModelChoiceField(queryset=Price.objects.all(),required=True,empty_label=None,widget=forms.widgets.RadioSelect)
     coupon_code = forms.CharField(required=False)
-    payment_method = forms.ModelChoiceField(PaymentProcessor,required=True,empty_label=None,widget=forms.widgets.RadioSelect)
+    payment_method = forms.ModelChoiceField(queryset=PaymentProcessor.objects.all(),required=True,empty_label=None,widget=forms.widgets.RadioSelect)
     def __init__(self, *args, **kwargs):
         self.event = kwargs.pop('event')
         super(PriceForm,self).__init__(*args, **kwargs)
@@ -143,16 +155,31 @@ class PriceForm(forms.Form):
         if not self.event.prices.filter(coupon_code__isnull=False).count():
             del self.fields['coupon_code']
         else:
-            coupon_code = self._raw_value('coupon_code')
+            coupon_code = _raw_value(self,'coupon_code')#self._raw_value('coupon_code') #This went away in 1.9
             if coupon_code:
-                self.coupon_price = self.event.prices.filter(coupon_code=coupon_code).first()
+                self.coupon_price = self.available_prices_queryset(include_coupons=True).filter(coupon_code=coupon_code).first()
                 if self.coupon_price:
                     self.data[self.add_prefix('price')]=self.coupon_price.id
-                
     def get_payment_method_queryset(self):
         return self.event.payment_processors.filter(hidden=False)
+    def available_prices_queryset(self,include_coupons=False):
+        qs = self.event.prices.exclude(start_date__isnull=False,start_date__gt=datetime.today()).exclude(end_date__isnull=False,end_date__lt=datetime.today()).order_by('order')
+        
+        #Exclude any prices that are sold out
+        soldout_ids = []
+        for price in qs:
+            if price.quantity and price.quantity > 0:
+                if price.registrations.filter(status__in=[Registration.STATUS_REGISTERED,Registration.STATUS_PENDING_INCOMPLETE]).count() >= price.quantity:
+                    soldout_ids.append(price.id)
+        if len(soldout_ids)>0:
+            qs = qs.exclude(id__in=soldout_ids)
+
+        if include_coupons:
+            return qs
+        else:
+            return qs.filter(Q(coupon_code__isnull=True)|Q(coupon_code=''))
     def get_price_queryset(self):
-        prices = self.event.prices.exclude(start_date__isnull=False,start_date__gt=datetime.today()).exclude(end_date__isnull=False,end_date__lt=datetime.today()).exclude(coupon_code__isnull=False).order_by('order')
+        prices = self.available_prices_queryset(include_coupons=False)#self.event.prices.exclude(start_date__isnull=False,start_date__gt=datetime.today()).exclude(end_date__isnull=False,end_date__lt=datetime.today()).exclude(coupon_code__isnull=False).order_by('order')
         #Add coupon price if available
         if self.coupon_price:
             price_ids = [p.id for p in prices]+[self.coupon_price.id]
@@ -170,7 +197,7 @@ class PriceForm(forms.Form):
 
 #Form that allows admin to choose ANY price for an event 
 class AdminPriceForm(forms.Form):
-    price = forms.ModelChoiceField(Price,required=True,empty_label=None,widget=forms.widgets.RadioSelect)
+    price = forms.ModelChoiceField(Price.objects.all(),required=True,empty_label=None,widget=forms.widgets.RadioSelect)
     def __init__(self, *args, **kwargs):
         self.event = kwargs.pop('event')
         super(AdminPriceForm,self).__init__(*args, **kwargs)
@@ -181,6 +208,14 @@ class AdminPriceForm(forms.Form):
 
 
 class AdminPaymentForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(AdminPaymentForm, self).__init__(*args, **kwargs)
+        instance = getattr(self, 'instance', None)
+        print "ADMIN PAYMENT FORM"
+        if instance and instance.status == Payment.STATUS_PAID:
+            print "PAID"
+            self.fields['status'].disabled = True
+            self.fields['status'].help_text = 'A status of PAID may not be changed.  Refunds may be issued, but the original status must remain.'
     class Meta:
         model=Payment
         fields = ('status','refunded')

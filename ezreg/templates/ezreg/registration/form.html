@@ -10,7 +10,7 @@
 {% include 'ezreg/partials/registration_header.html' %}
 
 <p><i>Please enter registration information</i></p>
-<form action="" method="post">{% csrf_token %}
+<form action="" method="post" novalidate>{% csrf_token %}
 {% include 'ezreg/partials/wizard_forms.html' %}
 <input type="submit" value="{% trans "Continue" %}" class="btn btn-primary"/>
 <button name="wizard_goto_step" type="submit" value="cancel" class="btn btn-danger pull-right">{% trans "Cancel" %}</button>

@@ -1,13 +1,18 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+{% load ezreg_filters %}
 {% block headend %}
 
-<script src="/static/ezreg/js/pages/event.js"></script>
 <style>
 .datepicker{
 	max-width:200px;
 }
 </style>
+{% endblock %}
+
+{% block scripts %}
+{{block.super}}
+<script src="/static/ezreg/js/pages/event.js"></script>
 {% endblock %}
     
 {% block content %}
@@ -32,15 +37,27 @@
 	</span>
 	</h1>
 </div>
-<tabset>
+<tabset ng-cloak>
 {% if 'admin' in permissions %}
 <tab heading="Event">
-
+{% if form.errors %}<h2 class="error">Please correct form errors below.</h2>{% endif %}
 <form method="POST" action="." enctype="multipart/form-data">
 {% csrf_token %}
 {{form|crispy}}
 <button class="btn btn-primary">{% if event.id %}Save{% else %}Create{% endif %}</button>
 </form>
+</tab>
+<tab heading="Custom Text">
+<div ng-controller="EventTextController" ng-init='init({event_id:"{{event.id}}",config:{{custom_texts|safe}} })'>
+<div ng-repeat="(id, c) in config">
+<h3>{[c.title]}</h3>
+<p>{[c.description]}</p>
+<textarea style="width:100%;height:200px;" ui-tinymce ng-model="event.config.CUSTOM_TEXTS[id].html" ng-if="c.html"></textarea>
+<textarea style="width:100%;height:200px;" ng-model="event.config.CUSTOM_TEXTS[id].text" ng-if="c.text"></textarea>
+</div>
+<button class="btn btn-primary" ng-click="save()">Save</button>
+
+</div>
 </tab>
 <tab heading="Form">
 {% include 'ezreg/event/form_designer.html'%}
@@ -49,11 +66,11 @@
 <div ng-controller="PriceController" ng-init="init({'event_id':'{{event.id}}','organizer':'{{event.organizer_id}}','event_processors_url':'{% url 'event_payment_processors' event=event.id %}'})">
 	<h3>Prices</h3>
 	<table class="table" ng-if="prices.length > 0">
-		<tr><th>Order</th><th>* Name</th><th>* Amount</th><th>Description</th><th>Coupon Code</th><th>Start Date</th><th>End Date</th><th></th></tr>
+		<tr><th>Order</th><th>* Name</th><th>* Amount</th><th>Description</th><th>Coupon Code †</th><th>Start Date (inclusive)</th><th>End Date (inclusive)</th><th>Quantity</th><th></th></tr>
 		<tr ng-repeat="price in prices">
 			<td ng-class="{'has-error':price.errors.order}">
 				<ul ng-if="price.errors.order"><li ng-repeat="error in price.errors.order">{[error]}</li></ul>
-				<input type="number" title="{[price.errors.order]}" style="width:80px;"class="form-control" ng-model="price.order"/>
+				<input type="number" title="{[price.errors.order]}" style="width:80px;" class="form-control" ng-model="price.order"/>
 			</td>
 			<td ng-class="{'has-error':price.errors.name}">
 				<ul ng-if="price.errors.name"><li ng-repeat="error in price.errors.name">{[error]}</li></ul>
@@ -89,11 +106,16 @@
 		            </span>
 	            </p>
 			</td>
+			<td ng-class="{'has-error':price.errors.quantity}">
+				<ul ng-if="price.errors.quantity"><li ng-repeat="error in price.errors.quantity">{[error]}</li></ul>
+				<input type="number" title="{[price.errors.quantity]}" class="form-control" ng-model="price.quantity" style="width:80px;"/>
+			</td>
 			<td>
 				<button ng-click="deletePrice(price,$index)" class="btn btn-danger btn-sm">Delete</button>
 			</td>
 		</tr>
 	</table>
+	<p><b>† When using coupon codes, please ensure that any duplicate coupon codes do not have overlapping dates.</b></p>
 	<button class="btn btn-primary" ng-click="addPrice()">Add</button> <button class="btn btn-success" ng-click="savePrices()">Save</button>
 	<h3>Payment Processors</h3>
 	<table class="table" ng-if="processors.length > 0">
@@ -149,6 +171,9 @@
 </tab>
 <tab heading="Emails">
 {% include 'ezreg/event/emails.html'%}
+</tab>
+<tab heading="Logs">
+<log-table content-type="{{event|content_type_id}}" object-id="'{{event.id}}'"></log-table>
 </tab>
 </tabset>
 

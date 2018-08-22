@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load crispy_forms_tags %}
+{% load ezreg_filters %}
 
 {% block endhead %}
 {{ wizard.form.media }}
@@ -8,7 +9,7 @@
 
 {% block content %}
 {% include 'ezreg/partials/registration_header.html' %}
-
+{% event_custom_text event 'PRICE_FORM' %}
 <p><i>Choose price details</i></p>
 <form action="" method="post">{% csrf_token %}
 {% include 'ezreg/partials/wizard_forms.html' %}

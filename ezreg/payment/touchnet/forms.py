@@ -16,5 +16,4 @@ class TouchnetPostForm(forms.Form):
     CANCEL_LINK = forms.URLField(required=False,widget=forms.HiddenInput())
     AMT = forms.CharField(widget=forms.HiddenInput)
     VALIDATION_KEY = forms.CharField(widget=forms.HiddenInput())
- 
-    
+

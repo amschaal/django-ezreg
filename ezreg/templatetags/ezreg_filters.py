@@ -1,4 +1,5 @@
 from django import template
+from django.contrib.contenttypes.models import ContentType
 
 register = template.Library()
 
@@ -8,3 +9,19 @@ def form_value(value):
     if isinstance(value, list):
         return ', '.join(value)
     return value
+
+@register.simple_tag
+def event_custom_text(event, id, html=True):
+    from django_bleach.templatetags.bleach_tags import bleach_value
+#     return str(event)
+    custom_texts = event.config.get('CUSTOM_TEXTS',{})
+    custom_text = custom_texts.get(id,{})
+    if html:
+        return bleach_value(custom_text.get('html',''))
+    return bleach_value(custom_text.get('text',''))
+
+@register.filter
+def content_type_id(obj):
+    if not obj:
+        return False
+    return ContentType.objects.get_for_model(obj).pk

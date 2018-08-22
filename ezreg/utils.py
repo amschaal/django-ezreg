@@ -15,6 +15,8 @@ def format_registration_data(event,registrations,encode_utf8=True):
                           'payment.status':{'label':'Payment Status'},
                           'payment.paid_at':{'label':'Paid at'},
                           'payment.amount':{'label':'Amount'},
+                          'payment.coupon':{'label':'Coupon code'},
+                          'payment.refunded':{'label':'Refunded'},
                           'payment.external_id':{'label':'External_id'},
                           },
                 'data':[]
@@ -38,7 +40,7 @@ def format_registration_data(event,registrations,encode_utf8=True):
 
         #Add selected payment fields
         if payment:
-            data.update({'payment.price':r.price.name,'payment.processor':payment.processor,'payment.status':payment.status,'payment.paid_at':payment.paid_at,'payment.amount':payment.amount, 'payment.external_id':payment.external_id})
+            data.update({'payment.price':r.price.name,'payment.processor':payment.processor,'payment.status':payment.status,'payment.paid_at':payment.paid_at,'payment.amount':payment.amount,'payment.coupon':r.price.coupon_code,'payment.refunded':payment.refunded, 'payment.external_id':payment.external_id})
             #Add selected payment processor fields
             for processor in event.payment_processors.all():
                 exportable_fields = processor.get_processor().exportable_fields
@@ -47,8 +49,12 @@ def format_registration_data(event,registrations,encode_utf8=True):
                         val = payment.data.get(name,None)
                         if val:
                             data['processor_%d_%s'%(processor.id,name)] = val
+        elif r.price:
+            data.update({'payment.price':r.price.name})
+            if True:#r.price.amount == 0:
+                data.update({'payment.amount':r.price.amount})
         if encode_utf8:
             for key, val in data.iteritems():
-                data[key] = unicode(form_value(val)).encode("utf-8") if val else None
+                data[key] = unicode(form_value(val)).encode("utf-8") if val is not None else None
         reg_data['data'].append(data)
     return reg_data

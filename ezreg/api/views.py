@@ -1,21 +1,23 @@
 from rest_framework import viewsets, status
 from ezreg.api.serializers import PriceSerializer, PaymentProcessorSerializer,\
     EventPageSerializer, RegistrationSerializer, MailerMessageSerializer,\
-    EventSerializer
+    EventSerializer, DetailedEventSerializer
 from ezreg.models import Price, PaymentProcessor, Event, EventProcessor,\
     EventPage, Registration, OrganizerUserPermission
-from rest_framework.decorators import api_view, permission_classes, list_route
+from rest_framework.decorators import api_view, permission_classes, list_route,\
+    detail_route
 from rest_framework.response import Response
 from mailqueue.models import MailerMessage
 from ezreg.email import email_status
 from ezreg.decorators import event_access_decorator
-from django.template.defaultfilters import removetags
 from django_bleach.utils import get_bleach_default_options
 import bleach
 from ezreg.utils import format_registration_data
 from ezreg.api.permissions import EventPermission
 from django.utils import timezone
 from django.http.response import HttpResponse
+from ezreg.api.filters import MultiFilter
+from django_logger.models import Log
 
 # @todo: Secure these for ALL methods (based on price.event.group)!!!
 class PriceViewset(viewsets.ModelViewSet):
@@ -39,8 +41,19 @@ class EventViewset(viewsets.ModelViewSet):
     search_fields = ('title',)
     ordering_fields = ('start_time','title','organizer__name')
     permission_classes = (EventPermission,)
+    def get_serializer_class(self):
+        if self.request.query_params.get('serializer','simple') == 'simple':
+            return EventSerializer
+        else:
+            return DetailedEventSerializer
+        return viewsets.ModelViewSet.get_serializer_class(self)
     def get_queryset(self):
         return Event.objects.filter(organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_VIEW,organizer__user_permissions__user=self.request.user)
+#     @detail_route(methods=['GET'])
+#     def get_config(self,request,*args,**kwargs):
+#         instance = self.get_object()
+#         serializer = self.get_serializer(instance)
+#         return Response(serializer.data)
 
 class EventPageViewset(viewsets.ModelViewSet):
     serializer_class = EventPageSerializer
@@ -51,12 +64,14 @@ class EventPageViewset(viewsets.ModelViewSet):
 
 class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = RegistrationSerializer
+    filter_backends = viewsets.ReadOnlyModelViewSet.filter_backends + [MultiFilter]
 #     filter_fields = ('status','event','email','first_name','last_name')
+    multi_filters = ['status__in','payment__status__in']
     filter_fields = {'status':['exact', 'icontains'],'registered':['gte','lte'],'event':['exact'],'event__title':['icontains'],'event__organizer__name':['icontains'],'email':['exact', 'icontains'],'first_name':['exact', 'icontains'],'last_name':['exact', 'icontains'],'payment__processor__name':['exact'],'payment__status':['exact'],'test':['exact']} 
 #     {'name': ['exact', 'icontains'],
 #                   'price': ['exact', 'gte', 'lte'],
 #                  }
-    ordering_fields = ('status','first_name','last_name','email','registered','payment__amount','payment__status','payment__processor__name')
+    ordering_fields = ('status','first_name','last_name','email','registered','payment__amount','payment__status','payment__processor__name','event__title','event__organizer__name')
     search_fields = ('status','email',)
     def get_queryset(self):
         return Registration.objects.filter(event__organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_VIEW,event__organizer__user_permissions__user=self.request.user)
@@ -64,7 +79,7 @@ class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
     def export_registrations(self,request):
         import tablib
         registrations = self.filter_queryset(self.get_queryset())
-        fields = ['registered','event','organizer','first_name','last_name','email','amount','processor','status','payment status','admin_notes','test']
+        fields = ['registered','event_id','event','organizer','first_name','last_name','email','price','amount','coupon code','refunded','processor','status','payment status','admin_notes','test']
         
         #add headers
         dataset = tablib.Dataset(headers=fields)
@@ -72,9 +87,12 @@ class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
         #write data
         for r in registrations:
             amount = None if not hasattr(r,'payment') else r.payment.amount
-            processor = None if not hasattr(r,'payment') else r.payment.processor.name
+            refunded = None if not hasattr(r,'payment') else r.payment.refunded
+            price = None if not r.price else r.price.name
+            coupon_code = None if not r.price else r.price.coupon_code
+            processor = None if not hasattr(r,'payment') or not r.payment.processor else r.payment.processor.name
             payment_status = None if not hasattr(r,'payment') else r.payment.status
-            dataset.append([r.registered.strftime("%Y-%m-%d %H:%M"),r.event.title,r.event.organizer.name,r.first_name,r.last_name,r.email,amount,processor,r.status,payment_status,r.admin_notes,r.test])
+            dataset.append([r.registered.strftime("%Y-%m-%d %H:%M"),r.event.id,r.event.title,r.event.organizer.name,r.first_name,r.last_name,r.email,price,amount,coupon_code,refunded,processor,r.status,payment_status,r.admin_notes,r.test])
         filetype = request.query_params.get('export_format','xls')
         filetype = filetype if filetype in ['xls','xlsx','csv','tsv','json'] else 'xls'
         content_types = {'xls':'application/vnd.ms-excel','tsv':'text/tsv','csv':'text/csv','json':'text/json','xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
@@ -124,8 +142,9 @@ def event_payment_processors(request, event):
 def update_event_statuses(request, event):
     registrations = event.registrations.filter(id__in=request.data.get('selected'))
     registrations.update(status=request.data.get('status'))
-    if request.data.get('send_email'):
-        for registration in registrations:
+    for registration in registrations:
+        Log.create(text='Registration status for %s updated to %s by %s'%(registration.email,registration.status,request.user.username),objects=[registration,registration.event,request.user])
+        if request.data.get('send_email'):
             email_status(registration)
     return Response({'status':'success'})
 

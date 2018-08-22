@@ -11,16 +11,16 @@ class JSONSerializerField(serializers.Field):
         return value
 
 class PriceSerializer(serializers.ModelSerializer):
-    coupon_code = serializers.CharField(allow_blank=True, allow_null=True)
-    def to_internal_value(self, data):
-        if data.has_key('coupon_code'):
-            if not data['coupon_code']: 
-                data['coupon_code'] = None
-        return super(PriceSerializer,self).to_internal_value(data)
+#     coupon_code = serializers.CharField(allow_blank=True, allow_null=True, required=False)
+#     def to_internal_value(self, data):
+#         if data.has_key('coupon_code'):
+#             if not data['coupon_code']: 
+#                 data['coupon_code'] = None
+#         return super(PriceSerializer,self).to_internal_value(data)
     class Meta:
         model = Price
-        fields = ('id','order','event','name','amount','description','coupon_code','start_date','end_date')
-    
+        fields = ('id','order','event','name','amount','description','coupon_code','start_date','end_date','quantity')
+        extra_kwargs = {'coupon_code': {'required': False,'allow_blank':True,'allow_null':True,'default':None}}
 
 class PaymentProcessorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -35,6 +35,7 @@ class EventPageSerializer(serializers.ModelSerializer):
 class OrganizerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organizer
+        fields = '__all__'
 
 class EventSerializer(serializers.ModelSerializer):
     registered = serializers.ReadOnlyField()
@@ -42,11 +43,18 @@ class EventSerializer(serializers.ModelSerializer):
     applied = serializers.ReadOnlyField()
     cancelled = serializers.ReadOnlyField()
     pending = serializers.ReadOnlyField()
+    accepted = serializers.ReadOnlyField()
     registration_enabled = serializers.ReadOnlyField()
     organizer = OrganizerSerializer(read_only=True)
     class Meta:
         model = Event
-        fields = ('id','organizer','start_time','end_time','title','capacity','registered','waitlisted','applied','cancelled','pending','registration_enabled')
+        fields = ('id','organizer','start_time','end_time','title','capacity','registered','waitlisted','applied','accepted','cancelled','pending','registration_enabled','config')
+
+class DetailedEventSerializer(EventSerializer):
+    form_fields = serializers.ReadOnlyField()
+    class Meta:
+        model = Event
+        fields = ('id','organizer','start_time','end_time','title','capacity','registered','waitlisted','applied','cancelled','pending','registration_enabled','config','form_fields')
 
 class RegistrationEventSerializer(serializers.ModelSerializer):
     organizer = OrganizerSerializer(read_only=True)

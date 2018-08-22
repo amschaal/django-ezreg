@@ -8,7 +8,7 @@
 <a class="btn btn-primary pull-right" href="{% url 'create_event'%}">Create</a>
 {% endif %}
 </h1></div>
-<div ng-controller="EventsController" ng-init="init()">
+<div ng-controller="EventsController" ng-init="init()" ng-cloak>
 	<label><input type="checkbox" ng-model="filters.active" ng-true-value="'True'", ng-false-value="''"/> Only show active events</label>
 	<table ng-table="tableParams" class="table table-condensed table-bordered table-striped">
       <tr ng-repeat="row in $data">
@@ -19,6 +19,7 @@
         <td data-title="'Registered'">{[row.registered]}</td>
         <td data-title="'Waitlisted'">{[row.waitlisted]}</td>
         <td data-title="'Applied'">{[row.applied]}</td>
+        <td data-title="'Accepted'">{[row.accepted]}</td>
         <td data-title="'Pending'">{[row.pending]}</td>
         <td data-title="'Cancelled'">{[row.cancelled]}</td>
       </tr>

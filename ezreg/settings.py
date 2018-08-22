@@ -35,10 +35,15 @@ INSTALLED_APPS = (
     'ezreg',
     'crispy_forms',
     'rest_framework',
+    'django_filters',
+    'rest_framework_filters',
     'datetimewidget',
     'mailqueue',
     'django_json_forms',
     'django_bleach',
+    'cas',
+    'compressor',
+    'django_logger',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -72,6 +77,13 @@ TEMPLATES = [
         },
     },
 ]
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    # other finders..
+    'compressor.finders.CompressorFinder',
+)
 
 WSGI_APPLICATION = 'ezreg.wsgi.application'
 
@@ -124,6 +136,7 @@ TINYMCE_DEFAULT_CONFIG = {
     'relative_urls': False,
     'plugins': "table",
     'theme_advanced_buttons3_add' : "tablecontrols",
+    'theme_advanced_resizing': True
 }
 
 ANONYMOUS_USER_ID = None
@@ -131,7 +144,7 @@ ANONYMOUS_USER_ID = None
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend','rest_framework.filters.OrderingFilter','rest_framework.filters.SearchFilter',),
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend','rest_framework.filters.OrderingFilter','rest_framework.filters.SearchFilter',),
     'DEFAULT_PAGINATION_CLASS': 'ezreg.api.pagination.ResultsSetPagination',
 }
 
@@ -145,7 +158,7 @@ BLEACH_ALLOWED_TAGS = [
     "ul", "ol", "li", "dd", "dt",
     "img",
     "table", "thead", "tbody", "tfoot", "tr", "th", "td",
-    "a"
+    "a", "iframe"
 ]
 
 # Which HTML attributes are allowed
@@ -163,6 +176,7 @@ BLEACH_STRIP_TAGS = True
 # Strip comments, or leave them in.
 BLEACH_STRIP_COMMENTS = False
 
+COMPRESS_ENABLED = True
 
 from config import *
 
