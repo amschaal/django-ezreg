@@ -25,12 +25,13 @@ from django_logger.models import Log
 
 def home(request, organizer_slug=None):
     organizer = Organizer.objects.filter(slug=organizer_slug).first()
-    upcoming = Event.objects.filter(advertise=True,start_time__gte=datetime.today()).order_by('start_time')
-    past = Event.objects.filter(advertise=True,start_time__lt=datetime.today()).order_by('-start_time')
     if organizer:
-        upcoming = upcoming.filter(organizer=organizer)
-        past= past.filter(organizer=organizer)
-    return render(request, 'ezreg/home.html', {'upcoming':upcoming,'past':past[:5],'organizer':organizer})
+        upcoming = Event.objects.filter(advertise=True,start_time__gte=datetime.today(),organizer=organizer).order_by('start_time')
+        past= Event.objects.filter(advertise=True,start_time__lt=datetime.today(),organizer=organizer).order_by('-start_time')
+    else:
+        upcoming = Event.objects.filter(advertise=True,start_time__gte=datetime.today()).order_by('start_time')
+        past = Event.objects.filter(advertise=True,start_time__lt=datetime.today()).order_by('-start_time')[:5]
+    return render(request, 'ezreg/home.html', {'upcoming':upcoming,'past':past,'organizer':organizer})
 
 def events(request,page='upcoming'):
     if page == 'past':
