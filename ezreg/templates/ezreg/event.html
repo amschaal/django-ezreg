@@ -34,7 +34,7 @@
 	{% elif event.can_waitlist %}
 		<a href="{% url 'waitlist' slug_or_id=event.slug_or_id %}" class="btn btn-warning btn">Waitlist</a>
 	{% elif not event.registration_enabled %}
-		<h3>Registration is closed for this event</h3>
+		<!-- <h3>Registration is closed for this event</h3> -->
 	{% else %}
 		<h3>Registration is full</h3>
 	{% endif %}

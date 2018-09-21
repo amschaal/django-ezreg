@@ -24,7 +24,7 @@ from decimal import Decimal
 from django_logger.models import Log
 
 def home(request):
-    upcoming = Event.objects.filter(advertise=True,start_time__gte=datetime.today()).filter(Q(active=True)|Q(outside_url__isnull=False)).order_by('start_time')
+    upcoming = Event.objects.filter(advertise=True,start_time__gte=datetime.today()).order_by('start_time')
     past = Event.objects.filter(advertise=True,start_time__lt=datetime.today()).order_by('-start_time')[:5]
     return render(request, 'ezreg/home.html', {'upcoming':upcoming,'past':past})
 
@@ -33,7 +33,7 @@ def events(request,page='upcoming'):
         events = Event.objects.filter(advertise=True,open_until__lt=datetime.today()).order_by('-start_time')
         template = 'ezreg/partials/past_events.html'
     else:
-        events = Event.objects.filter(advertise=True,active=True,open_until__gte=datetime.today()).order_by('start_time')
+        events = Event.objects.filter(advertise=True,open_until__gte=datetime.today()).order_by('start_time')
         template = 'ezreg/partials/upcoming_events.html'
     return render(request, 'ezreg/events.html', {'events':events,'template':template})
 
