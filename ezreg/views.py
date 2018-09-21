@@ -336,7 +336,7 @@ def export_registrations(request, event):
 
     filetype = request.POST.get('format','xls')
     filetype = filetype if filetype in ['xls','xlsx','csv','tsv','json'] else 'xls'
-    content_types = {'xls':'application/vnd.ms-excel','csv':'text/csv','json':'text/json','xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
+    content_types = {'xls':'application/vnd.ms-excel','csv':'text/csv','tsv':'text/tsv','json':'text/json','xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
     response_kwargs = {
             'content_type': content_types[filetype]
         }
