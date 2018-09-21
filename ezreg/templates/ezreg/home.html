@@ -1,5 +1,9 @@
 {% extends 'base_with_banner.html' %}
 {% block content %}
+{% if organizer %}
+<h3>Events organized by: {{organizer.name}}</h3>
+<h4><a href="{% url 'home' %}">Return</a> to list of all events</h4>
+{% endif %}
 {% include "ezreg/partials/upcoming_events.html" with events=upcoming more=False%}
 {% if past.count > 0 %}
 {% include "ezreg/partials/past_events.html" with events=past more=True%}

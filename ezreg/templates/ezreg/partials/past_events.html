@@ -19,7 +19,7 @@
 	              		<a href="{% url 'event' slug_or_id=event.slug_or_id %}">{{event.title}}</a>
 	              </td>
 	              <td>
-	              		{{event.organizer}}
+	              		<a href="{% url 'organizer_events' organizer_slug=event.organizer.slug %}">{{event.organizer}}</a>
 	              </td>
 	            </tr>
               {% endfor %}
