@@ -1,11 +1,28 @@
 {% extends 'base_with_banner.html' %}
 {% block content %}
+<label class="align-right">Filter by organizer: 
+<select id="organizer" class="select form-control" onChange="goToOrganizerEvents()">
+<option value="/" {% if not organizer %}selected{% endif %}>ALL</option>
+{% for o in organizers %}
+<option value="{% url 'organizer_events' organizer_slug=o.slug %}" {% if o == organizer %}selected{% endif %}>{{o}}</option>
+{% endfor %}
+</select>
+</label>
 {% if organizer %}
-<h3>Events organized by: {{organizer.name}}</h3>
 <h4><a href="{% url 'home' %}">Return</a> to list of all events</h4>
 {% endif %}
 {% include "ezreg/partials/upcoming_events.html" with events=upcoming more=False%}
 {% if past.count > 0 %}
+{% if organizer %}
+{% include "ezreg/partials/past_events.html" with events=past more=False%}
+{% else %}
 {% include "ezreg/partials/past_events.html" with events=past more=True%}
 {% endif %}
+{% endif %}
+<script>
+function goToOrganizerEvents() {
+    window.location.href = $('#organizer').val();
+}
+</script>
+
 {% endblock %}
