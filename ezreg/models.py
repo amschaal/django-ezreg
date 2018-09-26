@@ -190,6 +190,7 @@ class Registration(models.Model):
     STATUS_APPLIED = 'APPLIED'
     STATUS_APPLY_INCOMPLETE = 'APPLY_INCOMPLETE'
     STATUS_APPLIED_ACCEPTED = 'APPLIED_ACCEPTED'
+    STATUS_APPLIED_DENIED = 'APPLIED_DENIED'
     STATUS_CANCELLED = 'CANCELLED'
     STATUSES = ((STATUS_REGISTERED,'Registered'),
                 (STATUS_PENDING_INCOMPLETE,'Pending'),
@@ -197,10 +198,10 @@ class Registration(models.Model):
                 (STATUS_WAITLISTED,'Waitlisted'),
                 (STATUS_WAITLIST_INCOMPLETE,'Waitlist- incomplete'),
                 (STATUS_APPLIED_ACCEPTED,'Application accepted'),
+                (STATUS_APPLIED_ACCEPTED,'Application denied'),
                 (STATUS_APPLIED,'Applied'),
                 (STATUS_APPLY_INCOMPLETE,'Application- incomplete'),
                 (STATUS_CANCELLED,'Cancelled')
-                
                 )
     id = models.CharField(max_length=10,default=id_generator,primary_key=True)
     key = models.CharField(max_length=10,default=id_generator)
