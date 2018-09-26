@@ -198,7 +198,7 @@ class Registration(models.Model):
                 (STATUS_WAITLISTED,'Waitlisted'),
                 (STATUS_WAITLIST_INCOMPLETE,'Waitlist- incomplete'),
                 (STATUS_APPLIED_ACCEPTED,'Application accepted'),
-                (STATUS_APPLIED_ACCEPTED,'Application denied'),
+                (STATUS_APPLIED_DENIED,'Application denied'),
                 (STATUS_APPLIED,'Applied'),
                 (STATUS_APPLY_INCOMPLETE,'Application- incomplete'),
                 (STATUS_CANCELLED,'Cancelled')

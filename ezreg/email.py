@@ -91,7 +91,7 @@ def email_status(registration):
     if registration.status == Registration.STATUS_APPLIED_ACCEPTED:
         return send_email(to, from_addr, 'Your application has been accepted for "%s"'%registration.event.title, 'ezreg/emails/application_pending.txt', html_template='ezreg/emails/application_pending.html', context={'registration':registration}, bcc=bcc, registration=registration)
     if registration.status == Registration.STATUS_APPLIED_DENIED:
-        return send_email(to, from_addr, 'Your application has been denied for "%s"'%registration.event.title, 'ezreg/emails/application_denied.txt', context={'registration':registration}, bcc=bcc, registration=registration)
+        return send_email(to, from_addr, 'Your application has been denied for "%s"'%registration.event.title, 'ezreg/emails/application_denied.txt', html_template='ezreg/emails/application_denied.html', context={'registration':registration}, bcc=bcc, registration=registration)
     if registration.status == Registration.STATUS_REGISTERED:
         return send_ical_email(registration.event,to, from_addr, 'You are registered for "%s"'%registration.event.title, 'ezreg/emails/registered.txt', html_template='ezreg/emails/registered.html', context={'registration':registration}, bcc=bcc, registration=registration)
     if registration.status == Registration.STATUS_CANCELLED:
