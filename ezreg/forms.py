@@ -219,6 +219,11 @@ class AdminPaymentForm(forms.ModelForm):
     class Meta:
         model=Payment
         fields = ('status','refunded')
+    def clean_refunded(self):
+        refunded = self.cleaned_data['refunded']
+        if refunded and not self.instance.amount or refunded > self.instance.amount:
+            raise ValidationError('You cannot refund more than was paid.')
+        return refunded
 
 
 class PriceFormsetHelper(FormHelper):
