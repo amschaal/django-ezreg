@@ -18,6 +18,7 @@ from django.utils import timezone
 from django.http.response import HttpResponse
 from ezreg.api.filters import MultiFilter
 from django_logger.models import Log
+from django.db.models.aggregates import Count
 
 # @todo: Secure these for ALL methods (based on price.event.group)!!!
 class PriceViewset(viewsets.ModelViewSet):
@@ -25,7 +26,7 @@ class PriceViewset(viewsets.ModelViewSet):
     filter_fields = ('event',)
     search_fields = ('event',)
     def get_queryset(self):
-        return Price.objects.filter(event__organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN,event__organizer__user_permissions__user=self.request.user)
+        return Price.objects.filter(event__organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN,event__organizer__user_permissions__user=self.request.user).annotate(registration_count=Count('registrations'))
 
 class PaymentProcessorViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = PaymentProcessorSerializer
