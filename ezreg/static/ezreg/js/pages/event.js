@@ -11,6 +11,8 @@ function PriceController($scope,$http,growl,Price,PaymentProcessor) {
 	var errorMessageHandler = function(response){
 		growl.error(response.data.error ,{ttl: 5000});
 	};
+	$scope.today = (new Date()).toISOString().slice(0, 10);
+	$scope.tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
 	$scope.selected_processors={};
 	$scope.init = function(params){
 		$scope.event_id = params.event_id;
@@ -69,10 +71,11 @@ function PriceController($scope,$http,growl,Price,PaymentProcessor) {
 	$scope.isActive = function(price) {
 	    if (price.disable)
 	       return false;
-	    var date = new Date();
-	    if (price.start_date && date < price.start_date)
+	    var start_date = price.start_date && price.start_date.toISOString ? (new Date(price.start_date - $scope.tzoffset)).toISOString().slice(0, 10): price.start_date;
+	    var end_date = price.end_date && price.end_date.toISOString ? (new Date(price.end_date - $scope.tzoffset)).toISOString().slice(0, 10): price.end_date;
+	    if (start_date && $scope.today < start_date)
 	       return false;
-	    if (price.end_date && date > price.end_date)
+	    if (end_date && $scope.today > end_date)
            return false;
         return true;
 	}
