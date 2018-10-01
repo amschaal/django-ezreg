@@ -7,6 +7,12 @@
 .datepicker{
 	max-width:200px;
 }
+.price.disable {
+    background-color: #ffe9ed;
+}
+.price.is-active {
+    background-color: #bfe5bf;
+}
 </style>
 {% endblock %}
 
@@ -67,7 +73,7 @@
 	<h3>Prices</h3>
 	<table class="table" ng-if="prices.length > 0">
 		<tr><th>Order</th><th>* Name</th><th>* Amount</th><th>Description</th><th>Coupon Code †</th><th>Start Date (inclusive)</th><th>End Date (inclusive)</th><th>Quantity</th><th title="Number of registrations">#</th><th></th></tr>
-		<tr ng-repeat="price in prices">
+		<tr ng-repeat="price in prices" ng-class="{disable: !isActive(price), 'is-active': isActive(price)}" class="price">
 			<td ng-class="{'has-error':price.errors.order}">
 				<ul ng-if="price.errors.order"><li ng-repeat="error in price.errors.order">{[error]}</li></ul>
 				<input type="number" title="{[price.errors.order]}" style="width:80px;" class="form-control" ng-model="price.order"/>
@@ -79,7 +85,7 @@
 			<td ng-class="{'has-error':price.errors.amount}">
 				<ul ng-if="price.errors.amount"><li ng-repeat="error in price.errors.amount">{[error]}</li></ul>
 				<input title="{[price.errors.amount]}" class="form-control" ng-model="price.amount" ng-if="price.registration_count == 0"/>
-				<span ng-if="price.registration_count > 0"><i class="glyphicon glyphicon-lock" title="Prices with associated registrations may not be deleted, or have their amounts changed."></i>{[price.amount]}</span>
+				<span ng-if="price.registration_count > 0" title="Prices with associated registrations may not be deleted, or have their amounts changed."><i class="glyphicon glyphicon-lock"></i> {[price.amount]}</span>
 			</td>
 			<td ng-class="{'has-error':price.errors.description}">
 				<ul ng-if="price.errors.description"><li ng-repeat="error in price.errors.description">{[error]}</li></ul>	

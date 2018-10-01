@@ -163,7 +163,7 @@ class PriceForm(forms.Form):
     def get_payment_method_queryset(self):
         return self.event.payment_processors.filter(hidden=False)
     def available_prices_queryset(self,include_coupons=False):
-        qs = self.event.prices.exclude(start_date__isnull=False,start_date__gt=datetime.today()).exclude(end_date__isnull=False,end_date__lt=datetime.today()).order_by('order')
+        qs = self.event.prices.exclude(disable=True).exclude(start_date__isnull=False,start_date__gt=datetime.today()).exclude(end_date__isnull=False,end_date__lt=datetime.today()).order_by('order')
         
         #Exclude any prices that are sold out
         soldout_ids = []

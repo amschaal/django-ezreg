@@ -66,6 +66,16 @@ function PriceController($scope,$http,growl,Price,PaymentProcessor) {
 				function(response){growl.error("Saving payment processors failed.",{ttl: 5000});}
 		);
 	}
+	$scope.isActive = function(price) {
+	    if (price.disable)
+	       return false;
+	    var date = new Date();
+	    if (price.start_date && date < price.start_date)
+	       return false;
+	    if (price.end_date && date > price.end_date)
+           return false;
+        return true;
+	}
 }
 
 function EventPageController($scope,$http,growl,EventPage) {
