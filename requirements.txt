@@ -1,4 +1,4 @@
-Django==1.11.10
+Django==1.11.15
 Pillow==3.1.1
 PyYAML==3.13
 Unidecode==0.04.18
