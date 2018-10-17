@@ -84,7 +84,7 @@
 			</td>
 			<td ng-class="{'has-error':price.errors.amount}">
 				<ul ng-if="price.errors.amount"><li ng-repeat="error in price.errors.amount">{[error]}</li></ul>
-				<input title="{[price.errors.amount]}" class="form-control" ng-model="price.amount" ng-if="price.registration_count == 0"/>
+				<input title="{[price.errors.amount]}" class="form-control" ng-model="price.amount" ng-if="!price.registration_count || price.registration_count == 0"/>
 				<span ng-if="price.registration_count > 0" title="Prices with associated registrations may not be deleted, or have their amounts changed."><i class="glyphicon glyphicon-lock"></i> {[price.amount]}</span>
 			</td>
 			<td ng-class="{'has-error':price.errors.description}">
