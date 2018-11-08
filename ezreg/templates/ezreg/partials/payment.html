@@ -1,6 +1,7 @@
 {% if registration.payment %}
 <h2>Payment{% if permissions and 'admin' in permissions%} <a href="{% url 'modify_payment' id=registration.id %}" class="btn btn-primary">Modify</a>{% endif %}</h2>
 <table class="table">
+{%if registration.payment.paid_at %}<tr><th>Paid at</th><td>{{registration.payment.paid_at|date:"DATETIME_FORMAT"}}</td></tr>{% endif %}
 <tr><th>Processor</th><td>{{registration.payment.processor}}</td></tr>
 <tr><th>Price</th><td>{{registration.price.name}}{% if registration.price.description%} - {{registration.price.description}}{% endif %}</td></tr>
 <tr><th>Amount</th><td>${{registration.payment.amount}}</td></tr>

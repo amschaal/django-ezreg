@@ -7,6 +7,7 @@
 
 <h2>Registration details{% if permissions and 'admin' in permissions %} <a href="{% url 'modify_registration' id=registration.id %}" class="btn btn-primary">Modify</a>{% endif %}</h2>
 <table class="table">
+<tr><th>Registered</th><td>{{registration.registered|date:"DATETIME_FORMAT"}}</td></tr>
 {% for field in registration.get_registration_fields %}
 <tr><th>{{field.label}}</th><td>{{field.value|form_value}}</td></tr>
 {% endfor %}
