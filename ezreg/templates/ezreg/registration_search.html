@@ -32,7 +32,7 @@
     </div>
     <table ng-table="tableParams" show-filter="true" class="table table-bordered table-striped table-condensed">
       <tr ng-repeat="row in $data track by row.id">
-        <td data-title="'Registered'" sortable="'registered'" style="width:170px">{[row.registered | date:'short']}</td>
+        <td data-title="'Registered'" sortable="'registered'" style="width:170px"><a href="{[getURL('registration',{id:row.id})]}">{[row.registered | date:'short']}</a></td>
         <td data-title="'Event'" filter="{event__title__icontains: 'text'}" sortable="'event__title'"><a href="{[ getURL('manage_event',{event:row.event.id}) ]}">{[row.event.title]}</a></td>
         <td data-title="'Organizer'" filter="{event__organizer__name__icontains: 'text'}" sortable="'event__organizer__name'">{[row.event.organizer.name]}</a></td>
         <td data-title="'First Name'" filter="{first_name__icontains: 'text'}" sortable="'first_name'">{[row.first_name]}</td>

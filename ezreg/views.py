@@ -189,7 +189,8 @@ def update_registration_status(request,id):
 
 def registration(request,id):
     registration = Registration.objects.get(id=id)
-    return render(request, 'ezreg/registration.html', {'registration':registration})
+    permissions = registration.event.get_user_permissions(request.user) if request.user.is_authenticated else []
+    return render(request, 'ezreg/registration.html', {'registration':registration, 'permissions': permissions})
 
 def cancel_registration(request,id):
     key = request.GET.get('key',None)

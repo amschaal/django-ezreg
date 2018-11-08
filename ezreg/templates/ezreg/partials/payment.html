@@ -1,5 +1,5 @@
 {% if registration.payment %}
-<h2>Payment</h2>
+<h2>Payment{% if permissions and 'admin' in permissions%} <a href="{% url 'modify_payment' id=registration.id %}" class="btn btn-primary">Modify</a>{% endif %}</h2>
 <table class="table">
 <tr><th>Processor</th><td>{{registration.payment.processor}}</td></tr>
 <tr><th>Price</th><td>{{registration.price.name}}{% if registration.price.description%} - {{registration.price.description}}{% endif %}</td></tr>
