@@ -115,6 +115,7 @@
 						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="payment.coupon"/> Coupon code </label>
 						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="payment.refunded"/> Refunded </label>
 						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="payment.external_id"/> External ID </label>
+						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="payment.admin_notes"/> Admin Notes </label>
 					</fieldset>
 					{% for processor in event.payment_processors.all %}
 					{% if processor.get_processor.exportable_fields.keys %}

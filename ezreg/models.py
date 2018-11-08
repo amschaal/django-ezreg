@@ -278,6 +278,7 @@ class Payment(models.Model):
     refunded = models.DecimalField(decimal_places=2,max_digits=7,null=True,blank=True)
     external_id = models.CharField(max_length=50,null=True,blank=True)
     data = JSONField(null=True,blank=True)
+    admin_notes = models.TextField(null=True, blank=True)
     def get_post_form(self):
         processor = self.processor.get_processor()
         return processor.get_post_form(self)

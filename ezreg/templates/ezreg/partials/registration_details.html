@@ -5,7 +5,7 @@
 {% if registration.event.address and registration.event.display_address  %}<h4>{{registration.event.address}}</h4>{% endif %}
 {% if registration.event.contact %}<h4>Contact - {{registration.event.contact}}</h4>{% endif %}
 
-<h2>Registration details{% if permissions and 'admin' in permissions%} <a href="{% url 'modify_registration' id=registration.id %}" class="btn btn-primary">Modify</a>{% endif %}</h2>
+<h2>Registration details{% if permissions and 'admin' in permissions %} <a href="{% url 'modify_registration' id=registration.id %}" class="btn btn-primary">Modify</a>{% endif %}</h2>
 <table class="table">
 {% for field in registration.get_registration_fields %}
 <tr><th>{{field.label}}</th><td>{{field.value|form_value}}</td></tr>
