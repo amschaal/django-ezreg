@@ -11,6 +11,7 @@ from ezreg.payment import PaymentProcessorManager
 from django.forms.widgets import  TextInput
 from django.db.models.query_utils import Q
 from datetimewidget.widgets import DateTimeWidget, DateWidget
+from django.conf import settings
 
 def _raw_value(form, fieldname):
     field = form.fields[fieldname]
@@ -58,7 +59,7 @@ class EventForm(forms.ModelForm):
     class Meta:
         model=Event
         fields = ('organizer','title','active','advertise','enable_waitlist','enable_application','capacity',
-                  'slug','logo','title','description','body','cancellation_policy','open_until',
+                  'slug','logo','hide_header','title','description','body','cancellation_policy','open_until',
                   'start_time','end_time','contact','display_address','address','waitlist_message','bcc','from_addr','expiration_time','outside_url')
 #         exclude = ('id','payment_processors','ical','form_fields','group')
         labels = {
@@ -85,6 +86,7 @@ class EventForm(forms.ModelForm):
             'expiration_time':'Registrations must be completed within this time limit.',
             'open_until':'Defaults to start time if not provided.',
             'logo': 'Optionally upload a logo to replace the default website logo.  Image will be scaled to a maximum height of 100px.',
+            'hide_header': 'Hide the header, "{0}", on the upper left of the page.'.format(settings.HEADER_TEXT),
             'outside_url': 'Optionally provide a URL to an outside event.  If this is set, registration through the system will not be possible.',
         }
         widgets = {

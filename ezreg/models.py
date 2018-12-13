@@ -73,6 +73,7 @@ class Event(models.Model):
     expiration_time = models.PositiveSmallIntegerField(default=30)
     ical = models.FilePathField(path=settings.FILES_ROOT,match='*.ics',blank=True,null=True)
     logo = models.ImageField(upload_to='logos/',null=True,blank=True)
+    hide_header = models.BooleanField(default=False)
     form_fields = JSONField(null=True, blank=True)
     outside_url = models.URLField(null=True,blank=True)
     config = postgres_fields.JSONField(default=dict)
