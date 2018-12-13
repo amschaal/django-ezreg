@@ -56,9 +56,11 @@ class EventForm(forms.ModelForm):
         end_time = cleaned_data.get("end_time")
         if start_time and end_time and (start_time > end_time):
             self.add_error('start_time', 'Start time should not be later than end time.')
+        if cleaned_data.get('active') and cleaned_data.get('tentative'):
+            self.add_error('tentative', 'Events cannot be in planning while registration is activated.')
     class Meta:
         model=Event
-        fields = ('organizer','title','active','advertise','enable_waitlist','enable_application','capacity',
+        fields = ('organizer','title','active','tentative','advertise','enable_waitlist','enable_application','capacity',
                   'slug','logo','hide_header','title','description','body','cancellation_policy','open_until',
                   'start_time','end_time','contact','display_address','address','waitlist_message','bcc','from_addr','expiration_time','outside_url')
 #         exclude = ('id','payment_processors','ical','form_fields','group')
@@ -71,6 +73,7 @@ class EventForm(forms.ModelForm):
                   'display_address': 'Display location',
                   'expiration_time': 'Expiration time (minutes)',
                   'slug':'Friendly URL',
+                  'tentative':'Planned event'
         }
         help_texts = {
             'slug': 'This will be used in the event URL.  Use only alphanumeric characters and underscores.',
@@ -88,6 +91,7 @@ class EventForm(forms.ModelForm):
             'logo': 'Optionally upload a logo to replace the default website logo.  Image will be scaled to a maximum height of 100px.',
             'hide_header': 'Hide the header, "{0}", on the upper left of the page.'.format(settings.HEADER_TEXT),
             'outside_url': 'Optionally provide a URL to an outside event.  If this is set, registration through the system will not be possible.',
+            'tentative': 'If the event is in the planning stages, but lacks definitive dates, you may select this.  Dates will be hidden while checked.'
         }
         widgets = {
                       'open_until':DateWidget(attrs={'id':"open_until"}, usel10n = True, bootstrap_version=3),

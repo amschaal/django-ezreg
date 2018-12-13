@@ -58,6 +58,7 @@ class Event(models.Model):
     capacity = models.PositiveSmallIntegerField(blank=True,null=True)
     cancellation_policy = BleachField(blank=True,null=True)
     open_until = models.DateField()
+    tentative = models.BooleanField(default=False)
     start_time = models.DateTimeField(blank=True,null=True)
     end_time = models.DateTimeField(blank=True,null=True)
     contact = models.TextField()
