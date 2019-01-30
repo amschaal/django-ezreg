@@ -91,6 +91,8 @@
       <div class="container">
         {% if event.logo %}
         	<img class="pull-right" src="{{event.logo.url}}" style="max-height:100px" >
+        {% elif registration.event.logo %}
+        	<img class="pull-right" src="{{registration.event.logo.url}}" style="max-height:100px" >
         {%else%}
         	<a href="http://genomecenter.ucdavis.edu/" target="_blank"><img class="pull-right" style="max-height:100px" src="/static/theme/media/default-logo.png"></a>
         {%endif%}
@@ -101,7 +103,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          {% if not event.hide_header %}<a class="navbar-brand" href="{% url 'home' %}">{{HEADER_TEXT}}</a>{% endif %}
+          {% if not event and not registration or event and not event.hide_header or registration and not registration.event.hide_header %}<a class="navbar-brand" href="{% url 'home' %}">{{HEADER_TEXT}}</a>{% endif %}
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
