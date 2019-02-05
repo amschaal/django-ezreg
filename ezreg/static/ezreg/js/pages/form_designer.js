@@ -30,7 +30,7 @@ app.controller('DesignerController', function($scope,$http,Event) {
     	.error(function(){alert('There was an error updating the form.')});
     };
     $scope.addField = function(){
-    	$scope.fields.push({});
+    	$scope.fields.push({'type':'text'});
     };
     $scope.test = function(){
     	console.log($scope.fields);
