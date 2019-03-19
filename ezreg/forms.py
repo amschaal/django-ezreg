@@ -154,6 +154,8 @@ class PriceForm(forms.Form):
         super(PriceForm,self).__init__(*args, **kwargs)
         self.setup_coupons()
         self.fields['price'].queryset = self.get_price_queryset()
+        if self.fields['price'].queryset.count() == 0:
+            self.fields['price'].help_text = 'There are no available prices. This event may not be currently open for registration or may be sold out.  Please contact the event coordinator for details.'
         self.fields['payment_method'].queryset = self.get_payment_method_queryset() 
     def setup_coupons(self):
         self.data = self.data.copy() #POST querydict is immutable, need to be able to overwrite price for coupon code
