@@ -41,7 +41,7 @@ function RegistrationSearchController($scope,$filter,$http,NgTableParams,$httpPa
 		var lte = $filter('date')($scope.filters.end_date, 'yyyy-MM-dd');
 		var gte = $filter('date')($scope.filters.start_date, 'yyyy-MM-dd');
 		var filters = {
-				registered__lte: lte?lte+'T00:00:00':null,
+				registered__lte: lte?lte+'T23:59:59':null,
 				registered__gte: gte?gte+'T00:00:00':null,
 		}
 		angular.extend($scope.tableParams.filter(), filters);
