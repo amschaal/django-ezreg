@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
+{% load compress %}
 {% block headend %}
-<script src="/static/ezreg/js/pages/registration_search.js"></script>
+{% compress js %}
+    <script src="/static/ezreg/js/pages/registration_search.js"></script>
+{% endcompress %}
+
 {% endblock %}
 {% block content %}
 <script type="text/ng-template" id="checkbox_filter.html">
