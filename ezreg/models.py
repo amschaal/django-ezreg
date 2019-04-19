@@ -100,6 +100,9 @@ class Event(models.Model):
     def accepted(self):
         return self.registrations.filter(status=Registration.STATUS_APPLIED_ACCEPTED).exclude(test=True).count()
     @property
+    def registration_closed(self):
+        return self.open_until and str(self.open_until)[:10] < str(datetime.today())[:10]
+    @property
     def registration_enabled(self):
 #         if self.enable_application:
         return self.active and str(self.open_until)[:10] >= str(datetime.today())[:10]

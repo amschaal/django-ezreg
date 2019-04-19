@@ -32,6 +32,7 @@
 	              	{% elif event.can_apply %}<span class="status apply">Application process open</span>
 					{% elif event.can_register%}<span class="status open">Registration open</span>
 					{% elif event.can_waitlist %}<span class="status waitlisted">Waitlist open</span>
+					{% elif not event.active or event.registration_closed %}<span class="status closed">Closed</span>
 					{% elif not event.registration_enabled %}
 					{% else %}<span class="status full">Full</span>
 					{% endif %}
