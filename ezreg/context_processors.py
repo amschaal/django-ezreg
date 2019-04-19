@@ -1,4 +1,5 @@
 from ezreg.models import OrganizerUserPermission
+from django.conf import settings
 
 def permissions_processor(request):
     if not request.user.is_authenticated():
@@ -9,3 +10,6 @@ def permissions_processor(request):
         oups = OrganizerUserPermission.objects.filter(user=request.user)
         permissions = list(set([p.permission for p in oups]))
     return {'all_user_permissions': permissions,'OrganizerUserPermission':OrganizerUserPermission}
+
+def settings_processor(request):
+    return {'HEADER_TEXT': settings.HEADER_TEXT}

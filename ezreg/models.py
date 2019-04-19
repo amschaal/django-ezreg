@@ -58,6 +58,7 @@ class Event(models.Model):
     capacity = models.PositiveSmallIntegerField(blank=True,null=True)
     cancellation_policy = BleachField(blank=True,null=True)
     open_until = models.DateField()
+    tentative = models.BooleanField(default=False)
     start_time = models.DateTimeField(blank=True,null=True)
     end_time = models.DateTimeField(blank=True,null=True)
     contact = models.TextField()
@@ -73,6 +74,7 @@ class Event(models.Model):
     expiration_time = models.PositiveSmallIntegerField(default=30)
     ical = models.FilePathField(path=settings.FILES_ROOT,match='*.ics',blank=True,null=True)
     logo = models.ImageField(upload_to='logos/',null=True,blank=True)
+    hide_header = models.BooleanField(default=False)
     form_fields = JSONField(null=True, blank=True)
     outside_url = models.URLField(null=True,blank=True)
     config = postgres_fields.JSONField(default=dict)
@@ -175,6 +177,7 @@ class Price(models.Model):
     start_date = models.DateField(null=True,blank=True)
     end_date = models.DateField(null=True,blank=True)
     quantity = models.PositiveIntegerField(null=True)
+    disable = models.BooleanField(default=False)
     def __unicode__(self):
         return mark_safe('<span title="%s"><b>$%s</b> - %s</span>' % (self.description,str(self.amount),self.name))
     class Meta:
@@ -190,6 +193,7 @@ class Registration(models.Model):
     STATUS_APPLIED = 'APPLIED'
     STATUS_APPLY_INCOMPLETE = 'APPLY_INCOMPLETE'
     STATUS_APPLIED_ACCEPTED = 'APPLIED_ACCEPTED'
+    STATUS_APPLIED_DENIED = 'APPLIED_DENIED'
     STATUS_CANCELLED = 'CANCELLED'
     STATUSES = ((STATUS_REGISTERED,'Registered'),
                 (STATUS_PENDING_INCOMPLETE,'Pending'),
@@ -197,10 +201,10 @@ class Registration(models.Model):
                 (STATUS_WAITLISTED,'Waitlisted'),
                 (STATUS_WAITLIST_INCOMPLETE,'Waitlist- incomplete'),
                 (STATUS_APPLIED_ACCEPTED,'Application accepted'),
+                (STATUS_APPLIED_DENIED,'Application denied'),
                 (STATUS_APPLIED,'Applied'),
                 (STATUS_APPLY_INCOMPLETE,'Application- incomplete'),
                 (STATUS_CANCELLED,'Cancelled')
-                
                 )
     id = models.CharField(max_length=10,default=id_generator,primary_key=True)
     key = models.CharField(max_length=10,default=id_generator)
@@ -276,6 +280,7 @@ class Payment(models.Model):
     refunded = models.DecimalField(decimal_places=2,max_digits=7,null=True,blank=True)
     external_id = models.CharField(max_length=50,null=True,blank=True)
     data = JSONField(null=True,blank=True)
+    admin_notes = models.TextField(null=True, blank=True)
     def get_post_form(self):
         processor = self.processor.get_processor()
         return processor.get_post_form(self)

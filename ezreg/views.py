@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from ezreg.models import Event,  Registration, PaymentProcessor, EventPage,\
-    id_generator, EventProcessor, OrganizerUserPermission, Payment
+    id_generator, EventProcessor, OrganizerUserPermission, Payment, Organizer
 from ezreg.forms import EventForm, PaymentProcessorForm,  AdminRegistrationForm,\
     AdminRegistrationStatusForm, PriceForm, AdminPriceForm, AdminPaymentForm
 from django.contrib.auth.decorators import login_required
@@ -23,17 +23,23 @@ from django.db.models.aggregates import Sum
 from decimal import Decimal
 from django_logger.models import Log
 
-def home(request):
-    upcoming = Event.objects.filter(advertise=True,start_time__gte=datetime.today()).filter(Q(active=True)|Q(outside_url__isnull=False)).order_by('start_time')
-    past = Event.objects.filter(advertise=True,start_time__lt=datetime.today()).order_by('-start_time')[:5]
-    return render(request, 'ezreg/home.html', {'upcoming':upcoming,'past':past})
+def home(request, organizer_slug=None):
+    organizer = Organizer.objects.filter(slug=organizer_slug).first()
+    organizers = Organizer.objects.all().order_by('name')
+    if organizer:
+        upcoming = Event.objects.filter(advertise=True,start_time__gte=datetime.today(),organizer=organizer).order_by('start_time')
+        past= Event.objects.filter(advertise=True,start_time__lt=datetime.today(),organizer=organizer).order_by('-start_time')
+    else:
+        upcoming = Event.objects.filter(advertise=True,start_time__gte=datetime.today()).order_by('start_time')
+        past = Event.objects.filter(advertise=True,start_time__lt=datetime.today()).order_by('-start_time')[:5]
+    return render(request, 'ezreg/home.html', {'upcoming':upcoming,'past':past,'organizer':organizer, 'organizers': organizers})
 
 def events(request,page='upcoming'):
     if page == 'past':
         events = Event.objects.filter(advertise=True,open_until__lt=datetime.today()).order_by('-start_time')
         template = 'ezreg/partials/past_events.html'
     else:
-        events = Event.objects.filter(advertise=True,active=True,open_until__gte=datetime.today()).order_by('start_time')
+        events = Event.objects.filter(advertise=True,open_until__gte=datetime.today()).order_by('start_time')
         template = 'ezreg/partials/upcoming_events.html'
     return render(request, 'ezreg/events.html', {'events':events,'template':template})
 
@@ -183,7 +189,8 @@ def update_registration_status(request,id):
 
 def registration(request,id):
     registration = Registration.objects.get(id=id)
-    return render(request, 'ezreg/registration.html', {'registration':registration})
+    permissions = registration.event.get_user_permissions(request.user) if request.user.is_authenticated else []
+    return render(request, 'ezreg/registration.html', {'registration':registration, 'permissions': permissions})
 
 def cancel_registration(request,id):
     key = request.GET.get('key',None)
@@ -336,7 +343,7 @@ def export_registrations(request, event):
 
     filetype = request.POST.get('format','xls')
     filetype = filetype if filetype in ['xls','xlsx','csv','tsv','json'] else 'xls'
-    content_types = {'xls':'application/vnd.ms-excel','csv':'text/csv','json':'text/json','xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
+    content_types = {'xls':'application/vnd.ms-excel','csv':'text/csv','tsv':'text/tsv','json':'text/json','xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
     response_kwargs = {
             'content_type': content_types[filetype]
         }

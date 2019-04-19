@@ -17,9 +17,10 @@ class PriceSerializer(serializers.ModelSerializer):
 #             if not data['coupon_code']: 
 #                 data['coupon_code'] = None
 #         return super(PriceSerializer,self).to_internal_value(data)
+    registration_count = serializers.IntegerField(read_only=True)
     class Meta:
         model = Price
-        fields = ('id','order','event','name','amount','description','coupon_code','start_date','end_date','quantity')
+        fields = ('id','order','event','name','amount','description','coupon_code','start_date','end_date','quantity', 'registration_count', 'disable')
         extra_kwargs = {'coupon_code': {'required': False,'allow_blank':True,'allow_null':True,'default':None}}
 
 class PaymentProcessorSerializer(serializers.ModelSerializer):

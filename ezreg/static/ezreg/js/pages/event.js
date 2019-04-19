@@ -11,6 +11,8 @@ function PriceController($scope,$http,growl,Price,PaymentProcessor) {
 	var errorMessageHandler = function(response){
 		growl.error(response.data.error ,{ttl: 5000});
 	};
+	$scope.today = (new Date()).toISOString().slice(0, 10);
+	$scope.tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
 	$scope.selected_processors={};
 	$scope.init = function(params){
 		$scope.event_id = params.event_id;
@@ -19,7 +21,7 @@ function PriceController($scope,$http,growl,Price,PaymentProcessor) {
 		$scope.prices = Price.query({event:$scope.event_id,page_size:100});
 		$scope.processors = PaymentProcessor.query({organizer:$scope.organizer});
 		$http.get(event_processors_url).then(function(response){
-			console.log('proc',response.data);
+// 			console.log('proc',response.data);
 			$scope.selected_processors = response.data.processors;
 		});
 	}
@@ -58,13 +60,24 @@ function PriceController($scope,$http,growl,Price,PaymentProcessor) {
 			});
 	}
 	$scope.saveProcessors = function(){
-		console.log(event_processors_url,{'processors':$scope.selected_processors});
+// 		console.log(event_processors_url,{'processors':$scope.selected_processors});
 		$http.post(event_processors_url,{'processors':$scope.selected_processors}).then(
 				function(response){
 					growl.success("Payment processors updated",{ttl: 5000});
 				},
 				function(response){growl.error("Saving payment processors failed.",{ttl: 5000});}
 		);
+	}
+	$scope.isActive = function(price) {
+	    if (price.disable)
+	       return false;
+	    var start_date = price.start_date && price.start_date.toISOString ? (new Date(price.start_date - $scope.tzoffset)).toISOString().slice(0, 10): price.start_date;
+	    var end_date = price.end_date && price.end_date.toISOString ? (new Date(price.end_date - $scope.tzoffset)).toISOString().slice(0, 10): price.end_date;
+	    if (start_date && $scope.today < start_date)
+	       return false;
+	    if (end_date && $scope.today > end_date)
+           return false;
+        return true;
 	}
 }
 

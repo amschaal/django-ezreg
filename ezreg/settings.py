@@ -72,7 +72,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'ezreg.context_processors.permissions_processor'
+                'ezreg.context_processors.permissions_processor',
+                'ezreg.context_processors.settings_processor'
             ],
         },
     },
@@ -177,6 +178,8 @@ BLEACH_STRIP_TAGS = True
 BLEACH_STRIP_COMMENTS = False
 
 COMPRESS_ENABLED = True
+
+HEADER_TEXT = 'Genome Center Registration'
 
 from config import *
 

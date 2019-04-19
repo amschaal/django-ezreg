@@ -1,6 +1,6 @@
 {% if registration.payment %}
 -Payment-
-
+{%if registration.payment.paid_at %}Paid at:	{{registration.payment.paid_at|date:"DATETIME_FORMAT"}}{% endif %}
 Processor: {{registration.payment.processor}}
 Price: {{registration.price.name}}{% if registration.price.description%} - {{registration.price.description}}{% endif %}
 Amount: ${{registration.payment.amount}}

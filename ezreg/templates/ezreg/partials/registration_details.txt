@@ -7,7 +7,7 @@ Organizer: {{registration.event.organizer}}
 
 -Registration details-
 
-{% for field in registration.get_registration_fields %}
+Registered:	{{registration.registered|date:"DATETIME_FORMAT"}}{% for field in registration.get_registration_fields %}
 {{field.label}}:	{{field.value|form_value}}
 {% endfor %}
 

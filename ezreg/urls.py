@@ -42,6 +42,7 @@ router.register(r'logs', LogViewset, 'Log')
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', views.home, name='home'),
+    url(r'^events/organizer/(?P<organizer_slug>[A-Za-z0-9_\-]{3,})/$', views.home, name='organizer_events'),
     url(r'^events/upcoming/$', views.events, name='upcoming_events',kwargs={'page':'upcoming'}),
     url(r'^events/past/$', views.events, name='past_events',kwargs={'page':'past'}),
     url(r'^manage_events/$', views.manage_events, name='manage_events'),

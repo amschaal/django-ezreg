@@ -11,6 +11,7 @@ from ezreg.payment import PaymentProcessorManager
 from django.forms.widgets import  TextInput
 from django.db.models.query_utils import Q
 from datetimewidget.widgets import DateTimeWidget, DateWidget
+from django.conf import settings
 
 def _raw_value(form, fieldname):
     field = form.fields[fieldname]
@@ -55,10 +56,12 @@ class EventForm(forms.ModelForm):
         end_time = cleaned_data.get("end_time")
         if start_time and end_time and (start_time > end_time):
             self.add_error('start_time', 'Start time should not be later than end time.')
+        if cleaned_data.get('active') and cleaned_data.get('tentative'):
+            self.add_error('tentative', 'Events cannot be in planning while registration is activated.')
     class Meta:
         model=Event
-        fields = ('organizer','title','active','advertise','enable_waitlist','enable_application','capacity',
-                  'slug','logo','title','description','body','cancellation_policy','open_until',
+        fields = ('organizer','title','active','tentative','advertise','enable_waitlist','enable_application','capacity',
+                  'slug','logo','hide_header','title','description','body','cancellation_policy','open_until',
                   'start_time','end_time','contact','display_address','address','waitlist_message','bcc','from_addr','expiration_time','outside_url')
 #         exclude = ('id','payment_processors','ical','form_fields','group')
         labels = {
@@ -70,6 +73,7 @@ class EventForm(forms.ModelForm):
                   'display_address': 'Display location',
                   'expiration_time': 'Expiration time (minutes)',
                   'slug':'Friendly URL',
+                  'tentative':'Planned event'
         }
         help_texts = {
             'slug': 'This will be used in the event URL.  Use only alphanumeric characters and underscores.',
@@ -85,7 +89,9 @@ class EventForm(forms.ModelForm):
             'expiration_time':'Registrations must be completed within this time limit.',
             'open_until':'Defaults to start time if not provided.',
             'logo': 'Optionally upload a logo to replace the default website logo.  Image will be scaled to a maximum height of 100px.',
+            'hide_header': 'Hide the header, "{0}", on the upper left of the page.'.format(settings.HEADER_TEXT),
             'outside_url': 'Optionally provide a URL to an outside event.  If this is set, registration through the system will not be possible.',
+            'tentative': 'If the event is in the planning stages, but lacks definitive dates, you may select this.  Dates will be hidden while checked.'
         }
         widgets = {
                       'open_until':DateWidget(attrs={'id':"open_until"}, usel10n = True, bootstrap_version=3),
@@ -148,6 +154,8 @@ class PriceForm(forms.Form):
         super(PriceForm,self).__init__(*args, **kwargs)
         self.setup_coupons()
         self.fields['price'].queryset = self.get_price_queryset()
+        if self.fields['price'].queryset.count() == 0:
+            self.fields['price'].help_text = 'There are no available prices. This event may not be currently open for registration or may be sold out.  Please contact the event coordinator for details.'
         self.fields['payment_method'].queryset = self.get_payment_method_queryset() 
     def setup_coupons(self):
         self.data = self.data.copy() #POST querydict is immutable, need to be able to overwrite price for coupon code
@@ -163,7 +171,7 @@ class PriceForm(forms.Form):
     def get_payment_method_queryset(self):
         return self.event.payment_processors.filter(hidden=False)
     def available_prices_queryset(self,include_coupons=False):
-        qs = self.event.prices.exclude(start_date__isnull=False,start_date__gt=datetime.today()).exclude(end_date__isnull=False,end_date__lt=datetime.today()).order_by('order')
+        qs = self.event.prices.exclude(disable=True).exclude(start_date__isnull=False,start_date__gt=datetime.today()).exclude(end_date__isnull=False,end_date__lt=datetime.today()).order_by('order')
         
         #Exclude any prices that are sold out
         soldout_ids = []
@@ -218,7 +226,12 @@ class AdminPaymentForm(forms.ModelForm):
             self.fields['status'].help_text = 'A status of PAID may not be changed.  Refunds may be issued, but the original status must remain.'
     class Meta:
         model=Payment
-        fields = ('status','refunded')
+        fields = ('status','refunded','admin_notes')
+    def clean_refunded(self):
+        refunded = self.cleaned_data['refunded']
+        if refunded and not self.instance.amount or refunded > self.instance.amount:
+            raise ValidationError('You cannot refund more than was paid.')
+        return refunded
 
 
 class PriceFormsetHelper(FormHelper):

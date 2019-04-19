@@ -1,0 +1,8 @@
+{% load ezreg_filters %}
+<p>Dear {{registration.first_name}} {{registration.last_name}},</p>
+{% if registration.event|has_custom_text:'APPLICATION_DENIED_EMAIL' %}
+    {% event_custom_text registration.event 'APPLICATION_DENIED_EMAIL' %}
+{% else %}
+    <p>Unfortunately, due to the high number of applicants, we were not able to enroll you in the event, "{{registration.event.title}}".</p>
+    <p>We thank you for your interest, and encourage you to check back for other training opportunities.</p>
+{% endif %}

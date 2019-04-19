@@ -1,6 +1,6 @@
 <div class="panel panel-primary">
             <div class="panel-heading">
-              <h3 class="panel-title">Recent events</h3>
+              <h3 class="panel-title">Past events</h3>
             </div>
             <div class="panel-body">
               <table class="table table-condensed borderless">
@@ -19,7 +19,7 @@
 	              		<a href="{% url 'event' slug_or_id=event.slug_or_id %}">{{event.title}}</a>
 	              </td>
 	              <td>
-	              		{{event.organizer}}
+	              		<a href="{% url 'organizer_events' organizer_slug=event.organizer.slug %}">{{event.organizer}}</a>
 	              </td>
 	            </tr>
               {% endfor %}

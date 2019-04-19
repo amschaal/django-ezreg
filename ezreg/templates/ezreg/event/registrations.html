@@ -115,6 +115,7 @@
 						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="payment.coupon"/> Coupon code </label>
 						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="payment.refunded"/> Refunded </label>
 						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="payment.external_id"/> External ID </label>
+						<label><input class="payment_fields" type="checkbox" name="payment_fields" value="payment.admin_notes"/> Admin Notes </label>
 					</fieldset>
 					{% for processor in event.payment_processors.all %}
 					{% if processor.get_processor.exportable_fields.keys %}
@@ -128,7 +129,7 @@
 					{% endfor %}
 					<fieldset>
 					<h4><label>Format</label></h4>
-					<select name="format" class="form-control"><option value="xls">XLS</option><option value="xlsx">XLSX</option><option value="csv">CSV</option></select>
+					<select name="format" class="form-control"><option value="xls">XLS</option><option value="xlsx">XLSX</option><option value="csv">CSV</option><option value="tsv">TSV</option><option value="json">JSON</option></select>
 					</fieldset>
     				<input ng-repeat="val in selected" type="hidden" name="selection" value="{[val]}"/>
     			</form>  

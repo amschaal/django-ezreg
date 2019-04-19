@@ -10,29 +10,34 @@
 	            
 	            <tr>
 	              <td style="min-width:170px">
-	              	{% if event.start_time|date == event.end_time|date %}
-	              		{{event.start_time|date:'M j, Y'}}
-	              	{% else%}
-	              		{{event.start_time|date:'M j'}}{% if event.end_time %} - {{event.end_time|date:'M j, Y'}}{%endif%}
-	              	{% endif %}
+		              {% if event.tentative %}
+		              	Upcoming
+		              {% else %}
+		              	{% if event.start_time|date == event.end_time|date %}
+		              		{{event.start_time|date:'M j, Y'}}
+		              	{% else%}
+		              		{{event.start_time|date:'M j'}}{% if event.end_time %} - {{event.end_time|date:'M j, Y'}}{%endif%}
+		              	{% endif %}
+		              {% endif %}
 	              </td>
 	              <td>
 	              		<a href="{% url 'event' slug_or_id=event.slug_or_id %}">{{event.title}}</a>
 	              </td>
 	              <td>
-	              		{{event.organizer}}
+	              		<a href="{% url 'organizer_events' organizer_slug=event.organizer.slug %}">{{event.organizer}}</a>
 	              </td>
 	              <td>
-	              	{% if event.outside_url %}
+	              	{% if event.tentative %}Upcoming
+	              	{% elif event.outside_url %}
 	              	{% elif event.can_apply %}<span class="status apply">Application process open</span>
 					{% elif event.can_register%}<span class="status open">Registration open</span>
 					{% elif event.can_waitlist %}<span class="status waitlisted">Waitlist open</span>
-					{% elif not event.registration_enabled %}<span class="status closed">Closed</span>
+					{% elif not event.registration_enabled %}
 					{% else %}<span class="status full">Full</span>
 					{% endif %}
 	              </td>
 	              <td class="pull-right">
-	              		{{event.open_until|date:'M j'}}
+	              		{% if event.registration_enabled %}{{event.open_until|date:'M j'}}{% endif %}
 	              </td>
 	            </tr>
               {% endfor %}

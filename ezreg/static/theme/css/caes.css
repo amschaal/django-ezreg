@@ -65,7 +65,7 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   color: #002855;
-  font-family: Georgia, Berkeley, serif; }
+}
 
 h1, .h1, h2, .h2, h3, .h3 {
   margin-top: 1rem;
@@ -96,7 +96,6 @@ label {
   font-weight: 500; }
 
 legend {
-  font-family: Georgia, Berkeley, serif;
   font-weight: 600; }
 
 .jumbotron h1, .jumbotron .h1 {
