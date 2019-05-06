@@ -77,6 +77,7 @@ class Event(models.Model):
     hide_header = models.BooleanField(default=False)
     form_fields = JSONField(null=True, blank=True)
     outside_url = models.URLField(null=True,blank=True)
+    billed = models.BooleanField(default=False)
     config = postgres_fields.JSONField(default=dict)
     @property
     def slug_or_id(self):
