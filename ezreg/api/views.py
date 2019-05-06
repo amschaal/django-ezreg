@@ -38,9 +38,9 @@ class PaymentProcessorViewset(viewsets.ReadOnlyModelViewSet):
 class EventViewset(viewsets.ModelViewSet):
     serializer_class = EventSerializer
 #     filter_fields = ('event',)
-    filter_fields = {'title':[ 'icontains'],'organizer__name':['icontains'],'active':['exact']}
+    filter_fields = {'title':[ 'icontains'],'organizer__name':['icontains'],'active':['exact'],'billed':['exact']}
     search_fields = ('title',)
-    ordering_fields = ('start_time','title','organizer__name')
+    ordering_fields = ('start_time','title','organizer__name','billed')
     permission_classes = (EventPermission,)
     def get_serializer_class(self):
         if self.request.query_params.get('serializer','simple') == 'simple':
