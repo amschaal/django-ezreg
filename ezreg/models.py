@@ -156,6 +156,12 @@ class Event(models.Model):
             return totals['total'] - totals['refunded']
         else:
             return totals['total']
+    @property
+    def revenue(self):
+        return self.total_revenue()
+    @property
+    def credit_card_revenue(self):
+        return self.total_revenue(payment_processor_ids=['touchnet_payment_processor'])
     def __unicode__(self):
         return self.title
     class Meta:

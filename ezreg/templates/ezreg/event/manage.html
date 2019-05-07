@@ -46,6 +46,7 @@
 <tabset ng-cloak>
 {% if 'admin' in permissions %}
 <tab heading="Event">
+{% if user.is_superuser %}<p><b>Total Revenue: </b>${{event.revenue|floatformat:2}} <b>Credit Card Revenue: </b>${{event.credit_card_revenue|floatformat:2}}</p>{% endif %}
 {% if form.errors %}<h2 class="error">Please correct form errors below.</h2>{% endif %}
 <form method="POST" action="." enctype="multipart/form-data">
 {% csrf_token %}
