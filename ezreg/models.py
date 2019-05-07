@@ -19,6 +19,7 @@ from django_bleach.models import BleachField
 from django.utils import timezone
 from django.contrib.postgres import fields as postgres_fields
 
+
 def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
@@ -141,6 +142,16 @@ class Event(models.Model):
         if user.is_superuser:
             return [p[0] for p in OrganizerUserPermission.PERMISSION_CHOICES]
         return [p.permission for p in OrganizerUserPermission.objects.filter(user=user,organizer=self.organizer)]
+    def total_revenue(self, statuses=[], subtract_refunds=True):
+        from django.db.models.aggregates import Sum
+        statuses = statuses if len(statuses) > 0 else [Registration.STATUS_REGISTERED]
+        totals = Payment.objects.filter(registration__event=self, registration__status__in=statuses).aggregate(total=Sum('amount'),refunded=Sum('refunded'))
+        if not totals['total']:
+            return 0
+        elif subtract_refunds and totals['refunded']:
+            return totals['total'] - totals['refunded']
+        else:
+            return totals['total']
     def __unicode__(self):
         return self.title
     class Meta:
