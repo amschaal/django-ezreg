@@ -15,7 +15,7 @@
         <td data-title="'Date'" sortable="'start_time'"><a href="{[ getURL('manage_event',{event:row.id}) ]}">{[row.start_time | date:'MM/dd/yyyy']}</a></td>
         <td data-title="'Title'" filter="{title__icontains: 'text'}" sortable="'title'"><a href="{[ getURL('manage_event',{event:row.id}) ]}">{[row.title]}</a></td>
         <td data-title="'Organizer'" filter="{organizer__name__icontains: 'text'}" sortable="'organizer__name'">{[row.organizer.name]}</td>
-        <td data-title="'Billed'" sortable="'billed'"><i ng-if="row.billed" class="fa fa-check" style="color:green" aria-hidden="true"></i><i ng-if="!row.billed" class="fa fa-times" style="color:red" aria-hidden="true"></i></td>
+        {% if user.is_superuser %}<td data-title="'Billed'" sortable="'billed'"><i ng-if="row.billed" class="fa fa-check" style="color:green" aria-hidden="true"></i><i ng-if="!row.billed" class="fa fa-times" style="color:red" aria-hidden="true"></i></td>{% endif %}
         <td data-title="'Capacity'">{[row.capacity]}</td>
         <td data-title="'Registered'">{[row.registered]}</td>
         <td data-title="'Waitlisted'">{[row.waitlisted]}</td>
