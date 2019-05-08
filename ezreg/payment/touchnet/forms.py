@@ -1,8 +1,12 @@
 from django import forms
+from django.conf import settings
+
+site_options = [(k, site['label']) for k, site in getattr(settings,'TOUCHNET_SITES').items()]
 
 class TouchnetConfigurationForm(forms.Form):
     FID = forms.CharField(max_length=5)
     FAU = forms.CharField(max_length=30,required=False)
+    TOUCHNET_SITE = forms.ChoiceField(choices=site_options)
     UPAY_SITE_ID = forms.IntegerField()
     POSTING_KEY = forms.CharField(max_length=50)
     UPAY_TEST_SITE_ID = forms.IntegerField()
