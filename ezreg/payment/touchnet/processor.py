@@ -32,7 +32,10 @@ class TouchnetPaymentProcessor(BasePaymentProcessor):
         return form
     @staticmethod
     def get_site_id(payment):
-        return payment.processor.config['UPAY_TEST_SITE_ID'] if payment.registration.test else payment.processor.config['UPAY_SITE_ID']
+        config = getattr(settings,'TOUCHNET_SITES').get(payment.processor.config['TOUCHNET_SITE'])
+        return config['test']['site_id'] if payment.registration.test else config['production']['site_id']
     @staticmethod
     def get_posting_key(payment):
-        return payment.processor.config['TEST_POSTING_KEY'] if payment.registration.test else payment.processor.config['POSTING_KEY']
+        config = getattr(settings,'TOUCHNET_SITES').get(payment.processor.config['TOUCHNET_SITE'])
+        return config['test']['posting_key'] if payment.registration.test else config['production']['posting_key']
+#         return payment.processor.config['TEST_POSTING_KEY'] if payment.registration.test else payment.processor.config['POSTING_KEY']
