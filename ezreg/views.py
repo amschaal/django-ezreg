@@ -212,7 +212,7 @@ def pay(request,id):
 @has_permissions([OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS])
 def payment_processors(request):
     OUPs = OrganizerUserPermission.objects.filter(user=request.user,permission=OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS)
-    payment_processors = PaymentProcessor.objects.filter(organizer_id__in=[oup.organizer_id for oup in OUPs])
+    payment_processors = PaymentProcessor.objects.filter(organizer_id__in=[oup.organizer_id for oup in OUPs]).order_by('organizer__name','processor_id','name')
     return render(request, 'ezreg/payment_processors.html', {'payment_processors':payment_processors})
 
 
