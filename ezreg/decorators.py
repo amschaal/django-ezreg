@@ -32,7 +32,7 @@ class event_access_decorator(object):
                     return redirect(url)
                 else:
                     raise PermissionDenied
-            if True:#not request.user.is_superuser:
+            if not request.user.is_staff:
                 user_perms = [p.permission for p in event.organizer.user_permissions.filter(user=request.user)]
                 if self.require_all:
                     for perm in self.perms:
@@ -73,7 +73,7 @@ class generic_permission_decorator(object):
                     return redirect(url)
                 else:
                     raise PermissionDenied
-            if not request.user.is_superuser:
+            if not request.user.is_staff:
                 oup_kwargs = {'user':request.user,self.reverse_filter:kwargs[self.filter_param]}
                 user_perms = [p.permission for p in OrganizerUserPermission.objects.filter(**oup_kwargs)]
                 if self.require_all:
@@ -109,7 +109,7 @@ class has_permissions(object):
                     return redirect(url)
                 else:
                     raise PermissionDenied
-            if True:#not request.user.is_superuser:
+            if not request.user.is_staff:
                 user_perms = [p.permission for p in OrganizerUserPermission.objects.filter(user=request.user)]
                 if self.require_all:
                     for perm in self.perms:

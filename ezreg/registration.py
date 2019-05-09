@@ -203,7 +203,7 @@ class RegistrationWizard(SessionWizardView):
         
         self.test = request.GET.has_key('test')
         if kwargs.get('admin',False):
-            if not request.user.is_authenticated() or not OrganizerUserPermission.objects.filter(user=request.user,permission=OrganizerUserPermission.PERMISSION_ADMIN,organizer=self.event.organizer):
+            if not (request.user.is_authenticated() and request.user.is_staff) and not OrganizerUserPermission.objects.filter(user=request.user,permission=OrganizerUserPermission.PERMISSION_ADMIN,organizer=self.event.organizer):
                 return HttpResponseForbidden('Only event admininstrators may register participants')
             self.admin = True
         test_redirect_parameter = '?test' if self.test else ''

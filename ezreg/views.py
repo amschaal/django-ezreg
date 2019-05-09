@@ -211,8 +211,7 @@ def pay(request,id):
 
 @has_permissions([OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS])
 def payment_processors(request):
-    OUPs = OrganizerUserPermission.objects.filter(user=request.user,permission=OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS)
-    payment_processors = PaymentProcessor.objects.filter(organizer_id__in=[oup.organizer_id for oup in OUPs]).order_by('organizer__name','processor_id','name')
+    payment_processors = PaymentProcessor.get_user_queryset(user=request.user).order_by('organizer__name','processor_id','name')
     return render(request, 'ezreg/payment_processors.html', {'payment_processors':payment_processors})
 
 
@@ -356,7 +355,7 @@ def export_registrations(request, event):
 def export_event_revenue(request):
     import re, tablib
     dataset = dataset = tablib.Dataset(headers=['closing date','event','organizer','registered revenue','registered refunds','registered total','all revenue','all refunds','all total'])
-    qs = Event.objects.all() if request.user.is_superuser else Event.objects(organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_VIEW,organizer__user_permissions__user=request.user)
+    qs = Event.objects.all() if request.user.is_staff else Event.objects(organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_VIEW,organizer__user_permissions__user=request.user)
     for e in qs.order_by('organizer__name','-end_time'):
         all_revenue = Payment.objects.filter(registration__event=e,registration__test=False).aggregate(Sum('amount'),Sum('refunded'))
         registered_revenue = Payment.objects.filter(registration__status=Registration.STATUS_REGISTERED,registration__event=e,registration__test=False).aggregate(Sum('amount'),Sum('refunded'))

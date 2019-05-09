@@ -335,6 +335,12 @@ class PaymentProcessor(models.Model):
     def get_configuration_form(self):
         processor = self.get_processor()
         return processor.get_configuration_form()
+    @staticmethod
+    def get_user_queryset(user):
+        if user.is_staff:
+            return PaymentProcessor.objects.all()
+        OUPs = OrganizerUserPermission.objects.filter(user=user,permission=OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS)
+        return PaymentProcessor.objects.filter(organizer__in=[oup.organizer_id for oup in OUPs])
     def __unicode__(self):
         return self.name
 
