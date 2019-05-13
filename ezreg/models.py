@@ -139,7 +139,7 @@ class Event(models.Model):
         calendar.add_component(cevent)
         return calendar.to_ical()
     def get_user_permissions(self, user):
-        if user.is_superuser:
+        if user.is_staff:
             return [p[0] for p in OrganizerUserPermission.PERMISSION_CHOICES]
         return [p.permission for p in OrganizerUserPermission.objects.filter(user=user,organizer=self.organizer)]
     def total_revenue(self, statuses=[], subtract_refunds=True, payment_processor_ids=[]):
