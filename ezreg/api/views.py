@@ -4,8 +4,7 @@ from ezreg.api.serializers import PriceSerializer, PaymentProcessorSerializer,\
     EventSerializer, DetailedEventSerializer
 from ezreg.models import Price, PaymentProcessor, Event, EventProcessor,\
     EventPage, Registration, OrganizerUserPermission
-from rest_framework.decorators import api_view, permission_classes, list_route,\
-    detail_route
+from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from mailqueue.models import MailerMessage
 from ezreg.email import email_status
@@ -86,7 +85,7 @@ class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
         if self.request.user.is_staff:
             return Registration.objects.all()
         return Registration.objects.filter(event__organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_VIEW,event__organizer__user_permissions__user=self.request.user)
-    @list_route()
+    @action(detail=False)
     def export_registrations(self,request):
         import tablib
         registrations = self.filter_queryset(self.get_queryset())
