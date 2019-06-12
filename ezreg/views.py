@@ -68,6 +68,8 @@ def create_event(request):
 
 @event_access_decorator([OrganizerUserPermission.PERMISSION_ADMIN])
 def delete_event(request,event):
+    if event.registrations.exclude(test=True).count() > 0:
+        return render(request, 'ezreg/message.html', {'message':'Only super users may delete events with registrations.'} )
     event.delete()
     return redirect('manage_events')
 
