@@ -50,7 +50,7 @@ class EventForm(forms.ModelForm):
         self.data = data
         if not user.is_superuser:
             del self.fields['billed']
-    body = forms.CharField(label='Event page',help_text='This is the main page for your event and should contain most information about your event.',widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
+    body = forms.CharField(label='Main event page',help_text='This is the landing page for your event and should contain most information about your event.  You may add additional pages using the "Event Pages" tab.',widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     description = forms.CharField(label='Brief event description',help_text='This should be a brief description of your event, and will be displayed during the registration process.',widget=TinyMCE(attrs={'cols': 80, 'rows': 15}))
     cancellation_policy = forms.CharField(required=False,widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     def clean(self):
