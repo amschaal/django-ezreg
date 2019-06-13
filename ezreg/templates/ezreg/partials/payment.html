@@ -14,6 +14,7 @@
 {% endfor %}
 {% endif %}
 {% endwith %}
-{% if registration.payment.admin_notes and permissions and 'admin' in permissions or 'view' in permissions%}<tr><th>Admin Notes</th><td>{{registration.payment.admin_notes}}</td></tr>{% endif %}
+{% if registration.payment.refunded and permissions and 'admin' in permissions %}<tr><th>Refunded</th><td>${{registration.payment.refunded}}</td></tr>{% endif %}
+{% if registration.payment.admin_notes and permissions and 'admin' in permissions %}<tr><th>Admin Notes</th><td>{{registration.payment.admin_notes}}</td></tr>{% endif %}
 </table>
 {% endif %}
