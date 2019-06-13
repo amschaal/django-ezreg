@@ -20,7 +20,7 @@ class TouchnetPaymentProcessor(BasePaymentProcessor):
         posting_key = TouchnetPaymentProcessor.get_posting_key(payment)
         data = {'UPAY_SITE_ID':site_id,
                 'EXT_TRANS_ID':'FID=%s;%s'%(conf['FID'],payment.registration.id) if not conf.get('FAU') else 'FID=%s;FAU=%s;%s'%(conf['FID'],conf['FAU'],payment.registration.id),
-#                 'EXT_TRANS_ID_LABEL':payment.registration.event.title,
+                'EXT_TRANS_ID_LABEL':payment.registration.event.title,
                 'SUCCESS_LINK': settings.SITE_URL + reverse('registration',kwargs={'id':payment.registration.id}),
                 'CANCEL_LINK': settings.SITE_URL + reverse('event',kwargs={'slug_or_id':payment.registration.event.slug_or_id}),
                 'AMT': payment.amount
