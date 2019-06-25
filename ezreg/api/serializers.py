@@ -49,7 +49,7 @@ class EventSerializer(serializers.ModelSerializer):
     organizer = OrganizerSerializer(read_only=True)
     class Meta:
         model = Event
-        fields = ('id','organizer','start_time','end_time','title','capacity','registered','waitlisted','applied','accepted','cancelled','pending','registration_enabled','config')
+        fields = ('id','organizer','start_time','end_time','title','capacity','registered','waitlisted','applied','accepted','cancelled','pending','registration_enabled','config','billed')
 
 class DetailedEventSerializer(EventSerializer):
     form_fields = serializers.ReadOnlyField()

@@ -4,8 +4,7 @@ from ezreg.api.serializers import PriceSerializer, PaymentProcessorSerializer,\
     EventSerializer, DetailedEventSerializer
 from ezreg.models import Price, PaymentProcessor, Event, EventProcessor,\
     EventPage, Registration, OrganizerUserPermission
-from rest_framework.decorators import api_view, permission_classes, list_route,\
-    detail_route
+from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from mailqueue.models import MailerMessage
 from ezreg.email import email_status
@@ -26,6 +25,8 @@ class PriceViewset(viewsets.ModelViewSet):
     filter_fields = ('event',)
     search_fields = ('event',)
     def get_queryset(self):
+        if self.request.user.is_staff:
+            return Price.objects.all().annotate(registration_count=Count('registrations'))
         return Price.objects.filter(event__organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN,event__organizer__user_permissions__user=self.request.user).annotate(registration_count=Count('registrations'))
 
 class PaymentProcessorViewset(viewsets.ReadOnlyModelViewSet):
@@ -33,14 +34,16 @@ class PaymentProcessorViewset(viewsets.ReadOnlyModelViewSet):
     filter_fields = ('organizer',)
     search_fields = ('organizer',)
     def get_queryset(self):
+        if self.request.user.is_staff:
+            return PaymentProcessor.objects.all()
         return PaymentProcessor.objects.filter(organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN,organizer__user_permissions__user=self.request.user)
 
 class EventViewset(viewsets.ModelViewSet):
     serializer_class = EventSerializer
 #     filter_fields = ('event',)
-    filter_fields = {'title':[ 'icontains'],'organizer__name':['icontains'],'active':['exact']}
+    filter_fields = {'title':[ 'icontains'],'organizer__name':['icontains'],'active':['exact'],'billed':['exact']}
     search_fields = ('title',)
-    ordering_fields = ('start_time','title','organizer__name')
+    ordering_fields = ('start_time','title','organizer__name','billed')
     permission_classes = (EventPermission,)
     def get_serializer_class(self):
         if self.request.query_params.get('serializer','simple') == 'simple':
@@ -49,6 +52,8 @@ class EventViewset(viewsets.ModelViewSet):
             return DetailedEventSerializer
         return viewsets.ModelViewSet.get_serializer_class(self)
     def get_queryset(self):
+        if self.request.user.is_staff:
+            return Event.objects.all()
         return Event.objects.filter(organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_VIEW,organizer__user_permissions__user=self.request.user)
 #     @detail_route(methods=['GET'])
 #     def get_config(self,request,*args,**kwargs):
@@ -61,6 +66,8 @@ class EventPageViewset(viewsets.ModelViewSet):
     filter_fields = ('event',)
     search_fields = ('event',)
     def get_queryset(self):
+        if self.request.user.is_staff:
+            return EventPage.objects.all()
         return EventPage.objects.filter(event__organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN,event__organizer__user_permissions__user=self.request.user)
 
 class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
@@ -75,8 +82,10 @@ class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
     ordering_fields = ('status','first_name','last_name','email','registered','payment__amount','payment__status','payment__processor__name','event__title','event__organizer__name')
     search_fields = ('status','email',)
     def get_queryset(self):
+        if self.request.user.is_staff:
+            return Registration.objects.all()
         return Registration.objects.filter(event__organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_VIEW,event__organizer__user_permissions__user=self.request.user)
-    @list_route()
+    @action(detail=False)
     def export_registrations(self,request):
         import tablib
         registrations = self.filter_queryset(self.get_queryset())
@@ -113,6 +122,8 @@ class MailerMessageViewset(viewsets.ReadOnlyModelViewSet):
     filter_fields = {'registrations__id':['exact'],'registrations__event':['exact'],'sent':['exact'],'to_address':['exact','icontains'],'bcc_address':['exact','icontains'],'subject':['exact','icontains']}
     search_fields = ('to_address',)
     def get_queryset(self):
+        if self.request.user.is_staff:
+            return MailerMessage.objects.all().prefetch_related('registrations')
         return MailerMessage.objects.filter(registrations__event__organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_VIEW,registrations__event__organizer__user_permissions__user=self.request.user).prefetch_related('registrations')
 """
 POST {"processors":{3:{"enabled":true},5:{"enabled":true}}}  where JSON object keys are PaymentProcessor ids

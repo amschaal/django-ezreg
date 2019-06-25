@@ -19,6 +19,7 @@ from django_bleach.models import BleachField
 from django.utils import timezone
 from django.contrib.postgres import fields as postgres_fields
 
+
 def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
@@ -77,6 +78,7 @@ class Event(models.Model):
     hide_header = models.BooleanField(default=False)
     form_fields = JSONField(null=True, blank=True)
     outside_url = models.URLField(null=True,blank=True)
+    billed = models.BooleanField(default=False)
     config = postgres_fields.JSONField(default=dict)
     @property
     def slug_or_id(self):
@@ -99,6 +101,9 @@ class Event(models.Model):
     @property
     def accepted(self):
         return self.registrations.filter(status=Registration.STATUS_APPLIED_ACCEPTED).exclude(test=True).count()
+    @property
+    def registration_closed(self):
+        return self.open_until and str(self.open_until)[:10] < str(datetime.today())[:10]
     @property
     def registration_enabled(self):
 #         if self.enable_application:
@@ -134,9 +139,29 @@ class Event(models.Model):
         calendar.add_component(cevent)
         return calendar.to_ical()
     def get_user_permissions(self, user):
-        if user.is_superuser:
+        if user.is_staff:
             return [p[0] for p in OrganizerUserPermission.PERMISSION_CHOICES]
         return [p.permission for p in OrganizerUserPermission.objects.filter(user=user,organizer=self.organizer)]
+    def total_revenue(self, statuses=[], subtract_refunds=True, payment_processor_ids=[]):
+        from django.db.models.aggregates import Sum
+        statuses = statuses if len(statuses) > 0 else [Registration.STATUS_REGISTERED]
+        qs = Payment.objects.filter(registration__event=self, registration__status__in=statuses).exclude(registration__test=True)
+        if len(payment_processor_ids) > 0:
+            qs = qs.filter(processor__processor_id__in=payment_processor_ids)
+        
+        totals = qs.aggregate(total=Sum('amount'),refunded=Sum('refunded'))
+        if not totals['total']:
+            return 0
+        elif subtract_refunds and totals['refunded']:
+            return totals['total'] - totals['refunded']
+        else:
+            return totals['total']
+    @property
+    def revenue(self):
+        return self.total_revenue()
+    @property
+    def credit_card_revenue(self):
+        return self.total_revenue(payment_processor_ids=['touchnet_payment_processor'])
     def __unicode__(self):
         return self.title
     class Meta:
@@ -310,6 +335,12 @@ class PaymentProcessor(models.Model):
     def get_configuration_form(self):
         processor = self.get_processor()
         return processor.get_configuration_form()
+    @staticmethod
+    def get_user_queryset(user):
+        if user.is_staff:
+            return PaymentProcessor.objects.all()
+        OUPs = OrganizerUserPermission.objects.filter(user=user,permission=OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS)
+        return PaymentProcessor.objects.filter(organizer__in=[oup.organizer_id for oup in OUPs])
     def __unicode__(self):
         return self.name
 

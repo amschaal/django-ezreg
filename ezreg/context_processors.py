@@ -4,7 +4,7 @@ from django.conf import settings
 def permissions_processor(request):
     if not request.user.is_authenticated():
         return {'OrganizerUserPermission':OrganizerUserPermission}
-    elif request.user.is_superuser:
+    elif request.user.is_staff:
         permissions = [p[0] for p in OrganizerUserPermission.PERMISSION_CHOICES]
     else:
         oups = OrganizerUserPermission.objects.filter(user=request.user)

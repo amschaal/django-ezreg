@@ -68,6 +68,8 @@ def create_event(request):
 
 @event_access_decorator([OrganizerUserPermission.PERMISSION_ADMIN])
 def delete_event(request,event):
+    if event.registrations.exclude(test=True).count() > 0:
+        return render(request, 'ezreg/message.html', {'message':'Events with registrations may not be deleted.'} )
     event.delete()
     return redirect('manage_events')
 
@@ -149,22 +151,24 @@ def modify_registration(request,id=None):
 def modify_payment(request,id=None):
     registration = Registration.objects.get(id=id)
     payment = registration.get_payment()
+    PAID = getattr(payment, 'status') == Payment.STATUS_PAID
     form_class = payment.get_form()
     if request.method == 'GET':
-        price_form = AdminPriceForm({'price':registration.price_id},event=registration.event)
+        price_form = None if PAID else AdminPriceForm({'price':registration.price_id},event=registration.event)
         payment_form = form_class(payment.data,event=registration.event) if form_class else None
         admin_payment_form = AdminPaymentForm(instance=payment,prefix="admin_payment_form")
     elif request.method == 'POST':
         payment_form = form_class(request.POST,event=registration.event) if form_class else None
         old_payment_status = payment.status
         admin_payment_form = AdminPaymentForm(request.POST,instance=payment,prefix="admin_payment_form")
-        price_form = AdminPriceForm(request.POST,event=registration.event)
-        if price_form.is_valid() and admin_payment_form.is_valid() and (payment_form is None or payment_form.is_valid()):
+        price_form = None if PAID else AdminPriceForm(request.POST,event=registration.event)
+        if (PAID or price_form.is_valid()) and admin_payment_form.is_valid() and (payment_form is None or payment_form.is_valid()):
             payment = admin_payment_form.save(commit=False)
             if payment_form:
                 payment.data = payment_form.cleaned_data
-            registration.price = price_form.cleaned_data['price']
-            payment.amount = price_form.cleaned_data['price'].amount
+            if not PAID:
+                registration.price = price_form.cleaned_data['price']
+                payment.amount = price_form.cleaned_data['price'].amount
             payment.save()
             registration.save()
             if old_payment_status != admin_payment_form.cleaned_data['status']:
@@ -211,8 +215,7 @@ def pay(request,id):
 
 @has_permissions([OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS])
 def payment_processors(request):
-    OUPs = OrganizerUserPermission.objects.filter(user=request.user,permission=OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS)
-    payment_processors = PaymentProcessor.objects.filter(organizer_id__in=[oup.organizer_id for oup in OUPs])
+    payment_processors = PaymentProcessor.get_user_queryset(user=request.user).order_by('organizer__name','processor_id','name')
     return render(request, 'ezreg/payment_processors.html', {'payment_processors':payment_processors})
 
 
@@ -356,7 +359,7 @@ def export_registrations(request, event):
 def export_event_revenue(request):
     import re, tablib
     dataset = dataset = tablib.Dataset(headers=['closing date','event','organizer','registered revenue','registered refunds','registered total','all revenue','all refunds','all total'])
-    qs = Event.objects.all() if request.user.is_superuser else Event.objects(organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_VIEW,organizer__user_permissions__user=request.user)
+    qs = Event.objects.all() if request.user.is_staff else Event.objects(organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_VIEW,organizer__user_permissions__user=request.user)
     for e in qs.order_by('organizer__name','-end_time'):
         all_revenue = Payment.objects.filter(registration__event=e,registration__test=False).aggregate(Sum('amount'),Sum('refunded'))
         registered_revenue = Payment.objects.filter(registration__status=Registration.STATUS_REGISTERED,registration__event=e,registration__test=False).aggregate(Sum('amount'),Sum('refunded'))

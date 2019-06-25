@@ -41,13 +41,16 @@ class AngularDatePickerInput(TextInput):
 class EventForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
         super(EventForm,self).__init__(*args, **kwargs)
-        self.fields['organizer'].queryset = Organizer.objects.filter(user_permissions__user=user,user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN)
+        if not user.is_staff:
+            self.fields['organizer'].queryset = Organizer.objects.filter(user_permissions__user=user,user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN)
         self.fields['open_until'].required = False
         #Make open_until default to start_time if not provided
         data = self.data.copy()
         data['open_until'] = self.data.get('open_until') or self.data.get('start_time','')[:10]
         self.data = data
-    body = forms.CharField(label='Event page',help_text='This is the main page for your event and should contain most information about your event.',widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
+        if not user.is_superuser:
+            del self.fields['billed']
+    body = forms.CharField(label='Main event page',help_text='This is the landing page for your event and should contain most information about your event.  You may add additional pages using the "Event Pages" tab.',widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     description = forms.CharField(label='Brief event description',help_text='This should be a brief description of your event, and will be displayed during the registration process.',widget=TinyMCE(attrs={'cols': 80, 'rows': 15}))
     cancellation_policy = forms.CharField(required=False,widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     def clean(self):
@@ -62,7 +65,7 @@ class EventForm(forms.ModelForm):
         model=Event
         fields = ('organizer','title','active','tentative','advertise','enable_waitlist','enable_application','capacity',
                   'slug','logo','hide_header','title','description','body','cancellation_policy','open_until',
-                  'start_time','end_time','contact','display_address','address','waitlist_message','bcc','from_addr','expiration_time','outside_url')
+                  'start_time','end_time','contact','display_address','address','waitlist_message','bcc','from_addr','expiration_time','outside_url','billed')
 #         exclude = ('id','payment_processors','ical','form_fields','group')
         labels = {
                   'start_time': 'Event Start Time',
@@ -103,7 +106,8 @@ class EventForm(forms.ModelForm):
 class PaymentProcessorForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
         super(PaymentProcessorForm,self).__init__(*args, **kwargs)
-        self.fields['organizer'].queryset = Organizer.objects.filter(user_permissions__user=user,user_permissions__permission=OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS)
+        if not user.is_staff:
+            self.fields['organizer'].queryset = Organizer.objects.filter(user_permissions__user=user,user_permissions__permission=OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS)
         self.PaymentProcessors = PaymentProcessorManager()
         processor_choices = self.PaymentProcessors.get_choices()
         self.fields['processor_id'].widget = forms.widgets.Select(choices=processor_choices)
