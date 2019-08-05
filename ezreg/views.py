@@ -22,6 +22,7 @@ from ezreg.custom_texts import CUSTOM_TEXTS
 from django.db.models.aggregates import Sum
 from decimal import Decimal
 from django_logger.models import Log
+from django.http import Http404
 
 def home(request, organizer_slug=None):
     organizer = Organizer.objects.filter(slug=organizer_slug).first()
@@ -116,12 +117,18 @@ def manage_event(request,event):
     
 
 def event(request,slug_or_id):
-    event = Event.objects.get(Q(id=slug_or_id)|Q(slug=slug_or_id))
+    try:
+        event = Event.objects.get(Q(id=slug_or_id)|Q(slug=slug_or_id))
+    except Event.DoesNotExist, e:
+        raise Http404('Event not found')
     return render(request, 'ezreg/event.html', {'event':event})
 
 def event_page(request,slug_or_id,page_slug):
-    event = Event.objects.get(Q(id=slug_or_id)|Q(slug=slug_or_id))
-    page = EventPage.objects.get(event=event,slug=page_slug)
+    try:
+        event = Event.objects.get(Q(id=slug_or_id)|Q(slug=slug_or_id))
+        page = EventPage.objects.get(event=event,slug=page_slug)
+    except:
+        raise Http404('Event or event page not found')
     return render(request, 'ezreg/page.html', {'event':event,'page':page})
 
 
@@ -192,7 +199,10 @@ def update_registration_status(request,id):
     return render(request, 'ezreg/update_registration_status.html', {'form':form,'registration':registration} )
 
 def registration(request,id):
-    registration = Registration.objects.get(id=id)
+    try:
+        registration = Registration.objects.get(id=id)
+    except Registration.DoesNotExist:
+        raise Http404('Registration not found')
     permissions = registration.event.get_user_permissions(request.user) if request.user.is_authenticated else []
     return render(request, 'ezreg/registration.html', {'registration':registration, 'permissions': permissions})
 
