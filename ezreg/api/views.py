@@ -75,7 +75,7 @@ class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
     filter_backends = viewsets.ReadOnlyModelViewSet.filter_backends + [MultiFilter]
 #     filter_fields = ('status','event','email','first_name','last_name')
     multi_filters = ['status__in','payment__status__in']
-    filter_fields = {'status':['exact', 'icontains'],'registered':['gte','lte'],'event':['exact'],'event__title':['icontains'],'event__organizer__name':['icontains'],'email':['exact', 'icontains'],'first_name':['exact', 'icontains'],'last_name':['exact', 'icontains'],'payment__processor__name':['exact'],'payment__status':['exact'],'test':['exact']} 
+    filter_fields = {'status':['exact', 'icontains'],'registered':['gte','lte'],'event':['exact'],'event__title':['icontains'],'event__organizer__name':['icontains'],'email':['exact', 'icontains'],'first_name':['exact', 'icontains'],'last_name':['exact', 'icontains'],'payment__processor__name':['exact'],'payment__status':['exact'],'payment__amount':['exact'],'test':['exact']} 
 #     {'name': ['exact', 'icontains'],
 #                   'price': ['exact', 'gte', 'lte'],
 #                  }
