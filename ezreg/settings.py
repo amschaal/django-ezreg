@@ -167,8 +167,8 @@ BLEACH_ALLOWED_ATTRIBUTES = ['href', 'title', 'style','src','width','height']
 
 # Which CSS properties are allowed in 'style' attributes (assuming
 # style is an allowed attribute)
-# BLEACH_ALLOWED_STYLES = [
-#     'font-family', 'font-weight', 'text-decoration', 'font-variant']
+BLEACH_ALLOWED_STYLES = [
+    'font-family', 'font-weight', 'text-decoration', 'font-variant', 'text-align']
 
 # Strip unknown tags if True, replace with HTML escaped characters if
 # False
