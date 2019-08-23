@@ -133,7 +133,7 @@ TINYMCE_DEFAULT_CONFIG = {
     'theme_advanced_toolbar_align': 'left',
     'paste_text_sticky': True,
     'paste_text_sticky_default' : True,
-    'valid_styles' : 'font-weight,font-style,text-decoration',
+#     'valid_styles' : 'font-weight,font-style,text-decoration,text-align', #text-align doesn't seem to work, so I'm commenting out the whole line.
     'relative_urls': False,
     'plugins': "table",
     'theme_advanced_buttons3_add' : "tablecontrols",
