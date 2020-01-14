@@ -323,6 +323,30 @@ class Payment(models.Model):
         else:
             return form_class(event=self.registration.event)
 
+class Refund(models.Model):
+    STATUS_PENDING = 'pending'
+    STATUS_CANCELLED = 'cancelled'
+    STATUS_COMPLETED = 'completed'
+    STATUS_CHOICES = ((STATUS_PENDING,STATUS_PENDING),(STATUS_CANCELLED,STATUS_CANCELLED),(STATUS_COMPLETED,STATUS_COMPLETED))
+    payment = models.ForeignKey(Payment)
+    requester = models.ForeignKey(User)
+    notes = models.TextField(null=True, blank=True)
+    requested = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=10, default=STATUS_PENDING, choices=STATUS_CHOICES)
+    amount = models.DecimalField(decimal_places=2,max_digits=7)
+    admin = models.ForeignKey(User, null=True, blank=True)
+    updated = models.DateTimeField(null=True, blank=True)
+    def set_status(self, status, user):
+        if self.status == Refund.STATUS_COMPLETED:
+            raise Exception("Refund has already been completed and cannot be undone.")
+        self.status = status
+        self.admin = user
+        self.updated = timezone.now()
+        self.save()
+        if status == Refund.STATUS_COMPLETED:
+            self.payment.amount -= self.amount            
+            self.payment.save()
+
 class PaymentProcessor(models.Model):
     processor_id = models.CharField(max_length=30)
 #     group = models.ForeignKey(Group)
