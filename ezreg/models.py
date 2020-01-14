@@ -181,6 +181,7 @@ class EventPage(models.Model):
     body = BleachField()
     class Meta:
         unique_together = (('event','slug'))
+        ordering = ('index', 'id')
 
 # class EventText(models.Model):
 #     TYPE_POST_PRICE = 'POST_PRICE'
