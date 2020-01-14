@@ -251,9 +251,10 @@ class RegistrationWizard(SessionWizardView):
             cleaned_data = self.get_cleaned_data_for_step('price_form') or None
             if cleaned_data:
                 processor_method = cleaned_data.get('payment_method')
-                manager  = PaymentProcessorManager()
-                processor = manager.get_processor(processor_method.processor_id)
-                form_class = processor.get_form()
-                if form_class:
-                    form = form_class(data,event=self.event,config=processor_method.config)
+                if processor_method:
+                    manager  = PaymentProcessorManager()
+                    processor = manager.get_processor(processor_method.processor_id)
+                    form_class = processor.get_form()
+                    if form_class:
+                        form = form_class(data,event=self.event,config=processor_method.config)
         return form

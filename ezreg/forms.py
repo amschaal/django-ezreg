@@ -172,6 +172,9 @@ class PriceForm(forms.Form):
                 self.coupon_price = self.available_prices_queryset(include_coupons=True).filter(coupon_code=coupon_code).first()
                 if self.coupon_price:
                     self.data[self.add_prefix('price')]=self.coupon_price.id
+                    if self.coupon_price.amount == 0:
+                        self.fields['payment_method'].required = False
+#                         del self.fields['payment_method']
     def get_payment_method_queryset(self):
         return self.event.payment_processors.filter(hidden=False)
     def available_prices_queryset(self,include_coupons=False):
