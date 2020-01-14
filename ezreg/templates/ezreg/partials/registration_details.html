@@ -14,6 +14,9 @@
 {% if registration.price and not registration.payment %}
 <tr><th>Price</th><td>{{registration.price}}{% if registration.price.description%} - {{registration.price.description}}{% endif %}</td></tr>
 {% endif %}
+{% if permissions and 'admin' in permissions and registration.admin_notes%}
+<tr><th>Admin notes</th><td>{{registration.admin_notes}}</td></tr>
+{% endif %}
 </table>
 
 {% include 'ezreg/partials/payment.html' %}
