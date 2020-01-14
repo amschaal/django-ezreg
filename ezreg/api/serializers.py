@@ -31,7 +31,7 @@ class PaymentProcessorSerializer(serializers.ModelSerializer):
 class EventPageSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventPage
-        fields = ('id','event','slug','heading','body')
+        fields = ('id','index','event','slug','heading','body')
 
 class OrganizerSerializer(serializers.ModelSerializer):
     class Meta:

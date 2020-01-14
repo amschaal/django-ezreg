@@ -67,8 +67,8 @@ class EventPageViewset(viewsets.ModelViewSet):
     search_fields = ('event',)
     def get_queryset(self):
         if self.request.user.is_staff:
-            return EventPage.objects.all()
-        return EventPage.objects.filter(event__organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN,event__organizer__user_permissions__user=self.request.user)
+            return EventPage.objects.all().order_by('index', 'id')
+        return EventPage.objects.filter(event__organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN,event__organizer__user_permissions__user=self.request.user).order_by('index', 'id')
 
 class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = RegistrationSerializer
