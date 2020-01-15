@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect
 from ezreg.models import Event,  Registration, PaymentProcessor, EventPage,\
     id_generator, EventProcessor, OrganizerUserPermission, Payment, Organizer
 from ezreg.forms import EventForm, PaymentProcessorForm,  AdminRegistrationForm,\
-    AdminRegistrationStatusForm, PriceForm, AdminPriceForm, AdminPaymentForm
+    AdminRegistrationStatusForm, PriceForm, AdminPriceForm, AdminPaymentForm,\
+    RefundRequestForm
 from django.contrib.auth.decorators import login_required
 from django.db.models.query_utils import Q
 from ezreg.email import  email_status
@@ -197,6 +198,20 @@ def update_registration_status(request,id):
             Log.create(text='Registration status for %s updated to %s by %s'%(registration.email,registration.status,request.user.username),objects=[registration,registration.event,request.user])
             return redirect('registrations',slug_or_id=registration.event_id) #event.get_absolute_url()
     return render(request, 'ezreg/update_registration_status.html', {'form':form,'registration':registration} )
+
+@generic_permission_decorator([OrganizerUserPermission.PERMISSION_ADMIN],'organizer__events__registrations__id','id')
+def request_refund(request, id):
+    registration = Registration.objects.get(id=id)
+    if request.method == 'GET':
+        form = RefundRequestForm(user=request.user, registration=registration)
+    elif request.method == 'POST':
+        form = RefundRequestForm(request.POST, user=request.user, registration=registration)
+        if form.is_valid():
+            refund = form.save()
+            # @todo: Email admins here?
+            Log.create(text='Refund request for %s created %s by %s'%(registration.email,refund.requested,request.user.username),objects=[registration,registration.event,request.user])
+            return redirect('registration',id=registration.id) #event.get_absolute_url()
+    return render(request, 'ezreg/request_refund.html', {'form':form,'registration':registration} )
 
 def registration(request,id):
     try:

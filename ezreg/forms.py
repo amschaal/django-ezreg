@@ -6,7 +6,7 @@ from tinymce.widgets import TinyMCE
 from datetime import datetime
 
 from ezreg.models import Event, Price, Registration, PaymentProcessor, Organizer,\
-    OrganizerUserPermission, Payment
+    OrganizerUserPermission, Payment, Refund
 from ezreg.payment import PaymentProcessorManager
 from django.forms.widgets import  TextInput
 from django.db.models.query_utils import Q
@@ -269,4 +269,19 @@ class ConfirmationForm(forms.Form):
         if not accept_policy:
             raise ValidationError('You must accept the cancellation policy to continue.')
         return accept_policy
-    
+
+class RefundRequestForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user')
+        self.registration = kwargs.pop('registration')
+        super(RefundRequestForm, self).__init__(*args, **kwargs)
+    def save(self, commit=True):
+        refund = super(RefundRequestForm, self).save(commit=False)
+        refund.requester = self.user
+        refund.registration = self.registration
+        if commit:
+            refund.save()
+        return refund
+    class Meta:
+        model=Refund
+        fields = ('amount', 'notes')

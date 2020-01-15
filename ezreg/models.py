@@ -18,6 +18,7 @@ from django.core.validators import MinLengthValidator
 from django_bleach.models import BleachField
 from django.utils import timezone
 from django.contrib.postgres import fields as postgres_fields
+import uuid
 
 
 def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
@@ -328,13 +329,14 @@ class Refund(models.Model):
     STATUS_CANCELLED = 'cancelled'
     STATUS_COMPLETED = 'completed'
     STATUS_CHOICES = ((STATUS_PENDING,STATUS_PENDING),(STATUS_CANCELLED,STATUS_CANCELLED),(STATUS_COMPLETED,STATUS_COMPLETED))
-    payment = models.ForeignKey(Payment)
-    requester = models.ForeignKey(User)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    registration = models.ForeignKey(Registration)
+    requester = models.ForeignKey(User, related_name="requested_refunds")
     notes = models.TextField(null=True, blank=True)
     requested = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=10, default=STATUS_PENDING, choices=STATUS_CHOICES)
     amount = models.DecimalField(decimal_places=2,max_digits=7)
-    admin = models.ForeignKey(User, null=True, blank=True)
+    admin = models.ForeignKey(User, null=True, blank=True, related_name="approved_refunds")
     updated = models.DateTimeField(null=True, blank=True)
     def set_status(self, status, user):
         if self.status == Refund.STATUS_COMPLETED:
@@ -344,8 +346,8 @@ class Refund(models.Model):
         self.updated = timezone.now()
         self.save()
         if status == Refund.STATUS_COMPLETED:
-            self.payment.amount -= self.amount            
-            self.payment.save()
+            self.registration.payment.amount -= self.amount            
+            self.registration.payment.save()
 
 class PaymentProcessor(models.Model):
     processor_id = models.CharField(max_length=30)

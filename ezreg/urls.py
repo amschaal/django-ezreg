@@ -69,6 +69,7 @@ urlpatterns = [
     url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/modify/$', views.modify_registration, name="modify_registration"),
     url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/modify_payment/$', views.modify_payment, name="modify_payment"),
     url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/update_status/$', views.update_registration_status, name="update_registration_status"),
+    url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/request_refund/$', views.request_refund, name="request_refund"),
     url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/pay/$', views.pay, name="pay"),
     url(r'^payment_processors/$', views.payment_processors, name='payment_processors'),
     url(r'^payment_processors/create/$', views.create_payment_processor, name='create_payment_processor'),

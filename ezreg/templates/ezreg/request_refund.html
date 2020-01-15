@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block 'headend' %}
+{% endblock %}
+    
+{% block content %}
+<a href="{% url 'registration' id=registration.id %}">Back</a> to registration
+<h1>Request refund</h1>
+<form method="POST" action=".">
+{%csrf_token%}
+{{form|crispy}}
+<button class="btn">Request</button>
+</form>
+{% include 'ezreg/partials/registration_details.html' %}
+
+{% endblock %}
