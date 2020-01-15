@@ -330,7 +330,7 @@ class Refund(models.Model):
     STATUS_COMPLETED = 'completed'
     STATUS_CHOICES = ((STATUS_PENDING,STATUS_PENDING),(STATUS_CANCELLED,STATUS_CANCELLED),(STATUS_COMPLETED,STATUS_COMPLETED))
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    registration = models.ForeignKey(Registration)
+    registration = models.ForeignKey(Registration, related_name="refunds")
     requester = models.ForeignKey(User, related_name="requested_refunds")
     notes = models.TextField(null=True, blank=True)
     requested = models.DateTimeField(auto_now_add=True)

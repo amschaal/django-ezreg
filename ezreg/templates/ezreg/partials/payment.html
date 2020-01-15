@@ -17,4 +17,13 @@
 {% if registration.payment.refunded and permissions and 'admin' in permissions %}<tr><th>Refunded</th><td>${{registration.payment.refunded}}</td></tr>{% endif %}
 {% if registration.payment.admin_notes and permissions and 'admin' in permissions %}<tr><th>Admin Notes</th><td>{{registration.payment.admin_notes}}</td></tr>{% endif %}
 </table>
+{% if registration.refunds.all|length > 0 and permissions and 'admin' in permissions%}
+<h2>Refunds</h2>
+<table class="table">
+<tr><th>Requested</th><th>Requester</th><th>Amount</th><th>Status</th></tr>
+{% for r in registration.refunds.all %}
+<tr><td>{{r.requested}}</td><td>{{r.requester}}</td><td>${{r.amount}}</td><td>{{r.status}}</td></tr>
+{% endfor %}
+</table>
+{% endif %}
 {% endif %}
