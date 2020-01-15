@@ -233,7 +233,7 @@ class AdminPaymentForm(forms.ModelForm):
             self.fields['status'].help_text = 'A status of PAID may not be changed.  Refunds may be issued, but the original status must remain.'
     class Meta:
         model=Payment
-        fields = ('status','refunded','admin_notes')
+        fields = ('status','admin_notes') # ,'refunded'
     def clean_refunded(self):
         refunded = self.cleaned_data['refunded']
         if refunded and not self.instance.amount or refunded > self.instance.amount:

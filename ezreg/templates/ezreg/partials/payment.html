@@ -17,13 +17,18 @@
 {% if registration.payment.refunded and permissions and 'admin' in permissions %}<tr><th>Refunded</th><td>${{registration.payment.refunded}}</td></tr>{% endif %}
 {% if registration.payment.admin_notes and permissions and 'admin' in permissions %}<tr><th>Admin Notes</th><td>{{registration.payment.admin_notes}}</td></tr>{% endif %}
 </table>
-{% if registration.refunds.all|length > 0 and permissions and 'admin' in permissions%}
-<h2>Refunds</h2>
-<table class="table table-bordered table-striped table-condensed">
-<tr><th>Requested</th><th>Requester</th><th>Amount</th><th>Status</th><td></td></tr>
-{% for r in registration.refunds.all %}
-<tr><td>{{r.requested}}</td><td>{{r.requester}}</td><td>${{r.amount}}</td><td>{{r.status}}</td><td><a class="btn" href="{% url 'complete_refund' id=r.id %}">Complete</a></td></tr>
-{% endfor %}
-</table>
+{% if permissions and 'admin' in permissions%}
+    <h2>Refunds</h2>
+    {% if registration.refunds.all|length > 0%}
+        <table class="table table-bordered table-striped table-condensed">
+            <tr><th>Requested</th><th>Requester</th><th>Amount</th><th>Status</th><td></td></tr>
+        {% for r in registration.refunds.all %}
+            <tr><td>{{r.requested}}</td><td>{{r.requester}}</td><td>${{r.amount}}</td><td>{{r.status}}</td><td>{% if r.can_cancel %}<a class="btn btn-danger" href="{% url 'cancel_refund' id=r.id %}">Cancel</a>{% endif %}</td></tr>
+        {% endfor %}
+        </table>
+    {% else %}
+        <p>There are no requested refunds at this time.</p>
+    {% endif %}
+    <p><a href="{% url 'request_refund' id=registration.id%}">Request</a> a refund.</p>
 {% endif %}
 {% endif %}

@@ -360,6 +360,9 @@ class Refund(models.Model):
     @property
     def can_cancel(self):
         return self.status == Refund.STATUS_PENDING
+    @property
+    def can_complete(self):
+        return self.status == Refund.STATUS_PENDING and self.amount <= self.registration.payment.amount_remaining
 
 class PaymentProcessor(models.Model):
     processor_id = models.CharField(max_length=30)
