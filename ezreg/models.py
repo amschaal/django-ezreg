@@ -289,6 +289,9 @@ class Registration(models.Model):
             return self.payment
         except Payment.DoesNotExist:
             return None
+    @property
+    def display(self):
+        return '{}, {} ({})'.format(self.last_name, self.first_name, self.email)
 #     class Meta:
 #         unique_together = (('email','event'))
    
@@ -309,6 +312,9 @@ class Payment(models.Model):
     external_id = models.CharField(max_length=50,null=True,blank=True)
     data = JSONField(null=True,blank=True)
     admin_notes = models.TextField(null=True, blank=True)
+    @property
+    def amount_remaining(self):
+        return self.amount - self.refunded if self.refunded else self.amount
     def get_post_form(self):
         processor = self.processor.get_processor()
         return processor.get_post_form(self)
@@ -346,8 +352,14 @@ class Refund(models.Model):
         self.updated = timezone.now()
         self.save()
         if status == Refund.STATUS_COMPLETED:
-            self.registration.payment.amount -= self.amount            
+            if self.registration.payment.refunded:
+                self.registration.payment.refunded += self.amount            
+            else:
+                self.registration.payment.refunded += self.amount
             self.registration.payment.save()
+    @property
+    def can_cancel(self):
+        return self.status == Refund.STATUS_PENDING
 
 class PaymentProcessor(models.Model):
     processor_id = models.CharField(max_length=30)
@@ -392,3 +404,7 @@ def save_event_ical(sender,instance,**kwargs):
     ics.close()
     instance.ical = path
 pre_save.connect(save_event_ical, sender=Event)
+
+def user_display(self):
+    return '{}, {} ({})'.format(self.last_name, self.first_name, self.email)
+User.display = user_display

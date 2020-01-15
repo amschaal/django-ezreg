@@ -19,10 +19,10 @@
 </table>
 {% if registration.refunds.all|length > 0 and permissions and 'admin' in permissions%}
 <h2>Refunds</h2>
-<table class="table">
-<tr><th>Requested</th><th>Requester</th><th>Amount</th><th>Status</th></tr>
+<table class="table table-bordered table-striped table-condensed">
+<tr><th>Requested</th><th>Requester</th><th>Amount</th><th>Status</th><td></td></tr>
 {% for r in registration.refunds.all %}
-<tr><td>{{r.requested}}</td><td>{{r.requester}}</td><td>${{r.amount}}</td><td>{{r.status}}</td></tr>
+<tr><td>{{r.requested}}</td><td>{{r.requester}}</td><td>${{r.amount}}</td><td>{{r.status}}</td><td><a class="btn" href="{% url 'complete_refund' id=r.id %}">Complete</a></td></tr>
 {% endfor %}
 </table>
 {% endif %}

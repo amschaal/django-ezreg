@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect
 from ezreg.models import Event,  Registration, PaymentProcessor, EventPage,\
-    id_generator, EventProcessor, OrganizerUserPermission, Payment, Organizer
+    id_generator, EventProcessor, OrganizerUserPermission, Payment, Organizer,\
+    Refund
 from ezreg.forms import EventForm, PaymentProcessorForm,  AdminRegistrationForm,\
     AdminRegistrationStatusForm, PriceForm, AdminPriceForm, AdminPaymentForm,\
     RefundRequestForm
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models.query_utils import Q
 from ezreg.email import  email_status
 from django.http.response import HttpResponse
@@ -114,7 +115,8 @@ def manage_event(request,event):
     processors = json.dumps({processor.name:processor.name for processor in event.payment_processors.all()})
     form_fields = json.dumps(event.form_fields) if event.form_fields else '[]'
     permissions = event.get_user_permissions(request.user)
-    return render(request, 'ezreg/event/manage.html', {'form':form,'event':event,'Registration':Registration,'statuses':statuses,'payment_statuses':payment_statuses,'processors':processors,'form_fields':form_fields,'permissions':permissions,'custom_texts':json.dumps(CUSTOM_TEXTS)} )
+    refunds = Refund.objects.filter(registration__event=event)
+    return render(request, 'ezreg/event/manage.html', {'form':form,'event':event,'Registration':Registration,'statuses':statuses,'payment_statuses':payment_statuses,'processors':processors,'form_fields':form_fields,'permissions':permissions,'custom_texts':json.dumps(CUSTOM_TEXTS), 'refunds': refunds} )
     
 
 def event(request,slug_or_id):
@@ -212,6 +214,20 @@ def request_refund(request, id):
             Log.create(text='Refund request for %s created %s by %s'%(registration.email,refund.requested,request.user.username),objects=[registration,registration.event,request.user])
             return redirect('registration',id=registration.id) #event.get_absolute_url()
     return render(request, 'ezreg/request_refund.html', {'form':form,'registration':registration} )
+
+@user_passes_test(lambda u: u.is_staff)
+def complete_refund(request, id):
+    refund = Refund.objects.get(id=id)
+    refund.set_status(Refund.STATUS_COMPLETED,request.user)
+    permissions = refund.registration.event.get_user_permissions(request.user) if request.user.is_authenticated else []
+    return render(request, 'ezreg/registration.html', {'registration':refund.registration, 'permissions': permissions, 'message': "Refund request has been completed.  Use your browser's back button to return."}
+
+@generic_permission_decorator([OrganizerUserPermission.PERMISSION_ADMIN],'organizer__events__registrations__payment__refunds__id','id')
+def cancel_refund(request, id):
+    refund = Refund.objects.get(id=id)
+    refund.set_status(Refund.STATUS_COMPLETED,request.user)
+    permissions = refund.registration.event.get_user_permissions(request.user) if request.user.is_authenticated else []
+    return render(request, 'ezreg/registration.html', {'registration':refund.registration, 'permissions': permissions, 'message': "Refund request has been cancelled.  Use your browser's back button to return."})
 
 def registration(request,id):
     try:

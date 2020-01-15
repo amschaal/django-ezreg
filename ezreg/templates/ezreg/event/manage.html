@@ -186,9 +186,14 @@
 <tab heading="Registrations">
 {% include 'ezreg/event/registrations.html'%}
 </tab>
+<tab heading="Refunds">
+{% include 'ezreg/event/refunds.html'%}
+</tab>
+<!--
 <tab heading="Emails">
 {% include 'ezreg/event/emails.html'%}
 </tab>
+-->
 <tab heading="Logs">
 <log-table content-type="{{event|content_type_id}}" object-id="'{{event.id}}'"></log-table>
 </tab>
