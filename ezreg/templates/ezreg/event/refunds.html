@@ -1,0 +1,6 @@
+<table class="table table-bordered table-striped table-condensed">
+    <tr><th>Requested</th><th>Registration</th><th>External ID<th>Requester</th><th>Amount remaining</th><th>Refund</th><th>Status</th><th>Acted on by</th><th>Action</th></tr>
+    {% for r in refunds %}
+    <tr><td>{{r.requested}}</td><td><a href="{% url 'registration' id=r.registration.id %}">{{r.registration.display}}</a></td><td>{{r.registration.payment.external_id}}</td><td>{{r.requester}}</td><td>${{r.registration.payment.amount_remaining}}</td><td>${{r.amount}}</td><td>{{r.status}} {% if r.updated %}{{r.updated}}{% endif %}</td><td>{{r.admin.display}}</td><td>{% if r.can_cancel %}<a class="btn btn-danger" href="{% url 'cancel_refund' id=r.id %}">Cancel</a>{% endif %}</td></tr>
+    {% endfor %}
+</table>
