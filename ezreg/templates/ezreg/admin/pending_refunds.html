@@ -3,9 +3,18 @@
 <h3>Pending refunds</h3>
 {% if refunds|length > 0%}
 <table class="table table-bordered table-striped table-condensed">
-    <tr><th>Requested</th><th>Event</th><th>Registration</th><th>External ID<th>Requester</th><th>Amount remaining</th><th>Refund</th><th>Status</th><th>Acted on by</th><th>Action</th></tr>
+    <tr><th>Requested</th><th>Event</th><th>Registration</th><th>External ID<th>Requester</th><th>Amount remaining</th><th>Refund</th><th>Status</th><th>Action</th></tr>
     {% for r in refunds %}
-    <tr><td>{{r.requested}}</td><td>{{r.registration.event}}</td><td><a href="{% url 'registration' id=r.registration.id %}">{{r.registration.display}}</a></td><td>{{r.registration.payment.external_id}}</td><td>{{r.requester}}</td><td>${{r.registration.payment.amount_remaining}}</td><td>${{r.amount}}</td><td>{{r.status}} {% if r.updated %}{{r.updated}}{% endif %}</td><td>{{r.admin.display}}</td><td>{% if r.can_cancel %}<a class="btn btn-danger" href="{% url 'cancel_refund' id=r.id %}">Cancel</a>{% endif %}{% if r.can_complete %}<a class="btn btn-success" href="{% url 'complete_refund' id=r.id %}">Complete</a>{% endif %}</td></tr>
+    <tr>
+        <td>{{r.requested}}</td>
+        <td><a href="{% url 'manage_event' event=r.registration.event.id %}">{{r.registration.event}}</a></td>
+        <td><a href="{% url 'registration' id=r.registration.id %}">{{r.registration.display}}</a></td>
+        <td>{{r.registration.payment.external_id}}</td>
+        <td>{{r.requester.display}}</td>
+        <td>${{r.registration.payment.amount_remaining}}</td>
+        <td>${{r.amount}}</td>
+        <td>{{r.status}} {% if r.updated %}{{r.updated}}{% endif %}</td>
+        <td>{% if r.can_cancel %}<a class="btn btn-danger" href="{% url 'cancel_refund' id=r.id %}">Cancel</a>{% endif %}{% if r.can_complete %}<a class="btn btn-success" href="{% url 'complete_refund' id=r.id %}">Complete</a>{% endif %}</td></tr>
     {% endfor %}
 </table>
 {% else %}

@@ -4,7 +4,7 @@
 {%if registration.payment.paid_at %}<tr><th>Paid at</th><td>{{registration.payment.paid_at|date:"DATETIME_FORMAT"}}</td></tr>{% endif %}
 <tr><th>Processor</th><td>{{registration.payment.processor}}</td></tr>
 <tr><th>Price</th><td>{{registration.price.name}}{% if registration.price.description%} - {{registration.price.description}}{% endif %}</td></tr>
-<tr><th>Amount</th><td>${{registration.payment.amount}}</td></tr>
+<tr><th>Paid</th><td>${{registration.payment.amount}}</td></tr>
 <tr><th>Status</th><td>{{registration.payment.get_status_display}}</td></tr>
 {% if registration.payment.external_id %}<tr><th>External ID</th><td>{{registration.payment.external_id}}</td></tr>{% endif %}
 {% with registration.payment.get_populated_form as payment_form %}
@@ -14,16 +14,25 @@
 {% endfor %}
 {% endif %}
 {% endwith %}
-{% if registration.payment.refunded and permissions and 'admin' in permissions %}<tr><th>Refunded</th><td>${{registration.payment.refunded}}</td></tr>{% endif %}
+{% if registration.payment.refunded and permissions and 'admin' in permissions %}
+<tr><th>Refunded</th><td>${{registration.payment.refunded}}</td></tr>
+<tr><th>Amount remaining</th><td>${{registration.payment.amount_remaining}}</td></tr>
+{% endif %}
 {% if registration.payment.admin_notes and permissions and 'admin' in permissions %}<tr><th>Admin Notes</th><td>{{registration.payment.admin_notes}}</td></tr>{% endif %}
 </table>
 {% if permissions and 'admin' in permissions%}
     <h2>Refunds</h2>
     {% if registration.refunds.all|length > 0%}
         <table class="table table-bordered table-striped table-condensed">
-            <tr><th>Requested</th><th>Requester</th><th>Amount</th><th>Status</th><td></td></tr>
+            <tr><th>Requested</th><th>Requester</th><th>Amount</th><th>Status</th><th>Updated by</th><td></td></tr>
         {% for r in registration.refunds.all %}
-            <tr><td>{{r.requested}}</td><td>{{r.requester}}</td><td>${{r.amount}}</td><td>{{r.status}}</td><td>{% if r.can_cancel %}<a class="btn btn-danger" href="{% url 'cancel_refund' id=r.id %}">Cancel</a>{% endif %}</td></tr>
+            <tr>
+            <td>{{r.requested}}</td>
+            <td>{{r.requester.display}}</td>
+            <td>${{r.amount}}</td>
+            <td>{{r.status}} {% if r.updated %}{{r.updated}}{% endif %}</td>
+            <td>{{r.admin.display}}</td>
+            <td>{% if r.can_cancel %}<a class="btn btn-danger" href="{% url 'cancel_refund' id=r.id %}">Cancel</a>{% endif %}</td></tr>
         {% endfor %}
         </table>
     {% else %}

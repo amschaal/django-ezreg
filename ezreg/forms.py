@@ -282,6 +282,11 @@ class RefundRequestForm(forms.ModelForm):
         if commit:
             refund.save()
         return refund
+    def clean_amount(self):
+        amount = self.cleaned_data['amount']
+        if amount and amount > self.registration.payment.amount_remaining:
+            raise ValidationError('The refund must not be greater than the paid amount remaining.')
+        return amount
     class Meta:
         model=Refund
         fields = ('amount', 'notes')

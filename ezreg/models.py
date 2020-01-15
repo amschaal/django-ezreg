@@ -344,6 +344,8 @@ class Refund(models.Model):
     amount = models.DecimalField(decimal_places=2,max_digits=7)
     admin = models.ForeignKey(User, null=True, blank=True, related_name="approved_refunds")
     updated = models.DateTimeField(null=True, blank=True)
+    class Meta:
+        ordering = ('-requested',)
     def set_status(self, status, user):
         if self.status == Refund.STATUS_COMPLETED:
             raise Exception("Refund has already been completed and cannot be undone.")
@@ -355,7 +357,7 @@ class Refund(models.Model):
             if self.registration.payment.refunded:
                 self.registration.payment.refunded += self.amount            
             else:
-                self.registration.payment.refunded += self.amount
+                self.registration.payment.refunded = self.amount
             self.registration.payment.save()
     @property
     def can_cancel(self):
