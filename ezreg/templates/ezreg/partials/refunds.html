@@ -8,7 +8,7 @@
     <table ng-table="tableParams" show-filter="true" class="table table-bordered table-striped table-condensed">
       <tr ng-repeat="row in $data track by row.id">
         <td data-title="'Requested'" sortable="'requested'" style="width:170px"><label>{[row.requested | date:'short']}</label></td>
-        <td data-title="'Registration'" filter="{registrant: 'text'}">{[row.registrant]}</td>
+        <td data-title="'Registration'" filter="{registrant: 'text'}"><a href="{[registrationLink(row.registration)]}">{[row.registrant]}</a></td>
         <td data-title="'Status'" sortable="'status'" filter="{status__icontains: 'text'}" style="width:170px"><label>{[row.status]}</label></td>
         <td data-title="'Actions'">
             <div class="btn-group" dropdown is-open="isopen[row.id]">

@@ -142,10 +142,26 @@ class RefundViewset(viewsets.ReadOnlyModelViewSet):
         else:
             qs = Refund.objects.filter(registration__event__organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN,registration__event__organizer__user_permissions__user=self.request.user)
         return qs.select_related('registration', 'registration__payment', 'requester', 'admin')
-    @action(detail=True)
-    def complete(self,request):
+    @action(methods=['POST'],detail=True)
+    def complete(self,request, pk=None):
+        if not request.user.is_staff:
+            return Response({'status': 'error', 'detail': 'You do not have permission to complete a refund request.'},status=status.HTTP_401_UNAUTHORIZED)
         refund = self.get_object()
-        
+        try:
+            refund.set_status(Refund.STATUS_COMPLETED,request.user)
+            return Response({'status': 'success', 'refund':RefundSerializer(refund).data, 'detail': 'Refund set as complete.'})
+        except Exception, e:
+            return Response({'status': 'error', 'detail': str(e)},status=status.HTTP_400_BAD_REQUEST)
+    @action(methods=['POST'], detail=True)
+    def cancel(self,request, pk=None):
+        refund = self.get_object()
+        if not request.user.is_staff and not OrganizerUserPermission.objects.filter(user=request.user,organizer=refund.registration.event.organizer,permission=OrganizerUserPermission.PERMISSION_ADMIN).first():
+            return Response({'status': 'error', 'detail': 'You do not have permission to cancel a refund request.'},status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            refund.set_status(Refund.STATUS_CANCELLED,request.user)
+            return Response({'status': 'success', 'refund':RefundSerializer(refund).data, 'detail': 'Refund set as complete.'})
+        except Exception, e:
+            return Response({'status': 'error', 'detail': str(e)},status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST','GET'])
 @event_access_decorator([OrganizerUserPermission.PERMISSION_ADMIN])
