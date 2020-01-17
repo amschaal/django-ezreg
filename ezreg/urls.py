@@ -24,7 +24,8 @@ from ezreg.api import views as api_views
 from cas import views as cas_views
 from ezreg.jsutils import jsurls
 from ezreg.api.views import PriceViewset, PaymentProcessorViewset, \
-    EventPageViewset, RegistrationViewset, MailerMessageViewset, EventViewset
+    EventPageViewset, RegistrationViewset, MailerMessageViewset, EventViewset,\
+    RefundViewset
 from ezreg.registration import RegistrationWizard
 from django_logger.api.views import LogViewset
 from ezreg.feeds import EventsFeed, UpcomingEventsFeed, PastEventsFeed
@@ -38,6 +39,7 @@ router.register(r'events', EventViewset, 'Event')
 router.register(r'registrations', RegistrationViewset, 'Registration')
 router.register(r'emails', MailerMessageViewset, 'Email')
 router.register(r'logs', LogViewset, 'Log')
+router.register(r'refunds', RefundViewset, 'Refund')
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),

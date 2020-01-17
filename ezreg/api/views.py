@@ -1,9 +1,9 @@
 from rest_framework import viewsets, status
 from ezreg.api.serializers import PriceSerializer, PaymentProcessorSerializer,\
     EventPageSerializer, RegistrationSerializer, MailerMessageSerializer,\
-    EventSerializer, DetailedEventSerializer
+    EventSerializer, DetailedEventSerializer, RefundSerializer
 from ezreg.models import Price, PaymentProcessor, Event, EventProcessor,\
-    EventPage, Registration, OrganizerUserPermission
+    EventPage, Registration, OrganizerUserPermission, Refund
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from mailqueue.models import MailerMessage
@@ -15,7 +15,7 @@ from ezreg.utils import format_registration_data
 from ezreg.api.permissions import EventPermission
 from django.utils import timezone
 from django.http.response import HttpResponse
-from ezreg.api.filters import MultiFilter
+from ezreg.api.filters import MultiFilter, OrFilter
 from django_logger.models import Log
 from django.db.models.aggregates import Count
 
@@ -128,6 +128,21 @@ class MailerMessageViewset(viewsets.ReadOnlyModelViewSet):
 """
 POST {"processors":{3:{"enabled":true},5:{"enabled":true}}}  where JSON object keys are PaymentProcessor ids
 """
+
+# Not currently used....
+class RefundViewset(viewsets.ReadOnlyModelViewSet):
+#     queryset = MailerMessage.objects.all().prefetch_related('registrations')
+    filter_backends = viewsets.ReadOnlyModelViewSet.filter_backends + [OrFilter]
+    or_filters = {'registrant':['registration__first_name__icontains', 'registration__last_name__icontains', 'registration__email__icontains']}
+    serializer_class = RefundSerializer
+    filter_fields = {'registration__id':['exact'],'registration__event':['exact'],'status':['exact','icontains'],'registration__payment__external_id':['icontains'],'registration__payment__external_id':['icontains'],'registration__first_name':['icontains'],'registration__last_name':['icontains']}
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            qs = Refund.objects.all()
+        else:
+            qs = Refund.objects.filter(registration__event__organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN,registration__event__organizer__user_permissions__user=self.request.user)
+        return qs.select_related('registration', 'registration__payment', 'requester', 'admin')
+
 
 @api_view(['POST','GET'])
 @event_access_decorator([OrganizerUserPermission.PERMISSION_ADMIN])

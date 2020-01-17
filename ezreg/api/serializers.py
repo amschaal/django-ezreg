@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from ezreg.models import Price, PaymentProcessor, EventProcessor, EventPage, Registration,\
-    Event, Organizer
+    Event, Organizer, Refund
 from mailqueue.models import MailerMessage
 
 class JSONSerializerField(serializers.Field):
@@ -88,6 +88,11 @@ class MailerMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = MailerMessage
         fields = ('id','subject','to_address','bcc_address','content','html_content','sent','last_attempt','registration','event')
+
+class RefundSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Refund
+        exclude = []
 
 # class EventProcessorSerializer(serializers.ModelSerializer):
 #     class Meta:

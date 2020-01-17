@@ -217,8 +217,9 @@ def request_refund(request, id):
 
 @user_passes_test(lambda u: u.is_staff)
 def pending_refunds(request):
-    refunds = Refund.objects.filter(status=Refund.STATUS_PENDING)
-    return render(request, 'ezreg/admin/pending_refunds.html', {'refunds':refunds})
+    pending_refunds = Refund.objects.filter(status=Refund.STATUS_PENDING)
+    past_refunds = Refund.objects.exclude(status=Refund.STATUS_PENDING)
+    return render(request, 'ezreg/admin/pending_refunds.html', {'pending_refunds':pending_refunds, 'past_refunds': past_refunds})
 
 @user_passes_test(lambda u: u.is_staff)
 def complete_refund(request, id):
