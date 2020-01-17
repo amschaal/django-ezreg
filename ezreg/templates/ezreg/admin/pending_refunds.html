@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
+{% include 'ezreg/partials/refunds.html' %}
+
 <h3>Pending refunds</h3>
 {% if pending_refunds|length > 0%}
 <table class="table table-bordered table-striped table-condensed">

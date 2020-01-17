@@ -70,5 +70,14 @@ angular.module('ezregModels', ['ngResource'])
 //    remove : { method : 'DELETE' }
   });
 }])
+.factory('Refund', ['$resource', function ($resource) {
+  return $resource('/api/refunds/:id/', {id:'@id'}, {
+    query: { method: 'GET', isArray:true, transformResponse:transformDjangoRestResponse }, //, transformResponse:transformDjangoRestResponse
+//     save : { method : 'PUT'},
+   complete : { method : 'POST'},
+   cancel : { method : 'POST'},
+//    remove : { method : 'DELETE' }
+  });
+}])
 ;
 

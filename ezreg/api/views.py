@@ -135,14 +135,17 @@ class RefundViewset(viewsets.ReadOnlyModelViewSet):
     filter_backends = viewsets.ReadOnlyModelViewSet.filter_backends + [OrFilter]
     or_filters = {'registrant':['registration__first_name__icontains', 'registration__last_name__icontains', 'registration__email__icontains']}
     serializer_class = RefundSerializer
-    filter_fields = {'registration__id':['exact'],'registration__event':['exact'],'status':['exact','icontains'],'registration__payment__external_id':['icontains'],'registration__payment__external_id':['icontains'],'registration__first_name':['icontains'],'registration__last_name':['icontains']}
+    filter_fields = {'registration__id':['exact'],'registration__event':['exact'],'status':['exact','icontains'],'registration__payment__external_id':['icontains'],'registration__payment__external_id':['icontains'],'status':['icontains']}
     def get_queryset(self):
         if self.request.user.is_staff:
             qs = Refund.objects.all()
         else:
             qs = Refund.objects.filter(registration__event__organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN,registration__event__organizer__user_permissions__user=self.request.user)
         return qs.select_related('registration', 'registration__payment', 'requester', 'admin')
-
+    @action(detail=True)
+    def complete(self,request):
+        refund = self.get_object()
+        
 
 @api_view(['POST','GET'])
 @event_access_decorator([OrganizerUserPermission.PERMISSION_ADMIN])

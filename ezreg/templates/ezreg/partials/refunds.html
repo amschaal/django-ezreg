@@ -1,0 +1,32 @@
+    {% load compress %}
+    {% compress js %}
+        <script src="/static/ezreg/js/pages/refunds.js"></script>
+    {% endcompress %}
+
+
+<div ng-controller="RefundsController" ng-init='init("");'>
+    <table ng-table="tableParams" show-filter="true" class="table table-bordered table-striped table-condensed">
+      <tr ng-repeat="row in $data track by row.id">
+        <td data-title="'Requested'" sortable="'requested'" style="width:170px"><label>{[row.requested | date:'short']}</label></td>
+        <td data-title="'Registration'" filter="{registrant: 'text'}">{[row.registrant]}</td>
+        <td data-title="'Status'" sortable="'status'" filter="{status__icontains: 'text'}" style="width:170px"><label>{[row.status]}</label></td>
+        <td data-title="'Actions'">
+            <div class="btn-group" dropdown is-open="isopen[row.id]">
+              <button type="button" class="btn btn-default" dropdown-toggle ng-disabled="disabled">
+                Action<span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu" aria-labelledby="Action">
+                <li role="menuitem"><a ng-click="complete(row)">Complete</a></li>
+                <li role="menuitem"><a ng-click="cancel(row)">Cancel</a></li>
+              </ul>
+            </div>
+        </td>
+      </tr>
+    </table>
+      
+
+  </div>
+
+
+
+

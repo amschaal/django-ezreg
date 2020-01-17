@@ -90,6 +90,9 @@ class MailerMessageSerializer(serializers.ModelSerializer):
         fields = ('id','subject','to_address','bcc_address','content','html_content','sent','last_attempt','registration','event')
 
 class RefundSerializer(serializers.ModelSerializer):
+    registrant = serializers.SerializerMethodField()
+    def get_registrant(self, obj):
+        return '{}, {} ({})'.format(obj.registration.last_name,obj.registration.first_name,obj.registration.email)
     class Meta:
         model = Refund
         exclude = []
