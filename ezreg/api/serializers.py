@@ -91,6 +91,12 @@ class MailerMessageSerializer(serializers.ModelSerializer):
 
 class RefundSerializer(serializers.ModelSerializer):
     registrant = serializers.SerializerMethodField()
+    event = serializers.SerializerMethodField()
+    event_id = serializers.SerializerMethodField()
+    def get_event(self, obj):
+        return obj.registration.event.title
+    def get_event_id(self, obj):
+        return obj.registration.event_id
     def get_registrant(self, obj):
         return '{}, {} ({})'.format(obj.registration.last_name,obj.registration.first_name,obj.registration.email)
     class Meta:

@@ -135,7 +135,8 @@ class RefundViewset(viewsets.ReadOnlyModelViewSet):
     filter_backends = viewsets.ReadOnlyModelViewSet.filter_backends + [OrFilter]
     or_filters = {'registrant':['registration__first_name__icontains', 'registration__last_name__icontains', 'registration__email__icontains']}
     serializer_class = RefundSerializer
-    filter_fields = {'registration__id':['exact'],'registration__event':['exact'],'status':['exact','icontains'],'registration__payment__external_id':['icontains'],'registration__payment__external_id':['icontains'],'status':['icontains']}
+    filter_fields = {'registration__id':['exact'],'registration__event':['exact'],'status':['exact','icontains'],'registration__payment__external_id':['icontains'],'registration__payment__external_id':['icontains'],'status':['icontains'],'registration__event__title':['icontains']}
+    ordering_fields = ['requested','status','registration__event__title']
     def get_queryset(self):
         if self.request.user.is_staff:
             qs = Refund.objects.all()

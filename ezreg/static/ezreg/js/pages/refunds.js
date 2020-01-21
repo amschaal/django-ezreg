@@ -13,6 +13,7 @@ function RefundsController($scope,$http,growl,DRFNgTableParams) {
         });
 	};
 	$scope.registrationLink = function(registration){return django_js_utils.urls.resolve('registration', { id: registration })};
+ 	$scope.eventLink = function(event){return django_js_utils.urls.resolve('manage_event', { event: event })};
 	$scope.complete = function (refund) {
 		$http.post('/api/refunds/'+refund.id+'/complete/',{}).then(function(response){
 			growl.success('Refund set as completed' ,{ttl: 5000});

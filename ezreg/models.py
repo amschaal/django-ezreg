@@ -349,6 +349,8 @@ class Refund(models.Model):
     def set_status(self, status, user):
         if self.status == Refund.STATUS_COMPLETED:
             raise Exception("Refund has already been completed and cannot be undone.")
+        if self.status == Refund.STATUS_CANCELLED:
+            raise Exception("Refund has been cancelled and cannot be undone.")
         self.status = status
         self.admin = user
         self.updated = timezone.now()
