@@ -68,11 +68,12 @@ class RegistrationSerializer(serializers.ModelSerializer):
     payment__refunded = serializers.ReadOnlyField(source='payment.refunded')
     payment__processor = serializers.ReadOnlyField(source='payment.processor.name')
     payment__status = serializers.ReadOnlyField(source='payment.status')
+    paid = serializers.ReadOnlyField()
     event = RegistrationEventSerializer(read_only=True)
     data = JSONSerializerField()
     class Meta:
         model = Registration
-        fields = ('id','status','event','registered','first_name','last_name','email','test','data','payment__amount','payment__processor','payment__status','payment__refunded')
+        fields = ('id','status','event','registered','first_name','last_name','email','test','data','payment__amount','payment__processor','payment__status','payment__refunded','paid')
 
 class MailerMessageSerializer(serializers.ModelSerializer):
 #     registrations = serializers.ReadOnlyField(source='registrations',many=True)

@@ -20,7 +20,7 @@
 {% endif %}
 {% if registration.payment.admin_notes and permissions and 'admin' in permissions %}<tr><th>Admin Notes</th><td>{{registration.payment.admin_notes}}</td></tr>{% endif %}
 </table>
-{% if permissions and 'admin' in permissions%}
+{% if registration.paid and permissions and 'admin' in permissions %}
     <h2>Refunds</h2>
     {% include 'ezreg/partials/refunds.html' %}
     <p><a href="{% url 'request_refund' id=registration.id%}">Request</a> a refund.</p>

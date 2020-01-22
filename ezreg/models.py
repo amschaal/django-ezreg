@@ -292,6 +292,9 @@ class Registration(models.Model):
     @property
     def display(self):
         return '{}, {} ({})'.format(self.last_name, self.first_name, self.email)
+    @property
+    def paid(self):
+        return getattr(getattr(self,'payment',None),'status',None) == Payment.STATUS_PAID
 #     class Meta:
 #         unique_together = (('email','event'))
    

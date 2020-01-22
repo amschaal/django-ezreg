@@ -58,6 +58,7 @@
 			    {% if 'admin' in permissions %}
 			    	<li role="menuitem"><a href="{[modifyRegistrationLink(row)]}">Modify</a></li>
 			    	<li role="menuitem" ng-if="row.payment__status"><a href="{[getURL('modify_payment',{id:row.id})]}">Modify Payment</a></li>
+			    	<li role="menuitem" ng-if="row.paid"><a href="{[getURL('request_refund',{id:row.id})]}">Request refund</a></li>
 			    	<li role="menuitem"><a log-modal content-type="{{Registration|content_type_id}}" object-id="row.id">Logs</a></li>
 			    	<!-- <li role="menuitem"><a href="{[updateRegistrationStatusLink(row)]}">Update status</a></li> -->
 			    {% endif %}
