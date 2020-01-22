@@ -139,7 +139,7 @@ class RefundViewset(viewsets.ReadOnlyModelViewSet):
                 'requester':['requester__first_name__icontains', 'requester__last_name__icontains', 'requester__email__icontains']
                 }
     serializer_class = RefundSerializer
-    filter_fields = {'registration__id':['exact'],'registration__event':['exact'],'status':['exact','icontains'],'registration__payment__external_id':['icontains'],'registration__payment__external_id':['icontains'],'status':['icontains'],'registration__event__title':['icontains']}
+    filter_fields = {'registration__id':['exact'],'registration__event':['exact'],'status':['exact','icontains'],'registration__payment__external_id':['icontains'],'registration__payment__external_id':['icontains'],'status':['icontains'],'registration__event__title':['icontains'],'registration__event__id':['exact']}
     ordering_fields = ['requested','status','amount','updated','registration__event__title','registration__payment__external_id']
     def get_queryset(self):
         if self.request.user.is_staff:

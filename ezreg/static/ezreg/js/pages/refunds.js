@@ -5,9 +5,10 @@ app.controller('RefundsController', ['$scope','$http','growl',"DRFNgTableParams"
 function RefundsController($scope,$http,growl,DRFNgTableParams) {
 	var defaults={};
 	$scope.status_choices = [{id:'pending',title:'Pending'},{id:'cancelled',title:'Cancelled'},{id:'completed',title:'Completed'}];
-	$scope.init = function(){
-        $scope.filters = {};
-        $scope.tableParams = DRFNgTableParams('/api/refunds/',{sorting: { start_time: "desc" },filter:$scope.filters});
+	$scope.init = function(params){
+	    $scope.params = params;
+        $scope.filters = params.filters;
+        $scope.tableParams = DRFNgTableParams('/api/refunds/',{sorting: { requested: "desc" },filter:$scope.filters});
         $scope.$watchCollection('filters', function(newFilters, oldFilters) {
             angular.extend($scope.tableParams.filter(), newFilters);
         });

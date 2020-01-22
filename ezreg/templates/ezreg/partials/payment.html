@@ -22,22 +22,7 @@
 </table>
 {% if permissions and 'admin' in permissions%}
     <h2>Refunds</h2>
-    {% if registration.refunds.all|length > 0%}
-        <table class="table table-bordered table-striped table-condensed">
-            <tr><th>Requested</th><th>Requester</th><th>Amount</th><th>Status</th><th>Updated by</th><td></td></tr>
-        {% for r in registration.refunds.all %}
-            <tr>
-            <td>{{r.requested}}</td>
-            <td>{{r.requester.display}}</td>
-            <td>${{r.amount}}</td>
-            <td>{{r.status}} {% if r.updated %}{{r.updated}}{% endif %}</td>
-            <td>{{r.admin.display}}</td>
-            <td>{% if r.can_cancel %}<a class="btn btn-danger" href="{% url 'cancel_refund' id=r.id %}">Cancel</a>{% endif %}</td></tr>
-        {% endfor %}
-        </table>
-    {% else %}
-        <p>There are no requested refunds at this time.</p>
-    {% endif %}
+    {% include 'ezreg/partials/refunds.html' %}
     <p><a href="{% url 'request_refund' id=registration.id%}">Request</a> a refund.</p>
 {% endif %}
 {% endif %}
