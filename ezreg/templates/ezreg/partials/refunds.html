@@ -8,6 +8,7 @@
       <tr ng-repeat="row in $data track by row.id">
         <td data-title="'Requested'" sortable="'requested'" style="width:170px"><label>{[row.requested | date:'short']}</label></td>
         <td data-title="'Requester'" filter="{requester: 'text'}">{[row.requester]}</td>
+        <td data-title="'Notes'" filter="{notes__icontains: 'text'}">{[displayNotes(row)]} <a href="#" ng-if="!row.more && row.notes && row.notes.length > 15" ng-click="row.more = true">...more</a></td>
 {% if not event and not registration%}
         <td data-title="'Event'" sortable="'registration__event__title'" filter="{registration__event__title__icontains: 'text'}"><a href="{[eventLink(row.event_id)]}">{[row.event]}</a></td>
 {% endif %}

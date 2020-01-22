@@ -37,6 +37,13 @@ function RefundsController($scope,$http,growl,DRFNgTableParams) {
             });
         }
       };
+      $scope.displayNotes = function(refund) {
+        if (refund.more) {
+            return refund.notes;
+        } else {
+            return refund.notes.substr(0,15);
+        }
+      };
 //	$scope.tableParams = DRFNgTableParams('/api/emails/',{sorting: { last_attempt: "desc" }});
 }
 
