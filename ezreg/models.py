@@ -413,5 +413,6 @@ def save_event_ical(sender,instance,**kwargs):
 pre_save.connect(save_event_ical, sender=Event)
 
 def user_display(self):
-    return '{}, {} ({})'.format(self.last_name, self.first_name, self.email)
+    return '{}, {}'.format(self.last_name, self.first_name)
+#     return '{}, {} ({})'.format(self.last_name, self.first_name, self.email)
 User.display = user_display

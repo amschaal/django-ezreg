@@ -133,10 +133,14 @@ POST {"processors":{3:{"enabled":true},5:{"enabled":true}}}  where JSON object k
 class RefundViewset(viewsets.ReadOnlyModelViewSet):
 #     queryset = MailerMessage.objects.all().prefetch_related('registrations')
     filter_backends = viewsets.ReadOnlyModelViewSet.filter_backends + [OrFilter]
-    or_filters = {'registrant':['registration__first_name__icontains', 'registration__last_name__icontains', 'registration__email__icontains']}
+    or_filters = {
+                'registrant':['registration__first_name__icontains', 'registration__last_name__icontains', 'registration__email__icontains'],
+                'admin':['admin__first_name__icontains', 'admin__last_name__icontains', 'admin__email__icontains'],
+                'requester':['requester__first_name__icontains', 'requester__last_name__icontains', 'requester__email__icontains']
+                }
     serializer_class = RefundSerializer
     filter_fields = {'registration__id':['exact'],'registration__event':['exact'],'status':['exact','icontains'],'registration__payment__external_id':['icontains'],'registration__payment__external_id':['icontains'],'status':['icontains'],'registration__event__title':['icontains']}
-    ordering_fields = ['requested','status','registration__event__title']
+    ordering_fields = ['requested','status','amount','updated','registration__event__title','registration__payment__external_id']
     def get_queryset(self):
         if self.request.user.is_staff:
             qs = Refund.objects.all()

@@ -93,12 +93,24 @@ class RefundSerializer(serializers.ModelSerializer):
     registrant = serializers.SerializerMethodField()
     event = serializers.SerializerMethodField()
     event_id = serializers.SerializerMethodField()
+    external_id = serializers.SerializerMethodField()
+    admin = serializers.SerializerMethodField()
+    requester = serializers.SerializerMethodField()
+    paid = serializers.SerializerMethodField()
     def get_event(self, obj):
         return obj.registration.event.title
     def get_event_id(self, obj):
         return obj.registration.event_id
+    def get_external_id(self, obj):
+        return getattr(getattr(obj.registration,'payment',None),'external_id',None)
+    def get_paid(self, obj):
+        return getattr(getattr(obj.registration,'payment',None),'amount',None)
     def get_registrant(self, obj):
         return '{}, {} ({})'.format(obj.registration.last_name,obj.registration.first_name,obj.registration.email)
+    def get_admin(self, obj):
+        return obj.admin.display() if obj.admin else ''
+    def get_requester(self, obj):
+        return obj.requester.display() if obj.requester else ''
     class Meta:
         model = Refund
         exclude = []

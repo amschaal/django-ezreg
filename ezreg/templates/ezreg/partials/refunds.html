@@ -8,12 +8,18 @@
     <table ng-table="tableParams" show-filter="true" class="table table-bordered table-striped table-condensed">
       <tr ng-repeat="row in $data track by row.id">
         <td data-title="'Requested'" sortable="'requested'" style="width:170px"><label>{[row.requested | date:'short']}</label></td>
+        <td data-title="'Requester'" filter="{requester: 'text'}">{[row.requester]}</td>
         <td data-title="'Event'" sortable="'registration__event__title'" filter="{registration__event__title__icontains: 'text'}"><a href="{[eventLink(row.event_id)]}">{[row.event]}</a></td>
         <td data-title="'Registration'" filter="{registrant: 'text'}"><a href="{[registrationLink(row.registration)]}">{[row.registrant]}</a></td>
+        <td data-title="'Paid'">${[row.paid]}</td>
+        <td data-title="'Refund'" sortable="'amount'">${[row.amount]}</td>
+        <td data-title="'External ID'" filter="{registration__payment__external_id__icontains: 'text'}" sortable="'registration__payment__external_id'">{[row.external_id]}</td>
         <td data-title="'Status'" sortable="'status'" filter="{status__icontains: 'text'}" style="width:170px"
             ng-class="{completed:row.status=='completed',pending:row.status=='pending',cancelled:row.status=='cancelled'}">
             <label>{[row.status]}</label>
         </td>
+        <td data-title="'Updated by'" filter="{admin: 'text'}">{[row.admin]}</td>
+        <td data-title="'Updated'" sortable="'updated'">{[row.updated | date: 'short']}</td>
         <td data-title="'Actions'">
             <div class="btn-group" dropdown is-open="isopen[row.id]" ng-if="row.status=='pending'">
               <button type="button" class="btn btn-default" dropdown-toggle ng-disabled="disabled">
