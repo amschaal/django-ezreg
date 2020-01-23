@@ -24,7 +24,8 @@ from ezreg.api import views as api_views
 from cas import views as cas_views
 from ezreg.jsutils import jsurls
 from ezreg.api.views import PriceViewset, PaymentProcessorViewset, \
-    EventPageViewset, RegistrationViewset, MailerMessageViewset, EventViewset
+    EventPageViewset, RegistrationViewset, MailerMessageViewset, EventViewset,\
+    RefundViewset
 from ezreg.registration import RegistrationWizard
 from django_logger.api.views import LogViewset
 from ezreg.feeds import EventsFeed, UpcomingEventsFeed, PastEventsFeed
@@ -38,6 +39,7 @@ router.register(r'events', EventViewset, 'Event')
 router.register(r'registrations', RegistrationViewset, 'Registration')
 router.register(r'emails', MailerMessageViewset, 'Email')
 router.register(r'logs', LogViewset, 'Log')
+router.register(r'refunds', RefundViewset, 'Refund')
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
@@ -69,7 +71,9 @@ urlpatterns = [
     url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/modify/$', views.modify_registration, name="modify_registration"),
     url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/modify_payment/$', views.modify_payment, name="modify_payment"),
     url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/update_status/$', views.update_registration_status, name="update_registration_status"),
+    url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/request_refund/$', views.request_refund, name="request_refund"),
     url(r'^registrations/(?P<id>[A-Za-z0-9_\-]{10})/pay/$', views.pay, name="pay"),
+    url(r'^refunds/pending/$', views.pending_refunds, name='pending_refunds'),
     url(r'^payment_processors/$', views.payment_processors, name='payment_processors'),
     url(r'^payment_processors/create/$', views.create_payment_processor, name='create_payment_processor'),
     url(r'^payment_processors/(?P<id>\d+)/modify/$', views.modify_payment_processor, name='modify_payment_processor'),

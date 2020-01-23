@@ -15,7 +15,7 @@ from django_json_forms.forms import JSONForm
 from ezreg.exceptions import RegistrationClosedException
 from django.http.response import HttpResponseForbidden
 from django.utils import timezone
-
+from django.http import Http404
 
 def show_payment_form_condition(wizard):
     if wizard.registration:
@@ -121,7 +121,10 @@ class RegistrationWizard(SessionWizardView):
     @property
     def event(self):
         if not hasattr(self, 'event_instance'):
-            self.event_instance = Event.objects.get(Q(id=self.kwargs['slug_or_id'])|Q(slug=self.kwargs['slug_or_id']))
+            try:
+                self.event_instance = Event.objects.get(Q(id=self.kwargs['slug_or_id'])|Q(slug=self.kwargs['slug_or_id']))
+            except Event.DoesNotExist:
+                raise Http404('Registration not found')
         return self.event_instance
     def get_session_registration_id(self):
             return self.storage.data['registration_id'] if self.storage.data.has_key('registration_id') else None
@@ -248,9 +251,10 @@ class RegistrationWizard(SessionWizardView):
             cleaned_data = self.get_cleaned_data_for_step('price_form') or None
             if cleaned_data:
                 processor_method = cleaned_data.get('payment_method')
-                manager  = PaymentProcessorManager()
-                processor = manager.get_processor(processor_method.processor_id)
-                form_class = processor.get_form()
-                if form_class:
-                    form = form_class(data,event=self.event,config=processor_method.config)
+                if processor_method:
+                    manager  = PaymentProcessorManager()
+                    processor = manager.get_processor(processor_method.processor_id)
+                    form_class = processor.get_form()
+                    if form_class:
+                        form = form_class(data,event=self.event,config=processor_method.config)
         return form

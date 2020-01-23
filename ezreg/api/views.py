@@ -1,9 +1,9 @@
 from rest_framework import viewsets, status
 from ezreg.api.serializers import PriceSerializer, PaymentProcessorSerializer,\
     EventPageSerializer, RegistrationSerializer, MailerMessageSerializer,\
-    EventSerializer, DetailedEventSerializer
+    EventSerializer, DetailedEventSerializer, RefundSerializer
 from ezreg.models import Price, PaymentProcessor, Event, EventProcessor,\
-    EventPage, Registration, OrganizerUserPermission
+    EventPage, Registration, OrganizerUserPermission, Refund
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from mailqueue.models import MailerMessage
@@ -15,7 +15,7 @@ from ezreg.utils import format_registration_data
 from ezreg.api.permissions import EventPermission
 from django.utils import timezone
 from django.http.response import HttpResponse
-from ezreg.api.filters import MultiFilter
+from ezreg.api.filters import MultiFilter, OrFilter
 from django_logger.models import Log
 from django.db.models.aggregates import Count
 
@@ -67,15 +67,15 @@ class EventPageViewset(viewsets.ModelViewSet):
     search_fields = ('event',)
     def get_queryset(self):
         if self.request.user.is_staff:
-            return EventPage.objects.all()
-        return EventPage.objects.filter(event__organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN,event__organizer__user_permissions__user=self.request.user)
+            return EventPage.objects.all().order_by('index', 'id')
+        return EventPage.objects.filter(event__organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN,event__organizer__user_permissions__user=self.request.user).order_by('index', 'id')
 
 class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
     serializer_class = RegistrationSerializer
     filter_backends = viewsets.ReadOnlyModelViewSet.filter_backends + [MultiFilter]
 #     filter_fields = ('status','event','email','first_name','last_name')
     multi_filters = ['status__in','payment__status__in']
-    filter_fields = {'status':['exact', 'icontains'],'registered':['gte','lte'],'event':['exact'],'event__title':['icontains'],'event__organizer__name':['icontains'],'email':['exact', 'icontains'],'first_name':['exact', 'icontains'],'last_name':['exact', 'icontains'],'payment__processor__name':['exact'],'payment__status':['exact'],'test':['exact']} 
+    filter_fields = {'status':['exact', 'icontains'],'registered':['gte','lte'],'event':['exact'],'event__title':['icontains'],'event__organizer__name':['icontains'],'email':['exact', 'icontains'],'first_name':['exact', 'icontains'],'last_name':['exact', 'icontains'],'payment__processor__name':['exact'],'payment__status':['exact'],'payment__amount':['exact'],'test':['exact']} 
 #     {'name': ['exact', 'icontains'],
 #                   'price': ['exact', 'gte', 'lte'],
 #                  }
@@ -128,6 +128,45 @@ class MailerMessageViewset(viewsets.ReadOnlyModelViewSet):
 """
 POST {"processors":{3:{"enabled":true},5:{"enabled":true}}}  where JSON object keys are PaymentProcessor ids
 """
+
+# Not currently used....
+class RefundViewset(viewsets.ReadOnlyModelViewSet):
+#     queryset = MailerMessage.objects.all().prefetch_related('registrations')
+    filter_backends = viewsets.ReadOnlyModelViewSet.filter_backends + [OrFilter]
+    or_filters = {
+                'registrant':['registration__first_name__icontains', 'registration__last_name__icontains', 'registration__email__icontains'],
+                'admin':['admin__first_name__icontains', 'admin__last_name__icontains', 'admin__email__icontains'],
+                'requester':['requester__first_name__icontains', 'requester__last_name__icontains', 'requester__email__icontains']
+                }
+    serializer_class = RefundSerializer
+    filter_fields = {'registration__id':['exact'],'notes':['icontains'],'registration__event':['exact'],'status':['exact','icontains'],'registration__payment__external_id':['icontains'],'registration__payment__external_id':['icontains'],'registration__event__title':['icontains'],'registration__event__id':['exact']}
+    ordering_fields = ['requested','status','amount','updated','registration__event__title','registration__payment__external_id']
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            qs = Refund.objects.all()
+        else:
+            qs = Refund.objects.filter(registration__event__organizer__user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN,registration__event__organizer__user_permissions__user=self.request.user)
+        return qs.select_related('registration', 'registration__payment', 'requester', 'admin')
+    @action(methods=['POST'],detail=True)
+    def complete(self,request, pk=None):
+        if not request.user.is_staff:
+            return Response({'status': 'error', 'detail': 'You do not have permission to complete a refund request.'},status=status.HTTP_401_UNAUTHORIZED)
+        refund = self.get_object()
+        try:
+            refund.set_status(Refund.STATUS_COMPLETED,request.user)
+            return Response({'status': 'success', 'refund':RefundSerializer(refund).data, 'detail': 'Refund set as complete.'})
+        except Exception, e:
+            return Response({'status': 'error', 'detail': str(e)},status=status.HTTP_400_BAD_REQUEST)
+    @action(methods=['POST'], detail=True)
+    def cancel(self,request, pk=None):
+        refund = self.get_object()
+        if not request.user.is_staff and not OrganizerUserPermission.objects.filter(user=request.user,organizer=refund.registration.event.organizer,permission=OrganizerUserPermission.PERMISSION_ADMIN).first():
+            return Response({'status': 'error', 'detail': 'You do not have permission to cancel a refund request.'},status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            refund.set_status(Refund.STATUS_CANCELLED,request.user)
+            return Response({'status': 'success', 'refund':RefundSerializer(refund).data, 'detail': 'Refund set as complete.'})
+        except Exception, e:
+            return Response({'status': 'error', 'detail': str(e)},status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST','GET'])
 @event_access_decorator([OrganizerUserPermission.PERMISSION_ADMIN])

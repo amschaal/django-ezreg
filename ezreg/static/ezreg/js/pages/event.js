@@ -87,8 +87,11 @@ function EventPageController($scope,$http,growl,EventPage) {
 	}
 	$scope.init = function(params){
 		$scope.event_id = params.event_id;
-		$scope.pages = EventPage.query({event:$scope.event_id});
-	}	
+		$scope.getPages();
+	}
+	$scope.getPages = function(){
+	    $scope.pages = EventPage.query({event:$scope.event_id});
+	}
 	$scope.addPage = function(){
 		$scope.pages.push(new EventPage({event:$scope.event_id,heading:'New page',page_size:100}));
 	}

@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect
 from ezreg.models import Event,  Registration, PaymentProcessor, EventPage,\
-    id_generator, EventProcessor, OrganizerUserPermission, Payment, Organizer
+    id_generator, EventProcessor, OrganizerUserPermission, Payment, Organizer,\
+    Refund
 from ezreg.forms import EventForm, PaymentProcessorForm,  AdminRegistrationForm,\
-    AdminRegistrationStatusForm, PriceForm, AdminPriceForm, AdminPaymentForm
-from django.contrib.auth.decorators import login_required
+    AdminRegistrationStatusForm, PriceForm, AdminPriceForm, AdminPaymentForm,\
+    RefundRequestForm
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models.query_utils import Q
 from ezreg.email import  email_status
 from django.http.response import HttpResponse
@@ -22,6 +24,7 @@ from ezreg.custom_texts import CUSTOM_TEXTS
 from django.db.models.aggregates import Sum
 from decimal import Decimal
 from django_logger.models import Log
+from django.http import Http404
 
 def home(request, organizer_slug=None):
     organizer = Organizer.objects.filter(slug=organizer_slug).first()
@@ -112,16 +115,23 @@ def manage_event(request,event):
     processors = json.dumps({processor.name:processor.name for processor in event.payment_processors.all()})
     form_fields = json.dumps(event.form_fields) if event.form_fields else '[]'
     permissions = event.get_user_permissions(request.user)
-    return render(request, 'ezreg/event/manage.html', {'form':form,'event':event,'Registration':Registration,'statuses':statuses,'payment_statuses':payment_statuses,'processors':processors,'form_fields':form_fields,'permissions':permissions,'custom_texts':json.dumps(CUSTOM_TEXTS)} )
+    refunds = Refund.objects.filter(registration__event=event)
+    return render(request, 'ezreg/event/manage.html', {'form':form,'event':event,'Registration':Registration,'statuses':statuses,'payment_statuses':payment_statuses,'processors':processors,'form_fields':form_fields,'permissions':permissions,'custom_texts':json.dumps(CUSTOM_TEXTS), 'refunds': refunds} )
     
 
 def event(request,slug_or_id):
-    event = Event.objects.get(Q(id=slug_or_id)|Q(slug=slug_or_id))
+    try:
+        event = Event.objects.get(Q(id=slug_or_id)|Q(slug=slug_or_id))
+    except Event.DoesNotExist, e:
+        raise Http404('Event not found')
     return render(request, 'ezreg/event.html', {'event':event})
 
 def event_page(request,slug_or_id,page_slug):
-    event = Event.objects.get(Q(id=slug_or_id)|Q(slug=slug_or_id))
-    page = EventPage.objects.get(event=event,slug=page_slug)
+    try:
+        event = Event.objects.get(Q(id=slug_or_id)|Q(slug=slug_or_id))
+        page = EventPage.objects.get(event=event,slug=page_slug)
+    except:
+        raise Http404('Event or event page not found')
     return render(request, 'ezreg/page.html', {'event':event,'page':page})
 
 
@@ -191,8 +201,29 @@ def update_registration_status(request,id):
             return redirect('registrations',slug_or_id=registration.event_id) #event.get_absolute_url()
     return render(request, 'ezreg/update_registration_status.html', {'form':form,'registration':registration} )
 
-def registration(request,id):
+@generic_permission_decorator([OrganizerUserPermission.PERMISSION_ADMIN],'organizer__events__registrations__id','id')
+def request_refund(request, id):
     registration = Registration.objects.get(id=id)
+    if request.method == 'GET':
+        form = RefundRequestForm(user=request.user, registration=registration)
+    elif request.method == 'POST':
+        form = RefundRequestForm(request.POST, user=request.user, registration=registration)
+        if form.is_valid():
+            refund = form.save()
+            # @todo: Email admins here?
+            Log.create(text='Refund request for %s created %s by %s'%(registration.email,refund.requested,request.user.username),objects=[registration,registration.event,request.user])
+            return redirect('registration',id=registration.id) #event.get_absolute_url()
+    return render(request, 'ezreg/request_refund.html', {'form':form,'registration':registration} )
+
+@user_passes_test(lambda u: u.is_staff)
+def pending_refunds(request):
+    return render(request, 'ezreg/admin/pending_refunds.html', {})
+
+def registration(request,id):
+    try:
+        registration = Registration.objects.get(id=id)
+    except Registration.DoesNotExist:
+        raise Http404('Registration not found')
     permissions = registration.event.get_user_permissions(request.user) if request.user.is_authenticated else []
     return render(request, 'ezreg/registration.html', {'registration':registration, 'permissions': permissions})
 

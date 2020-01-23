@@ -95,4 +95,4 @@ def email_status(registration):
     if registration.status == Registration.STATUS_REGISTERED:
         return send_ical_email(registration.event,to, from_addr, 'You are registered for "%s"'%registration.event.title, 'ezreg/emails/registered.txt', html_template='ezreg/emails/registered.html', context={'registration':registration}, bcc=bcc, registration=registration)
     if registration.status == Registration.STATUS_CANCELLED:
-        return send_email(to, from_addr, 'You registration for "%s" has been cancelled'%registration.event.title, 'ezreg/emails/cancelled.txt', html_template='ezreg/emails/cancelled.html', context={'registration':registration}, bcc=bcc, registration=registration)
+        return send_email(to, from_addr, 'Your registration for "%s" has been cancelled'%registration.event.title, 'ezreg/emails/cancelled.txt', html_template='ezreg/emails/cancelled.html', context={'registration':registration}, bcc=bcc, registration=registration)

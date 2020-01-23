@@ -6,7 +6,7 @@ from tinymce.widgets import TinyMCE
 from datetime import datetime
 
 from ezreg.models import Event, Price, Registration, PaymentProcessor, Organizer,\
-    OrganizerUserPermission, Payment
+    OrganizerUserPermission, Payment, Refund
 from ezreg.payment import PaymentProcessorManager
 from django.forms.widgets import  TextInput
 from django.db.models.query_utils import Q
@@ -129,7 +129,7 @@ class RegistrationForm(forms.ModelForm):
         email = self.cleaned_data['email']
         print self.instance.id
         if email and not self.instance.test:
-            if Registration.objects.filter(email=email, event=self.event).exclude(id=self.instance.id).exclude(status__in=[Registration.STATUS_CANCELLED]).exclude(test=True).count() != 0:
+            if Registration.objects.filter(email__iexact=email, event=self.event).exclude(id=self.instance.id).exclude(status__in=[Registration.STATUS_CANCELLED]).exclude(test=True).count() != 0:
                 raise ValidationError('A registration with that email already exists.')
         return email
     class Meta:
@@ -172,6 +172,9 @@ class PriceForm(forms.Form):
                 self.coupon_price = self.available_prices_queryset(include_coupons=True).filter(coupon_code=coupon_code).first()
                 if self.coupon_price:
                     self.data[self.add_prefix('price')]=self.coupon_price.id
+                    if self.coupon_price.amount == 0:
+                        self.fields['payment_method'].required = False
+#                         del self.fields['payment_method']
     def get_payment_method_queryset(self):
         return self.event.payment_processors.filter(hidden=False)
     def available_prices_queryset(self,include_coupons=False):
@@ -230,7 +233,7 @@ class AdminPaymentForm(forms.ModelForm):
             self.fields['status'].help_text = 'A status of PAID may not be changed.  Refunds may be issued, but the original status must remain.'
     class Meta:
         model=Payment
-        fields = ('status','refunded','admin_notes')
+        fields = ('status','admin_notes') # ,'refunded'
     def clean_refunded(self):
         refunded = self.cleaned_data['refunded']
         if refunded and not self.instance.amount or refunded > self.instance.amount:
@@ -266,4 +269,24 @@ class ConfirmationForm(forms.Form):
         if not accept_policy:
             raise ValidationError('You must accept the cancellation policy to continue.')
         return accept_policy
-    
+
+class RefundRequestForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user')
+        self.registration = kwargs.pop('registration')
+        super(RefundRequestForm, self).__init__(*args, **kwargs)
+    def save(self, commit=True):
+        refund = super(RefundRequestForm, self).save(commit=False)
+        refund.requester = self.user
+        refund.registration = self.registration
+        if commit:
+            refund.save()
+        return refund
+    def clean_amount(self):
+        amount = self.cleaned_data['amount']
+        if amount and amount > self.registration.payment.amount_remaining:
+            raise ValidationError('The refund must not be greater than the paid amount remaining.')
+        return amount
+    class Meta:
+        model=Refund
+        fields = ('amount', 'notes')

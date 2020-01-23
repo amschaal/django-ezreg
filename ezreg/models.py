@@ -18,6 +18,7 @@ from django.core.validators import MinLengthValidator
 from django_bleach.models import BleachField
 from django.utils import timezone
 from django.contrib.postgres import fields as postgres_fields
+import uuid
 
 
 def id_generator(size=10, chars=string.ascii_uppercase + string.digits):
@@ -175,11 +176,13 @@ def event_logo_path(instance, filename):
    
 class EventPage(models.Model):
     event = models.ForeignKey('Event',related_name='pages')
+    index = models.IntegerField(null=True, blank=True)
     slug = models.SlugField(max_length=50,blank=True,null=True)
     heading = models.CharField(max_length=40)
     body = BleachField()
     class Meta:
         unique_together = (('event','slug'))
+        ordering = ('index', 'id')
 
 # class EventText(models.Model):
 #     TYPE_POST_PRICE = 'POST_PRICE'
@@ -286,6 +289,12 @@ class Registration(models.Model):
             return self.payment
         except Payment.DoesNotExist:
             return None
+    @property
+    def display(self):
+        return '{}, {} ({})'.format(self.last_name, self.first_name, self.email)
+    @property
+    def paid(self):
+        return getattr(getattr(self,'payment',None),'status',None) == Payment.STATUS_PAID
 #     class Meta:
 #         unique_together = (('email','event'))
    
@@ -306,6 +315,9 @@ class Payment(models.Model):
     external_id = models.CharField(max_length=50,null=True,blank=True)
     data = JSONField(null=True,blank=True)
     admin_notes = models.TextField(null=True, blank=True)
+    @property
+    def amount_remaining(self):
+        return self.amount - self.refunded if self.refunded else self.amount
     def get_post_form(self):
         processor = self.processor.get_processor()
         return processor.get_post_form(self)
@@ -320,6 +332,44 @@ class Payment(models.Model):
             return form_class(self.data,event=self.registration.event)
         else:
             return form_class(event=self.registration.event)
+
+class Refund(models.Model):
+    STATUS_PENDING = 'pending'
+    STATUS_CANCELLED = 'cancelled'
+    STATUS_COMPLETED = 'completed'
+    STATUS_CHOICES = ((STATUS_PENDING,STATUS_PENDING),(STATUS_CANCELLED,STATUS_CANCELLED),(STATUS_COMPLETED,STATUS_COMPLETED))
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    registration = models.ForeignKey(Registration, related_name="refunds")
+    requester = models.ForeignKey(User, related_name="requested_refunds")
+    notes = models.TextField(null=True, blank=True)
+    requested = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=10, default=STATUS_PENDING, choices=STATUS_CHOICES)
+    amount = models.DecimalField(decimal_places=2,max_digits=7)
+    admin = models.ForeignKey(User, null=True, blank=True, related_name="approved_refunds")
+    updated = models.DateTimeField(null=True, blank=True)
+    class Meta:
+        ordering = ('-requested',)
+    def set_status(self, status, user):
+        if self.status == Refund.STATUS_COMPLETED:
+            raise Exception("Refund has already been completed and cannot be undone.")
+        if self.status == Refund.STATUS_CANCELLED:
+            raise Exception("Refund has been cancelled and cannot be undone.")
+        self.status = status
+        self.admin = user
+        self.updated = timezone.now()
+        self.save()
+        if status == Refund.STATUS_COMPLETED:
+            if self.registration.payment.refunded:
+                self.registration.payment.refunded += self.amount            
+            else:
+                self.registration.payment.refunded = self.amount
+            self.registration.payment.save()
+    @property
+    def can_cancel(self):
+        return self.status == Refund.STATUS_PENDING
+    @property
+    def can_complete(self):
+        return self.status == Refund.STATUS_PENDING and self.amount <= self.registration.payment.amount_remaining
 
 class PaymentProcessor(models.Model):
     processor_id = models.CharField(max_length=30)
@@ -364,3 +414,8 @@ def save_event_ical(sender,instance,**kwargs):
     ics.close()
     instance.ical = path
 pre_save.connect(save_event_ical, sender=Event)
+
+def user_display(self):
+    return '{}, {}'.format(self.last_name, self.first_name)
+#     return '{}, {} ({})'.format(self.last_name, self.first_name, self.email)
+User.display = user_display

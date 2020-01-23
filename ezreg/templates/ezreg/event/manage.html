@@ -142,13 +142,21 @@
 <tab heading="Event Pages">
 <div ng-controller="EventPageController" ng-init="init({'event_id':'{{event.id}}'})">
 <p>Add any additional event pages here. Event pages are often used for maps, lodging, schedules, etc.<button class="btn btn-primary pull-right" ng-click="addPage()">Add page</button></p>
+
 <tabset>
 
-<tab ng-repeat="page in pages" heading="{[page.heading]}">
+<tab ng-repeat="page in pages | orderBy:'index'" heading="{[page.heading]}">
 <p><span class="pull-right"><button class="btn btn-success" ng-click="savePage(page)">Save</button> <button class="btn btn-danger" ng-click="deletePage(page,$index)">Delete</button></span></p> 
 <form class="form-horizontal">
 <fieldset>
 <!-- Text input-->
+<div class="form-group">
+  <label class="col-md-1 control-label" for="textinput">Index/Order</label>  
+  <div class="col-md-10">
+  <input style="width: 5em" id="textinput" name="textinput" type="number"  class="form-control input-md" ng-model="page.index">
+  <span class="help-block">Use this to change the order your pages.</span>  
+  </div>
+</div>
 <div class="form-group">
   <label class="col-md-1 control-label" for="textinput">Menu</label>  
   <div class="col-md-10">
@@ -178,9 +186,14 @@
 <tab heading="Registrations">
 {% include 'ezreg/event/registrations.html'%}
 </tab>
+<tab heading="Refunds">
+{% include 'ezreg/partials/refunds.html' %}
+</tab>
+<!--
 <tab heading="Emails">
 {% include 'ezreg/event/emails.html'%}
 </tab>
+-->
 <tab heading="Logs">
 <log-table content-type="{{event|content_type_id}}" object-id="'{{event.id}}'"></log-table>
 </tab>
