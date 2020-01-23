@@ -5,6 +5,7 @@ def format_registration_data(event,registrations,encode_utf8=True):
         form_fields = [field for field in event.form_fields if 'layout' not in field['type']]
     reg_data = {
                 'fields':{'registered':{'label':'Registered','type':'datetime'},
+                          'id':{'label':'Registration ID'},
                           'first_name':{'label':'First Name'},
                           'last_name':{'label':'Last Name'},
                           'email':{'label':'Email'},
@@ -31,7 +32,7 @@ def format_registration_data(event,registrations,encode_utf8=True):
             reg_data['fields']['processor_%d_%s'%(processor.id,name)] = {'label':label}
     
     for r in registrations:
-        data = {'registered':r.registered.strftime('%Y-%m-%d %H:%M'), 'first_name':r.first_name, 'last_name':r.last_name, 'email': r.email, 'status':r.status,'admin_notes':r.admin_notes}
+        data = {'registered':r.registered.strftime('%Y-%m-%d %H:%M'), 'id': r.id, 'first_name':r.first_name, 'last_name':r.last_name, 'email': r.email, 'status':r.status,'admin_notes':r.admin_notes}
 
         #Add custom form field values
         for field in form_fields:

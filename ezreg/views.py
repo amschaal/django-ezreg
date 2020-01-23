@@ -358,7 +358,7 @@ def export_registrations(request, event):
     import re, tablib
     registrations = event.registrations.filter(id__in=request.POST.getlist('selection')).prefetch_related('payment','payment__processor').order_by('registered')
     data = format_registration_data(event, registrations)
-    fields = ['registered','first_name','last_name','email','admin_notes','status']
+    fields = ['registered','id','first_name','last_name','email','admin_notes','status']
     if event.form_fields:
         fields += [field['name'] for field in event.form_fields if 'layout' not in field['type'] and field['name'] in request.POST.getlist('custom_fields')]
     fields += request.POST.getlist('payment_fields')
