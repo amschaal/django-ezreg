@@ -60,7 +60,7 @@
         <li role="menuitem"><a ng-click="exportRegistrations('xlsx')">XLSX</a></li>
         <li role="menuitem"><a ng-click="exportRegistrations('json')">JSON</a></li>
       </ul>
-    </div>
+    </div> <label title="Attempt to merge custom fields.  This may cause the export to take longer to process."><input type="checkbox" name="export_custom" ng-model="export_custom"/>Include merged custom variables</label>
 <script type="text/ng-template" id="ng-table/filters/multi-select.html">
 	<multiselect ng-disabled="$filterRow.disabled" ng-model="params.filter()[name]" options="$column.data" show-select-all="true" show-unselect-all="true" id-as-value="true" id-prop="id" display-prop="title"></multiselect>
 </script>

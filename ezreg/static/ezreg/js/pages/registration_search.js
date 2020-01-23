@@ -23,6 +23,7 @@ function setConfigPhaseSettings(ngTableFilterConfigProvider) {
 
 function RegistrationSearchController($scope,$filter,$http,NgTableParams,$httpParamSerializer) {
 	var defaults={};
+	$scope.export_custom = false;
 	$scope.filters={};
 	var create_filter_choices = function(choices){
 		filter_choices = [];
@@ -68,6 +69,9 @@ function RegistrationSearchController($scope,$filter,$http,NgTableParams,$httpPa
 	    });
 	$scope.exportRegistrations = function(format){
 		var url = '/api/registrations/export_registrations/?'+$httpParamSerializer($scope.registrationParameters)+'&export_format='+format;
+		if ($scope.export_custom) {
+		    url += '&export_custom=true';
+		}
 		console.log('url',url);
 		window.location = url;
 	}
