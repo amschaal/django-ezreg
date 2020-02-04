@@ -25,14 +25,14 @@
 		{[getSelected().length]} selected 
 		<div class="btn-group" dropdown is-open="status.isopen">
 		  <button type="button" class="btn btn-default" dropdown-toggle ng-disabled="disabled">
-		    Action<span class="caret"></span>
+		    Bulk actions<span class="caret"></span>
 		  </button>
-		  <ul class="dropdown-menu" role="menu" aria-labelledby="Action">
+		  <ul class="dropdown-menu" role="menu" aria-labelledby="Bulk actions">
 		  {% if 'admin' in permissions %}
 		    <li role="menuitem" ng-click="update_statuses()"><a href="#">Update Statuses</a></li>
 		  {% endif %}
 		    <li role="menuitem" ng-click="export_registrations()"><a href="#">Export</a></li>
-		    <li role="menuitem" ng-click="visualize()"><a href="#">Visualize</a></li>
+		    <!--<li role="menuitem" ng-click="visualize()"><a href="#">Visualize</a></li>-->
 		  </ul>
 		</div>
 	</span>

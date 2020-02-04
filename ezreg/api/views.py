@@ -89,10 +89,20 @@ class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
     def export_registrations(self,request):
         import tablib
         registrations = self.filter_queryset(self.get_queryset())
+        events = Event.objects.filter(registrations__in=registrations).distinct()
+        form_fields = []
+        export_custom = request.query_params.get('export_custom','false').lower() == 'true'
+        if export_custom:
+            for event in events:
+                if event.form_fields:
+                    form_fields += [field['name'].lower() for field in event.form_fields if 'layout' not in field['type']]
+            form_fields = sorted(list(set(form_fields)))
+        
+#         raise Exception('die')
         fields = ['registered','registration_id','event_id','event', 'event_start', 'event_end','organizer','first_name','last_name','email','price','amount','coupon_code','refunded','external_id','processor','status','payment status','admin_notes','payment_admin_notes','test']
         
         #add headers
-        dataset = tablib.Dataset(headers=fields)
+        dataset = tablib.Dataset(headers=fields+form_fields)
         
         #write data
         for r in registrations:
@@ -104,7 +114,12 @@ class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
             processor = None if not hasattr(r,'payment') or not r.payment.processor else r.payment.processor.name
             payment_status = None if not hasattr(r,'payment') else r.payment.status
             payment_admin_notes = None if not hasattr(r,'payment') else r.payment.admin_notes
-            dataset.append([r.registered.strftime("%Y-%m-%d %H:%M"),r.id,r.event.id,r.event.title,r.event.start_time,r.event.end_time,r.event.organizer.name,r.first_name,r.last_name,r.email,price,amount,coupon_code,refunded,external_id,processor,r.status,payment_status,r.admin_notes,payment_admin_notes,r.test])
+            row = [r.registered.strftime("%Y-%m-%d %H:%M"),r.id,r.event.id,r.event.title,r.event.start_time,r.event.end_time,r.event.organizer.name,r.first_name,r.last_name,r.email,price,amount,coupon_code,refunded,external_id,processor,r.status,payment_status,r.admin_notes,payment_admin_notes,r.test]
+            if export_custom:
+                data = r.data if r.data else {}
+                lowered = dict([(k.lower(), ', '.join(v) if isinstance(v, list) else v) for k,v in data.items()])
+                row += [lowered.get(field,'') for field in form_fields]
+            dataset.append(row)
         filetype = request.query_params.get('export_format','xls')
         filetype = filetype if filetype in ['xls','xlsx','csv','tsv','json'] else 'xls'
         content_types = {'xls':'application/vnd.ms-excel','tsv':'text/tsv','csv':'text/csv','json':'text/json','xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
