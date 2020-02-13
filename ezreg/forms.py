@@ -117,10 +117,18 @@ class PaymentProcessorForm(forms.ModelForm):
 
 class RegistrationForm(forms.ModelForm):
     template = 'ezreg/registration/form.html'
+    department = forms.ChoiceField(choices=[], required=False, help_text='If you are a UCD affiliate, please select your department.')
     def __init__(self, *args, **kwargs):
         self.event = kwargs.pop('event',None)
         self.admin = kwargs.pop('admin',False)
         super(RegistrationForm,self).__init__(*args, **kwargs)
+        try:
+            import json
+            with open('/home/adam/Documents/ucd_department_choices.json', 'rb') as choices:
+                choices = json.load(choices)
+            self.fields['department'].choices = choices
+        except:
+            pass
         if not self.admin:
             self.fields.pop('admin_notes')
         for field in ['first_name','last_name','email']:
@@ -132,10 +140,16 @@ class RegistrationForm(forms.ModelForm):
             if Registration.objects.filter(email__iexact=email, event=self.event).exclude(id=self.instance.id).exclude(status__in=[Registration.STATUS_CANCELLED,Registration.STATUS_APPLIED_DENIED]).exclude(test=True).count() != 0:
                 raise ValidationError('A registration with that email already exists.')
         return email
+    def clean(self):
+        cleaned_data = super(RegistrationForm, self).clean()
+        department = cleaned_data.get("department")
+        email = cleaned_data.get("email")
+        if email and email[-11:].strip().lower() == 'ucdavis.edu' and not department:
+            self.add_error('department', 'Please select your deparment.')
     class Meta:
         model=Registration
 #         exclude = ('id','event','price','status')
-        fields = ('first_name','last_name','email','admin_notes')#,'institution','department','special_requests'
+        fields = ('first_name','last_name','email','department','admin_notes')#,'institution','department','special_requests'
         
 class AdminRegistrationForm(forms.ModelForm):
     class Meta:
