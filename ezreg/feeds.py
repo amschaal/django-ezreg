@@ -35,7 +35,7 @@ class EventsFeed(Feed):
 class UpcomingEventsFeed(EventsFeed):
     description = 'Upcoming events'
     def items(self, obj):
-        return Event.objects.filter(organizer=obj,start_time__gte=timezone.now(),advertise=True,active=True).order_by('-start_time')
+        return Event.objects.filter(organizer=obj,start_time__gte=timezone.now(),advertise=True,active=True).order_by('start_time')
 
 class PastEventsFeed(EventsFeed):
     description = 'Past events'
