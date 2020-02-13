@@ -20,7 +20,7 @@ class EventsFeed(Feed):
     def link(self):
         return getattr(settings,'SITE_URL')
     def item_title(self,item):
-        return '{} - {}'.format(item.start_time.strftime('%b %d, %Y'), item.title)
+        return '{} - {}'.format(item.start_time.strftime('%B %Y'), item.title)
     def item_pubdate(self, item):
         return item.start_time
     def item_description(self,item):
