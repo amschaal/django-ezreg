@@ -124,11 +124,11 @@ class RegistrationForm(forms.ModelForm):
         super(RegistrationForm,self).__init__(*args, **kwargs)
         try:
             import json
-            with open('/home/adam/Documents/ucd_department_choices.json', 'rb') as choices:
+            with open(settings.UCD_DEPARTMENTS, 'rb') as choices:
                 choices = json.load(choices)
             self.fields['department'].choices = choices
         except:
-            pass
+            del self.fields['department']
         if not self.admin:
             self.fields.pop('admin_notes')
         for field in ['first_name','last_name','email']:
@@ -142,10 +142,11 @@ class RegistrationForm(forms.ModelForm):
         return email
     def clean(self):
         cleaned_data = super(RegistrationForm, self).clean()
-        department = cleaned_data.get("department")
-        email = cleaned_data.get("email")
-        if email and email[-11:].strip().lower() == 'ucdavis.edu' and not department:
-            self.add_error('department', 'Please select your deparment.')
+        if 'department' in self.fields:
+            department = cleaned_data.get("department")
+            email = cleaned_data.get("email")
+            if email and email[-11:].strip().lower() == 'ucdavis.edu' and not department:
+                self.add_error('department', 'Please select your deparment.')
     class Meta:
         model=Registration
 #         exclude = ('id','event','price','status')
