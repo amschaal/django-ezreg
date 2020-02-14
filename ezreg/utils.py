@@ -9,6 +9,7 @@ def format_registration_data(event,registrations,encode_utf8=True):
                           'first_name':{'label':'First Name'},
                           'last_name':{'label':'Last Name'},
                           'email':{'label':'Email'},
+                          'department':{'label':'Department'},
                           'status':{'label':'Status'},
                           'admin_notes':{'label':'Admin Notes'},
                           'payment.price':{'label':'Price'},
@@ -32,7 +33,7 @@ def format_registration_data(event,registrations,encode_utf8=True):
             reg_data['fields']['processor_%d_%s'%(processor.id,name)] = {'label':label}
     
     for r in registrations:
-        data = {'registered':r.registered.strftime('%Y-%m-%d %H:%M'), 'id': r.id, 'first_name':r.first_name, 'last_name':r.last_name, 'email': r.email, 'status':r.status,'admin_notes':r.admin_notes}
+        data = {'registered':r.registered.strftime('%Y-%m-%d %H:%M'), 'id': r.id, 'first_name':r.first_name, 'last_name':r.last_name, 'email': r.email, 'department': r.department, 'status':r.status,'admin_notes':r.admin_notes}
 
         #Add custom form field values
         for field in form_fields:

@@ -259,7 +259,8 @@ class Registration(models.Model):
         fields = [
                   {'name':'first_name','label':'First name','value':self.first_name},
                   {'name':'last_name','label':'Last name','value':self.last_name},
-                  {'name':'email','label':'Email','value':self.email}
+                  {'name':'email','label':'Email','value':self.email},
+                  {'name':'department','label':'Department','value':self.department}
                  ]
         if self.data:
             for field in self.event.form_fields:
