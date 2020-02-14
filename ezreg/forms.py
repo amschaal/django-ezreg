@@ -153,9 +153,19 @@ class RegistrationForm(forms.ModelForm):
         fields = ('first_name','last_name','email','department','admin_notes')#,'institution','department','special_requests'
         
 class AdminRegistrationForm(forms.ModelForm):
+    department = forms.ChoiceField(choices=[], required=False, help_text='If you are a UCD affiliate, please select your department.')
+    def __init__(self,*args,**kwargs):
+        super(AdminRegistrationForm, self).__init__(*args, **kwargs)
+        try:
+            import json
+            with open(settings.UCD_DEPARTMENTS, 'rb') as choices:
+                choices = json.load(choices)
+            self.fields['department'].choices = choices
+        except:
+            del self.fields['department']
     class Meta:
         model=Registration
-        fields = ('first_name','last_name','email','admin_notes')
+        fields = ('first_name','last_name','email','department','admin_notes')
 
 class AdminRegistrationStatusForm(forms.ModelForm):
     email = forms.CheckboxInput()
