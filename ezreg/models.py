@@ -243,7 +243,7 @@ class Registration(models.Model):
     last_name = models.CharField(max_length=50,null=True,blank=True)
     email = models.EmailField(null=True,blank=True)
 #     institution = models.CharField(max_length=100,null=True,blank=True)
-#     department = models.CharField(max_length=100,null=True,blank=True)
+    department = models.CharField(max_length=100,null=True,blank=True)
 #     special_requests = models.TextField(null=True,blank=True)
     price = models.ForeignKey('Price',null=True,blank=True,on_delete=models.PROTECT,related_name='registrations')
     email_messages = models.ManyToManyField(MailerMessage,related_name='registrations')
