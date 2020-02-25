@@ -243,7 +243,7 @@ class Registration(models.Model):
     last_name = models.CharField(max_length=50,null=True,blank=True)
     email = models.EmailField(null=True,blank=True)
 #     institution = models.CharField(max_length=100,null=True,blank=True)
-#     department = models.CharField(max_length=100,null=True,blank=True)
+    department = models.CharField(max_length=100,null=True,blank=True)
 #     special_requests = models.TextField(null=True,blank=True)
     price = models.ForeignKey('Price',null=True,blank=True,on_delete=models.PROTECT,related_name='registrations')
     email_messages = models.ManyToManyField(MailerMessage,related_name='registrations')
@@ -259,7 +259,8 @@ class Registration(models.Model):
         fields = [
                   {'name':'first_name','label':'First name','value':self.first_name},
                   {'name':'last_name','label':'Last name','value':self.last_name},
-                  {'name':'email','label':'Email','value':self.email}
+                  {'name':'email','label':'Email','value':self.email},
+                  {'name':'department','label':'Department','value':self.department}
                  ]
         if self.data:
             for field in self.event.form_fields:
