@@ -197,7 +197,7 @@ class PriceForm(forms.Form):
                 self.coupon_price = self.available_prices_queryset(include_coupons=True).filter(coupon_code=coupon_code).first()
                 if self.coupon_price:
                     self.data[self.add_prefix('price')]=self.coupon_price.id
-                    if self.coupon_price.amount == 0:
+                    if self.coupon_price.amount == 0: #this may no longer be needed due to clean methods
                         self.fields['payment_method'].required = False
 #                         del self.fields['payment_method']
     def get_payment_method_queryset(self):
@@ -228,7 +228,14 @@ class PriceForm(forms.Form):
     def clean_price(self):
         if self.coupon_price:
             self.cleaned_data['price'] = self.coupon_price
+        if self.cleaned_data['price'].amount == 0:
+            self.fields['payment_method'].required = False
         return self.cleaned_data['price']
+    def clean_payment_method(self):
+        if self.cleaned_data['price'].amount == 0:
+            return None
+        else:
+            return self.cleaned_data['payment_method']
     def clean_coupon_code(self):
         coupon_code = self.cleaned_data['coupon_code']
         if coupon_code and not self.coupon_price:
