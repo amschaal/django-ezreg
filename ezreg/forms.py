@@ -65,7 +65,7 @@ class EventForm(forms.ModelForm):
         model=Event
         fields = ('organizer','title','active','tentative','advertise','enable_waitlist','enable_application','capacity',
                   'slug','logo','hide_header','title','description','body','cancellation_policy','open_until',
-                  'start_time','end_time','contact','display_address','address','waitlist_message','bcc','from_addr','expiration_time','outside_url','billed')
+                  'start_time','end_time','contact','display_address','address','department_field','waitlist_message','bcc','from_addr','expiration_time','outside_url','billed')
 #         exclude = ('id','payment_processors','ical','form_fields','group')
         labels = {
                   'start_time': 'Event Start Time',
@@ -76,7 +76,8 @@ class EventForm(forms.ModelForm):
                   'display_address': 'Display location',
                   'expiration_time': 'Expiration time (minutes)',
                   'slug':'Friendly URL',
-                  'tentative':'Planned event'
+                  'tentative':'Planned event',
+                  'department_field': 'Ask users to select their department.'
         }
         help_texts = {
             'slug': 'This will be used in the event URL.  Use only alphanumeric characters and underscores.',
@@ -122,13 +123,16 @@ class RegistrationForm(forms.ModelForm):
         self.event = kwargs.pop('event',None)
         self.admin = kwargs.pop('admin',False)
         super(RegistrationForm,self).__init__(*args, **kwargs)
-        try:
-            import json
-            with open(settings.UCD_DEPARTMENTS, 'rb') as choices:
-                choices = json.load(choices)
-            self.fields['department'].choices = choices
-        except:
+        if not self.event.department_field:
             del self.fields['department']
+        else:
+            try:
+                import json
+                with open(settings.UCD_DEPARTMENTS, 'rb') as choices:
+                    choices = json.load(choices)
+                self.fields['department'].choices = choices
+            except:
+                del self.fields['department']
         if not self.admin:
             self.fields.pop('admin_notes')
         for field in ['first_name','last_name','email']:

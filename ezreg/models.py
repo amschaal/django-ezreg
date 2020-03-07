@@ -78,6 +78,7 @@ class Event(models.Model):
     logo = models.ImageField(upload_to='logos/',null=True,blank=True)
     hide_header = models.BooleanField(default=False)
     form_fields = JSONField(null=True, blank=True)
+    department_field = models.BooleanField(default=True)
     outside_url = models.URLField(null=True,blank=True)
     billed = models.BooleanField(default=False)
     config = postgres_fields.JSONField(default=dict)
