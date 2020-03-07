@@ -77,7 +77,7 @@ class EventForm(forms.ModelForm):
                   'expiration_time': 'Expiration time (minutes)',
                   'slug':'Friendly URL',
                   'tentative':'Planned event',
-                  'department_field': 'Ask users to select their department.'
+                  'department_field': 'Ask users to select their department'
         }
         help_texts = {
             'slug': 'This will be used in the event URL.  Use only alphanumeric characters and underscores.',
@@ -123,7 +123,7 @@ class RegistrationForm(forms.ModelForm):
         self.event = kwargs.pop('event',None)
         self.admin = kwargs.pop('admin',False)
         super(RegistrationForm,self).__init__(*args, **kwargs)
-        if not self.event.department_field:
+        if self.event and not self.event.department_field:
             del self.fields['department']
         else:
             try:
