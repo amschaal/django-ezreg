@@ -236,7 +236,7 @@ class PriceForm(forms.Form):
             self.fields['payment_method'].required = False
         return self.cleaned_data['price']
     def clean_payment_method(self):
-        if self.cleaned_data['price'].amount == 0:
+        if self.cleaned_data.get('price', None) and self.cleaned_data['price'].amount == 0:
             return None
         else:
             return self.cleaned_data['payment_method']
