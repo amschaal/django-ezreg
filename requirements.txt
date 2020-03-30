@@ -3,7 +3,7 @@ Pillow==3.4.2
 PyYAML==5.1
 Unidecode==0.04.18
 argparse==1.2.1
-bleach==1.4.2
+bleach==3.1.4
 django-appconf==1.0.2
 django-bleach==0.3.0
 django-cas-client==1.4.0
