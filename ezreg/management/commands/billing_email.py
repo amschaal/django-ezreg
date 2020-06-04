@@ -17,10 +17,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         today = timezone.now()
-        period_start = today - timedelta(weeks=4*120)
+        period_start = today - timedelta(weeks=4*8)
         period_end = today - timedelta(weeks=4)
         for o in Organizer.objects.all():
             billable = []
+            total = 0
             for e in Event.objects.filter(end_time__gte=period_start, end_time__lte=period_end, billed=False, organizer=o).order_by('start_time'):
                 bill = e.revenue > 0
     #             self.stdout.write('event: {}'.format(event.title))
@@ -28,9 +29,10 @@ class Command(BaseCommand):
                     print('FREE')
                 else:
                     billable.append(e)
+                    total += e.total_charges
             if len(billable) > 0:
-                print('Organizer', o, billable)
-                html = render_to_string('ezreg/emails/billing_email.html', { 'organizer': o, 'events': billable, 'SITE_URL': settings.SITE_URL })
+#                 print('Organizer', o, billable)
+                html = render_to_string('ezreg/emails/billing_email.html', {'start': period_start, 'end': period_end, 'organizer': o, 'events': billable, 'SITE_URL': settings.SITE_URL, 'total': total})
                 send_mail('Registration system billing for {}'.format(o), html, settings.FROM_EMAIL, ['amschaal@ucdavis.edu'], fail_silently=False, html_message=html)
 #             send_email('amschaal@ucdavis.edu', settings.FROM_EMAIL, 'Registration system billing for {}'.format(o), template, html_template, context, cc, bcc, registration)
 #             generate_email('amschaal@ucdavis.edu', settings.FROM_EMAIL, 'Registration system billing for {}'.format(o), , 'ezreg/emails/billing_email.html', { 'organizer': o, 'events': billable})

@@ -1,4 +1,4 @@
-<h3>Billing summary for events ending between {{start_date}} - {{end_date}}</h3>
+<h3>Billing summary for events ending between {{start|date:'M j, Y'}} - {{end|date:'M j, Y'}}</h3>
 <h3>Organizer: {{organizer}}</h3>
 <ul>
 {% for e in events %}
@@ -10,3 +10,6 @@
 </ul>
 </li>
 {% endfor %}
+<p>
+<b>Total = ${{total}}</b>
+</p>
