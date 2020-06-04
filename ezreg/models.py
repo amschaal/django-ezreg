@@ -164,6 +164,15 @@ class Event(models.Model):
     @property
     def credit_card_revenue(self):
         return self.total_revenue(payment_processor_ids=['touchnet_payment_processor'])
+    @property
+    def service_charges(self):
+        return round(float(self.revenue) * 0.03, 2)
+    @property
+    def credit_card_charges(self):
+        return round(float(self.credit_card_revenue) * 0.0275, 2)
+    @property
+    def total_charges(self):
+        return self.service_charges + self.credit_card_charges
     def __unicode__(self):
         return self.title
     class Meta:
