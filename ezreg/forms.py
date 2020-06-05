@@ -12,6 +12,7 @@ from django.forms.widgets import  TextInput
 from django.db.models.query_utils import Q
 from datetimewidget.widgets import DateTimeWidget, DateWidget
 from django.conf import settings
+from django.utils import timezone
 
 def _raw_value(form, fieldname):
     field = form.fields[fieldname]
@@ -41,6 +42,8 @@ class AngularDatePickerInput(TextInput):
 class EventForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
         super(EventForm,self).__init__(*args, **kwargs)
+        self.user = user
+        event = kwargs.pop('instance', None)
         if not user.is_staff:
             self.fields['organizer'].queryset = Organizer.objects.filter(user_permissions__user=user,user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN)
         self.fields['open_until'].required = False
@@ -48,8 +51,11 @@ class EventForm(forms.ModelForm):
         data = self.data.copy()
         data['open_until'] = self.data.get('open_until') or self.data.get('start_time','')[:10]
         self.data = data
-        if not user.is_superuser:
+        if event and event.billed:
+            self.fields['billed'].disabled = True
+        if not user.is_superuser and not user.has_perm('ezreg.bill_event'):
             del self.fields['billed']
+            del self.fields['billing_notes']
     body = forms.CharField(label='Main event page',help_text='This is the landing page for your event and should contain most information about your event.  You may add additional pages using the "Event Pages" tab.',widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     description = forms.CharField(label='Brief event description',help_text='This should be a brief description of your event, and will be displayed during the registration process.',widget=TinyMCE(attrs={'cols': 80, 'rows': 15}))
     cancellation_policy = forms.CharField(required=False,widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
@@ -61,11 +67,22 @@ class EventForm(forms.ModelForm):
             self.add_error('start_time', 'Start time should not be later than end time.')
         if cleaned_data.get('active') and cleaned_data.get('tentative'):
             self.add_error('tentative', 'Events cannot be in planning while registration is activated.')
+    def save(self, commit=True):
+        event = super(EventForm, self).save(commit=False)
+        if self.instance and self.instance.id:
+            old_event = Event.objects.get(id=self.instance.id)
+            if not old_event.billed and event.billed:
+                event.billed_by = self.user
+                event.billed_on = timezone.now()
+        if commit:
+            event.save()
+        return event
+            
     class Meta:
         model=Event
         fields = ('organizer','title','active','tentative','advertise','enable_waitlist','enable_application','capacity',
                   'slug','logo','hide_header','title','description','body','cancellation_policy','open_until',
-                  'start_time','end_time','contact','display_address','address','department_field','waitlist_message','bcc','from_addr','expiration_time','outside_url','billed')
+                  'start_time','end_time','contact','display_address','address','department_field','waitlist_message','bcc','from_addr','expiration_time','outside_url','billed', 'billing_notes')
 #         exclude = ('id','payment_processors','ical','form_fields','group')
         labels = {
                   'start_time': 'Event Start Time',
@@ -95,7 +112,8 @@ class EventForm(forms.ModelForm):
             'logo': 'Optionally upload a logo to replace the default website logo.  Image will be scaled to a maximum height of 100px.',
             'hide_header': 'Hide the header, "{0}", on the upper left of the page.'.format(settings.HEADER_TEXT),
             'outside_url': 'Optionally provide a URL to an outside event.  If this is set, registration through the system will not be possible.',
-            'tentative': 'If the event is in the planning stages, but lacks definitive dates, you may select this.  Dates will be hidden while checked.'
+            'tentative': 'If the event is in the planning stages, but lacks definitive dates, you may select this.  Dates will be hidden while checked.',
+            'billed': 'Beware, once an event is billed, it may not be unbilled.'
         }
         widgets = {
                       'open_until':DateWidget(attrs={'id':"open_until"}, usel10n = True, bootstrap_version=3),

@@ -81,6 +81,9 @@ class Event(models.Model):
     department_field = models.BooleanField(default=True)
     outside_url = models.URLField(null=True,blank=True)
     billed = models.BooleanField(default=False)
+    billing_notes = models.TextField(null=True, blank=True)
+    billed_on = models.DateTimeField(null=True, blank=True)
+    billed_by = models.ForeignKey(User, null=True, blank=True)
     config = postgres_fields.JSONField(default=dict)
     @property
     def slug_or_id(self):
@@ -160,25 +163,32 @@ class Event(models.Model):
             return totals['total']
     @property
     def revenue(self):
-        return self.total_revenue()
+        return round(self.total_revenue(), 2)
     @property
     def credit_card_revenue(self):
-        return self.total_revenue(payment_processor_ids=['touchnet_payment_processor'])
+        return round(self.total_revenue(payment_processor_ids=['touchnet_payment_processor']), 2)
     @property
     def service_charges(self):
-        return round(float(self.revenue) * 0.03, 2)
+        return round(float(self.revenue) * (settings.SERVICE_CHARGE_PERCENT/100.0), 2)
     @property
     def credit_card_charges(self):
-        return round(float(self.credit_card_revenue) * 0.0275, 2)
+        return round(float(self.credit_card_revenue) * (settings.CREDIT_CARD_CHARGE_PERCENT/100.0), 2)
+    @property
+    def service_charges_text(self):
+        return '${0:.2f} @ {1}% = ${2:.2f}'.format(self.revenue,settings.SERVICE_CHARGE_PERCENT, self.service_charges)
+    @property
+    def credit_card_charges_text(self):
+        return '${0:.2f} @ {1}% = ${2:.2f}'.format(self.credit_card_revenue,settings.CREDIT_CARD_CHARGE_PERCENT, self.credit_card_charges)
     @property
     def total_charges(self):
-        return self.service_charges + self.credit_card_charges
+        return round(self.service_charges + self.credit_card_charges, 2)
     def __unicode__(self):
         return self.title
     class Meta:
         permissions = (
             ('admin_event', 'Can modify event'),
             ('view_event', 'Can view event details and registrations'),
+            ('bill_event', 'Can bill events')
         )
 def event_logo_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>

@@ -46,7 +46,19 @@
 <tabset ng-cloak>
 {% if 'admin' in permissions %}
 <tab heading="Event">
-{% if user.is_superuser %}<p><b>Total Revenue: </b>${{event.revenue|floatformat:2}} <b>Credit Card Revenue: </b>${{event.credit_card_revenue|floatformat:2}}</p>{% endif %}
+{% if user.is_superuser or perms.ezreg.bill_event %}
+<p>
+<table class="table">
+<tr><th>Billed</th><th>{% if event.billed %}<span class="text-success">YES</span>{% else %}<span class="text-danger">NO</span>{% endif %} </th></tr>
+<tr><th>Total revenue</th><th>{{event.service_charges_text}}</th></tr>
+<tr><th>Credit card revenue </th><th>{{event.credit_card_charges_text}}</th></tr>
+<tr><th>Total charges </th><th>${{event.total_charges|floatformat:2}}</th></tr>
+{% if event.billed_by %}<tr><th>Billed by</th><th>{{event.billed_by.display}}</th></tr>{% endif %}
+{% if event.billed_on %}<tr><th>Billed on</th><th>{{event.billed_on}}</th></tr>{% endif %}
+{% if event.billing_notes %}<tr><th>Billing notes</th><th>{{event.billing_notes}}</th></tr>{% endif %}
+<tr><th></th><th></th></tr>
+</table>
+{% endif %}
 {% if form.errors %}<h2 class="error">Please correct form errors below.</h2>{% endif %}
 <form method="POST" action="." enctype="multipart/form-data">
 {% csrf_token %}
