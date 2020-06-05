@@ -4,8 +4,8 @@
 {% for e in events %}
 <li><a href="{{SITE_URL}}{% url 'manage_event' event=e.id %}">{{e}}</a>: {{e.start_time|date:'M j, Y'}} - {{e.end_time|date:'M j, Y'}}
 <ul>
-    <li>Total revenue: ${{e.revenue}} @3% = ${{e.service_charges}}</li>
-    <li>Credit revenue: {{e.revenue}} @2.75% = ${{e.credit_card_charges}}</li>
+    <li>Total revenue: {{e.service_charges_text}}</li>
+    <li>Credit revenue: {{e.credit_card_charges_text}}</li>
     <li>Total charges = ${{e.total_charges}}</li>
 </ul>
 </li>
