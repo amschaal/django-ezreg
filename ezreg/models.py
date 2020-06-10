@@ -150,7 +150,8 @@ class Event(models.Model):
     def total_revenue(self, statuses=[], subtract_refunds=True, payment_processor_ids=[]):
         from django.db.models.aggregates import Sum
         statuses = statuses if len(statuses) > 0 else [Registration.STATUS_REGISTERED]
-        qs = Payment.objects.filter(registration__event=self, registration__status__in=statuses).exclude(registration__test=True)
+        #include all registrations of a certain status AND paid registrations, regardless of registration status
+        qs = Payment.objects.filter(registration__event=self).filter(Q(registration__status__in=statuses)|Q(status=Payment.STATUS_PAID)).exclude(registration__test=True)
         if len(payment_processor_ids) > 0:
             qs = qs.filter(processor__processor_id__in=payment_processor_ids)
         
