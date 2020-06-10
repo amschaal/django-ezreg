@@ -1,5 +1,11 @@
 <h3>Billing summary for events ending between {{start|date:'M j, Y'}} - {{end|date:'M j, Y'}}</h3>
 <h3>Organizer: {{organizer}}</h3>
+<h3>Admins:</h3>
+<ul>
+{% for u in admins %}
+<li>{{u.first_name}} {{u.last_name}}: {{u.email}}</li>
+{% endfor %}
+</ul>
 <ul>
 {% for e in events %}
 <li><a href="{{SITE_URL}}{% url 'manage_event' event=e.id %}">{{e}}</a>: {{e.start_time|date:'M j, Y'}} - {{e.end_time|date:'M j, Y'}}
