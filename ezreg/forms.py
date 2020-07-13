@@ -70,8 +70,8 @@ class EventForm(forms.ModelForm):
     def save(self, commit=True):
         event = super(EventForm, self).save(commit=False)
         if self.instance and self.instance.id:
-            old_event = Event.objects.get(id=self.instance.id)
-            if not old_event.billed and event.billed:
+            old_event = Event.objects.filter(id=self.instance.id).first()
+            if old_event and not old_event.billed and event.billed:
                 event.billed_by = self.user
                 event.billed_on = timezone.now()
         if commit:
