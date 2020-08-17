@@ -19,4 +19,19 @@
 <input type="submit" value="{% trans "Continue" %}" class="btn btn-primary"/>
 <button name="wizard_goto_step" type="submit" value="cancel" class="btn btn-danger pull-right">{% trans "Cancel" %}</button>
 </form>
+<script>
+var free = $("[name={{form.price.html_name}}]").attr("free");
+function checkIfFree() {
+    var price = $("[name=price_form-price]:checked").val();
+    if (price == free) {
+        $("[name={{form.payment_method.html_name}}]").closest('.form-group').hide()
+    } else {
+        $("[name={{form.payment_method.html_name}}]").closest('.form-group').show()
+    }
+}
+if (free) {
+    checkIfFree()
+    $( "[name={{form.price.html_name}}]" ).change(checkIfFree);
+}
+</script>
 {% endblock %}

@@ -207,7 +207,11 @@ class PriceForm(forms.Form):
         self.fields['price'].queryset = self.get_price_queryset()
         if self.fields['price'].queryset.count() == 0:
             self.fields['price'].help_text = 'There are no available prices. This event may not be currently open for registration or may be sold out.  Please contact the event coordinator for details.'
-        self.fields['payment_method'].queryset = self.get_payment_method_queryset() 
+        self.fields['payment_method'].queryset = self.get_payment_method_queryset()
+        # Hacky way to expose which prices are free to template.  Used by javascript to hide payment methods in template.
+        for p in self.fields['price'].queryset.all():
+            if p.amount == 0:
+                self.fields['price'].widget.attrs.update({'free':p.id})
     def setup_coupons(self):
         self.data = self.data.copy() #POST querydict is immutable, need to be able to overwrite price for coupon code
         self.coupon_price = None
