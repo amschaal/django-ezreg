@@ -7,7 +7,7 @@ from crispy_forms.layout import Layout, Fieldset, Row, Div, HTML
 
 # from ezreg.config import UC_PAYMENT_CONFIG
 class UCConfigurationForm(forms.Form):
-#     destination_dafis = forms.CharField(required=False)
+#     help_text = forms.CharField(required=False, help_text="If you'd like to override the help text under the \"Account information\" header, you may enter it here.")
     pass
     
 UC_PAYMENT_CONFIG = {
@@ -33,7 +33,7 @@ class PaymentForm(BasePaymentForm):
                 HTML(
                     '''<h4>Please select your university, and enter a full and valid UC account string.</h4>
                       <h4>Ask your financial contact or consult 
-                      <a href="https://financeandbusiness.ucdavis.edu/finance/accounting-financial-reporting/intercampus/acct-strings">
+                      <a target="_blank" href="https://financeandbusiness.ucdavis.edu/finance/accounting-financial-reporting/intercampus/acct-strings">
                       https://financeandbusiness.ucdavis.edu/finance/accounting-financial-reporting/intercampus/acct-strings
                       </a> for details.</h4>
                     '''
