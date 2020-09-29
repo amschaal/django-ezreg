@@ -20,6 +20,7 @@ class PaymentForm(BasePaymentForm):
     financial_contact_first_name = forms.CharField(required=True, label="First Name")
     financial_contact_last_name = forms.CharField(required=True, label="Last Name")
     financial_contact_email = forms.EmailField(required=True, label="Email")
+    financial_contact_phone = forms.CharField(required=True, label="Phone Number")
     pi_first_name = forms.CharField(required=True, label="First Name")
     pi_last_name = forms.CharField(required=True, label="Last Name")
     pi_email = forms.EmailField(required=True, label="Email")
@@ -44,18 +45,19 @@ class PaymentForm(BasePaymentForm):
             Fieldset(
                 'Financial contact',
                 Div(
-                    Div('financial_contact_first_name', css_class='col-xs-4'),
-                    Div('financial_contact_last_name', css_class='col-xs-4'),
-                    Div('financial_contact_email', css_class='col-xs-4'),
+                    Div('financial_contact_first_name', css_class='col-xs-6'),
+                    Div('financial_contact_last_name', css_class='col-xs-6'),
+                    Div('financial_contact_email', css_class='col-xs-6'),
+                    Div('financial_contact_phone', css_class='col-xs-6'),
                     css_class='row-fluid'
                 )
             ),
             Fieldset(
                 'PI',
                 Div(
-                    Div('pi_first_name', css_class='col-xs-4'),
-                    Div('pi_last_name', css_class='col-xs-4'),
-                    Div('pi_email', css_class='col-xs-4'),
+                    Div('pi_first_name', css_class='col-xs-6'),
+                    Div('pi_last_name', css_class='col-xs-6'),
+                    Div('pi_email', css_class='col-xs-6'),
                     css_class='row-fluid'
                 )
             )
