@@ -80,6 +80,7 @@ class Event(models.Model):
     form_fields = JSONField(null=True, blank=True)
     department_field = models.BooleanField(default=True)
     outside_url = models.URLField(null=True,blank=True)
+    bill_to_account = models.CharField(null=True, blank=True, max_length=30)
     billed = models.BooleanField(default=False)
     billing_notes = models.TextField(null=True, blank=True)
     billed_on = models.DateTimeField(null=True, blank=True)

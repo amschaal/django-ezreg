@@ -59,6 +59,7 @@ class EventForm(forms.ModelForm):
     body = forms.CharField(label='Main event page',help_text='This is the landing page for your event and should contain most information about your event.  You may add additional pages using the "Event Pages" tab.',widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     description = forms.CharField(label='Brief event description',help_text='This should be a brief description of your event, and will be displayed during the registration process.',widget=TinyMCE(attrs={'cols': 80, 'rows': 15}))
     cancellation_policy = forms.CharField(required=False,widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
+    bill_to_account = forms.CharField(required=True,help_text='Please enter the account that registration system fees should be billed to after event close.')
     def clean(self):
         cleaned_data = super(EventForm, self).clean()
         start_time = cleaned_data.get("start_time")
@@ -80,7 +81,7 @@ class EventForm(forms.ModelForm):
             
     class Meta:
         model=Event
-        fields = ('organizer','title','active','tentative','advertise','enable_waitlist','enable_application','capacity',
+        fields = ('organizer','title', 'bill_to_account','active','tentative','advertise','enable_waitlist','enable_application','capacity',
                   'slug','logo','hide_header','title','description','body','cancellation_policy','open_until',
                   'start_time','end_time','contact','display_address','address','department_field','waitlist_message','bcc','from_addr','expiration_time','outside_url','billed', 'billing_notes')
 #         exclude = ('id','payment_processors','ical','form_fields','group')
