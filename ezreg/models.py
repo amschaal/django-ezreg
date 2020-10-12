@@ -148,11 +148,12 @@ class Event(models.Model):
         if user.is_staff:
             return [p[0] for p in OrganizerUserPermission.PERMISSION_CHOICES]
         return [p.permission for p in OrganizerUserPermission.objects.filter(user=user,organizer=self.organizer)]
-    def total_revenue(self, statuses=[], subtract_refunds=True, payment_processor_ids=[]):
+    def total_revenue(self, statuses=[], subtract_refunds=True, payment_processor_ids=[], payment_statuses=[]):
         from django.db.models.aggregates import Sum
         statuses = statuses if len(statuses) > 0 else [Registration.STATUS_REGISTERED]
+        payment_statuses = payment_statuses if len(payment_statuses) > 0 else [Payment.STATUS_PAID, Payment.STATUS_PENDING]
         #include all registrations of a certain status AND paid registrations, regardless of registration status
-        qs = Payment.objects.filter(registration__event=self).filter(Q(registration__status__in=statuses)|Q(status=Payment.STATUS_PAID)).exclude(registration__test=True)
+        qs = Payment.objects.filter(registration__event=self, status__in=payment_statuses).filter(Q(registration__status__in=statuses)|Q(status=Payment.STATUS_PAID)).exclude(registration__test=True)
         if len(payment_processor_ids) > 0:
             qs = qs.filter(processor__processor_id__in=payment_processor_ids)
         
@@ -168,7 +169,7 @@ class Event(models.Model):
         return round(self.total_revenue(), 2)
     @property
     def credit_card_revenue(self):
-        return round(self.total_revenue(payment_processor_ids=['touchnet_payment_processor']), 2)
+        return round(self.total_revenue(payment_processor_ids=['touchnet_payment_processor'],payment_statuses=[Payment.STATUS_PAID]), 2)
     @property
     def service_charges(self):
         return round(float(self.revenue) * (settings.SERVICE_CHARGE_PERCENT/100.0), 2)
