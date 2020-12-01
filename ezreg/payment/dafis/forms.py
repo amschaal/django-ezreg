@@ -37,7 +37,8 @@ class PaymentForm(BasePaymentForm):
                 valid = json.load(urllib2.urlopen(URL))
                 cleaned_data['validated']=valid
             except Exception, e:
-                cleaned_data['validated']=True # If request fails, don't hold up registration
+                valid = True
+                cleaned_data['validated']=valid # If request fails, don't hold up registration
             if valid != True:
                 raise forms.ValidationError("The account is invalid.  Please ensure that chart, account, and (optionally) sub account refer to a valid account.")
         return cleaned_data
