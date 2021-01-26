@@ -4,16 +4,28 @@ from django.conf import settings
 import re
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Row, Div, HTML
+from collections import OrderedDict
 
 # from ezreg.config import UC_PAYMENT_CONFIG
 class UCConfigurationForm(forms.Form):
 #     help_text = forms.CharField(required=False, help_text="If you'd like to override the help text under the \"Account information\" header, you may enter it here.")
     pass
     
-UC_PAYMENT_CONFIG = {
-    'UCB': {'name': 'UC Berkeley', 'regex': ['UCB_ACCOUNT$'], 'error_message':'Custom error message instead of default. Hint: "UCB_ACCOUNT" will validate.'},
-    'UCSD': {'name': 'UC San Diego', 'regex': ['UCSD_ACCOUNT']}
-}
+UC_PAYMENT_CONFIG = OrderedDict(
+    (
+#     'UCD': {'name': 'UC Davis', 'regex':['([1J])-(\d{5})-(\d{5})-(5\d{4})-(\d{2})','([1J])-(\d{5})-(\d{5})-(\d{5})']})),
+        ('UCB', {'name': 'UC Berkeley', 'regex': ['([1J])-(\d{5})-(\d{5})-(5\d{4})-(\d{2})','([1J])-(\d{5})-(\d{5})-(\d{5})']}),
+        ('UCI', {'name': 'UC Irvine', 'regex': ['([9R])-([a-zA-Z0-9]{7})-?(\d{5})?-?(\d{2})?-(\d{4})']}),
+        ('UCLA', {'name': 'UC Los Angeles', 'regex': ['(4)-([12][0-9]{5})-?([a-zA-Z0-9]{2})?-([0-9]{5})-?(\w{,6})?-([0-9]{2})-?([0-9]{4})?', '(4)-([0-9]{6})-?([a-zA-Z0-9]{2})?-([0-9]{5})-?(\w{,6})?-([0-9]{2})-([0-9]{4})']}),
+        ('UCM', {'name': 'UC Merced', 'regex': ['([0S])-([12][0-9]{5})-?([a-zA-Z0-9]{2})?-([0-9]{5})-?(\w{,6})?-?([0-9]{2})-?([0-9]{4})?', '([0S])-([0-9]{6})-?([a-zA-Z0-9]{2})?-([0-9]{5})-?(\w{,6})?-([0-9]{2})-([0-9]{4})']}),
+        ('UCR', {'name': 'UC Riverside', 'regex': ['([5N])-?(\d{6})?-(\d{6})-(\d{5})-(\d{2})']}),
+        ('UCSB', {'name': 'UC Santa Barbara', 'regex': ['([8Q])-(\d{6})-(\d{5})-(\d{4})-(\d)']}),
+        ('UCSC', {'name': 'UC Santa Cruz', 'regex': ['([7P])-(\d{5})-(\d{6})-([a-zA-Z0-9]{6})']}),
+        ('UCSD', {'name': 'UC San Diego', 'regex': ['([6O])-(\d{5})-(\d{5})-(\d{7})-(\d{6})-(\d{3})']}),
+        ('UCSF', {'name': 'UC San Francisco', 'regex': ['([2K])-([a-zA-Z0-9]{5})-(\d{5})-(\d{4})-(\d{6})-(\d{7})-?(\d{2})?-(\d{2})']})
+    )
+)
+
 class PaymentForm(BasePaymentForm):
     uc = forms.ChoiceField(required=True, label='Select UC', choices=[[k, v.get('name')] for k,v in UC_PAYMENT_CONFIG.items()])
     account = forms.CharField(required=True, help_text='Please enter the full UC account string.')
