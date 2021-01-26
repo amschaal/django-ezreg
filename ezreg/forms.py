@@ -53,6 +53,7 @@ class EventForm(forms.ModelForm):
         self.data = data
         if event and event.billed:
             self.fields['billed'].disabled = True
+            self.fields['active'].disabled = True
         if not user.is_superuser and not user.has_perm('ezreg.bill_event'):
             del self.fields['billed']
             del self.fields['billing_notes']
@@ -64,9 +65,11 @@ class EventForm(forms.ModelForm):
         cleaned_data = super(EventForm, self).clean()
         start_time = cleaned_data.get("start_time")
         end_time = cleaned_data.get("end_time")
+        billed = cleaned_data.get("billed")
+        active = cleaned_data.get("active")
         if start_time and end_time and (start_time > end_time):
             self.add_error('start_time', 'Start time should not be later than end time.')
-        if cleaned_data.get('active') and cleaned_data.get('tentative'):
+        if active and cleaned_data.get('tentative'):
             self.add_error('tentative', 'Events cannot be in planning while registration is activated.')
     def save(self, commit=True):
         event = super(EventForm, self).save(commit=False)
@@ -75,6 +78,8 @@ class EventForm(forms.ModelForm):
             if old_event and not old_event.billed and event.billed:
                 event.billed_by = self.user
                 event.billed_on = timezone.now()
+        if event.billed:
+            event.active = False
         if commit:
             event.save()
         return event
