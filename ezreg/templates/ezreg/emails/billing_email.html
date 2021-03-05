@@ -13,6 +13,7 @@
     <li>Total revenue: {{e.service_charges_text}}</li>
     <li>Credit revenue: {{e.credit_card_charges_text}}</li>
     <li>Total charges = ${{e.total_charges}}</li>
+	<li>Billing account: {% if e.bill_to_account %}{{e.bill_to_account}}{% else %}None provided{% endif %}</li>
 </ul>
 </li>
 {% endfor %}
