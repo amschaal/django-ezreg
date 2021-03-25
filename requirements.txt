@@ -1,6 +1,6 @@
 django>=1.11.29,<2.0
 Pillow==3.4.2
-PyYAML==5.1
+PyYAML==5.4
 Unidecode==0.04.18
 argparse==1.2.1
 bleach==1.4.2
