@@ -84,7 +84,9 @@ def copy_event(request,event):
     tstamp = timezone.now().strftime("%Y_%m_%d__%H_%M")
     event.slug = 'copy_of_%s_%s'%(event.slug,tstamp)
     event.title = 'Copy of %s %s'%(event.title,tstamp)
-    event.active = event.advertise = False
+    event.active = event.advertise = event.billed = False
+    event.billed_on = None
+    event.billed_by = None
     event.save()
     for processor in copied.payment_processors.all():
         EventProcessor.objects.create(event=event,processor=processor)
