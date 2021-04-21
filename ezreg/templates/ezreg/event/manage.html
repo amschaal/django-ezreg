@@ -133,7 +133,8 @@
 			<td>{[price.registration_count]}</td>
 			<td>
 			     <button ng-if="price.registration_count == 0" ng-click="deletePrice(price,$index)" class="btn btn-danger btn-sm">Delete</button>
-			     <label ng-if="price.registration_count > 0"><input ng-model="price.disable" type="checkbox"/> Disable</label>
+			     <!--<label ng-if="price.registration_count > 0"><input ng-model="price.disable" type="checkbox"/> Disable</label>-->
+				<label><input ng-model="price.disable" type="checkbox"/> Disable</label>
 			</td>
 		</tr>
 	</table>
