@@ -184,5 +184,7 @@ HEADER_TEXT = 'Genome Center Registration'
 SERVICE_CHARGE_PERCENT = 3.0
 CREDIT_CARD_CHARGE_PERCENT = 2.75
 
+MESSAGES = []
+
 from config import *
 

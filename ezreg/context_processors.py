@@ -12,4 +12,4 @@ def permissions_processor(request):
     return {'all_user_permissions': permissions,'OrganizerUserPermission':OrganizerUserPermission}
 
 def settings_processor(request):
-    return {'HEADER_TEXT': settings.HEADER_TEXT}
+    return {'HEADER_TEXT': settings.HEADER_TEXT, 'MESSAGES': settings.MESSAGES}
