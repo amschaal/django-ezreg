@@ -130,7 +130,13 @@
     </div>
     {% block banner %}
     {% endblock %}
-
+{% if MESSAGES|length > 0 %}
+	<div style="padding: 5px;">
+	{% for message in MESSAGES %}
+		<div class="alert alert-warning" role="alert">{{message}}</div>
+	{% endfor %}
+	</div>
+{% endif %}
 	<div class="container theme-showcase" role="main">
   <div growl></div>
 	{% block content %}

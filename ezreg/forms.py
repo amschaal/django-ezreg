@@ -12,6 +12,7 @@ from django.forms.widgets import  TextInput
 from django.db.models.query_utils import Q
 from datetimewidget.widgets import DateTimeWidget, DateWidget
 from django.conf import settings
+from django.utils import timezone
 
 def _raw_value(form, fieldname):
     field = form.fields[fieldname]
@@ -41,6 +42,8 @@ class AngularDatePickerInput(TextInput):
 class EventForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
         super(EventForm,self).__init__(*args, **kwargs)
+        self.user = user
+        event = kwargs.pop('instance', None)
         if not user.is_staff:
             self.fields['organizer'].queryset = Organizer.objects.filter(user_permissions__user=user,user_permissions__permission=OrganizerUserPermission.PERMISSION_ADMIN)
         self.fields['open_until'].required = False
@@ -48,24 +51,44 @@ class EventForm(forms.ModelForm):
         data = self.data.copy()
         data['open_until'] = self.data.get('open_until') or self.data.get('start_time','')[:10]
         self.data = data
-        if not user.is_superuser:
+        if event and event.billed:
+            self.fields['billed'].disabled = True
+            self.fields['active'].disabled = True
+        if not user.is_superuser and not user.has_perm('ezreg.bill_event'):
             del self.fields['billed']
+            del self.fields['billing_notes']
     body = forms.CharField(label='Main event page',help_text='This is the landing page for your event and should contain most information about your event.  You may add additional pages using the "Event Pages" tab.',widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
     description = forms.CharField(label='Brief event description',help_text='This should be a brief description of your event, and will be displayed during the registration process.',widget=TinyMCE(attrs={'cols': 80, 'rows': 15}))
     cancellation_policy = forms.CharField(required=False,widget=TinyMCE(attrs={'cols': 80, 'rows': 30}))
+    bill_to_account = forms.CharField(required=True,help_text='Please enter the account that registration system fees should be billed to after event close.')
     def clean(self):
         cleaned_data = super(EventForm, self).clean()
         start_time = cleaned_data.get("start_time")
         end_time = cleaned_data.get("end_time")
+        billed = cleaned_data.get("billed")
+        active = cleaned_data.get("active")
         if start_time and end_time and (start_time > end_time):
             self.add_error('start_time', 'Start time should not be later than end time.')
-        if cleaned_data.get('active') and cleaned_data.get('tentative'):
+        if active and cleaned_data.get('tentative'):
             self.add_error('tentative', 'Events cannot be in planning while registration is activated.')
+    def save(self, commit=True):
+        event = super(EventForm, self).save(commit=False)
+        if self.instance and self.instance.id:
+            old_event = Event.objects.filter(id=self.instance.id).first()
+            if old_event and not old_event.billed and event.billed:
+                event.billed_by = self.user
+                event.billed_on = timezone.now()
+        if event.billed:
+            event.active = False
+        if commit:
+            event.save()
+        return event
+            
     class Meta:
         model=Event
-        fields = ('organizer','title','active','tentative','advertise','enable_waitlist','enable_application','capacity',
+        fields = ('organizer','title', 'bill_to_account','active','tentative','advertise','enable_waitlist','enable_application','capacity',
                   'slug','logo','hide_header','title','description','body','cancellation_policy','open_until',
-                  'start_time','end_time','contact','display_address','address','waitlist_message','bcc','from_addr','expiration_time','outside_url','billed')
+                  'start_time','end_time','contact','display_address','address','department_field','waitlist_message','bcc','from_addr','expiration_time','outside_url','billed', 'billing_notes')
 #         exclude = ('id','payment_processors','ical','form_fields','group')
         labels = {
                   'start_time': 'Event Start Time',
@@ -76,7 +99,8 @@ class EventForm(forms.ModelForm):
                   'display_address': 'Display location',
                   'expiration_time': 'Expiration time (minutes)',
                   'slug':'Friendly URL',
-                  'tentative':'Planned event'
+                  'tentative':'Planned event',
+                  'department_field': 'Ask users to select their department'
         }
         help_texts = {
             'slug': 'This will be used in the event URL.  Use only alphanumeric characters and underscores.',
@@ -94,7 +118,8 @@ class EventForm(forms.ModelForm):
             'logo': 'Optionally upload a logo to replace the default website logo.  Image will be scaled to a maximum height of 100px.',
             'hide_header': 'Hide the header, "{0}", on the upper left of the page.'.format(settings.HEADER_TEXT),
             'outside_url': 'Optionally provide a URL to an outside event.  If this is set, registration through the system will not be possible.',
-            'tentative': 'If the event is in the planning stages, but lacks definitive dates, you may select this.  Dates will be hidden while checked.'
+            'tentative': 'If the event is in the planning stages, but lacks definitive dates, you may select this.  Dates will be hidden while checked.',
+            'billed': 'Beware, once an event is billed, it may not be unbilled.'
         }
         widgets = {
                       'open_until':DateWidget(attrs={'id':"open_until"}, usel10n = True, bootstrap_version=3),
@@ -117,10 +142,21 @@ class PaymentProcessorForm(forms.ModelForm):
 
 class RegistrationForm(forms.ModelForm):
     template = 'ezreg/registration/form.html'
+    department = forms.ChoiceField(choices=[], required=False, help_text='If you are a UCD affiliate, please select your department.')
     def __init__(self, *args, **kwargs):
         self.event = kwargs.pop('event',None)
         self.admin = kwargs.pop('admin',False)
         super(RegistrationForm,self).__init__(*args, **kwargs)
+        if self.event and not self.event.department_field:
+            del self.fields['department']
+        else:
+            try:
+                import json
+                with open(settings.UCD_DEPARTMENTS, 'rb') as choices:
+                    choices = json.load(choices)
+                self.fields['department'].choices = choices
+            except:
+                del self.fields['department']
         if not self.admin:
             self.fields.pop('admin_notes')
         for field in ['first_name','last_name','email']:
@@ -132,15 +168,32 @@ class RegistrationForm(forms.ModelForm):
             if Registration.objects.filter(email__iexact=email, event=self.event).exclude(id=self.instance.id).exclude(status__in=[Registration.STATUS_CANCELLED,Registration.STATUS_APPLIED_DENIED]).exclude(test=True).count() != 0:
                 raise ValidationError('A registration with that email already exists.')
         return email
+    def clean(self):
+        cleaned_data = super(RegistrationForm, self).clean()
+        if 'department' in self.fields:
+            department = cleaned_data.get("department")
+            email = cleaned_data.get("email")
+            if email and email[-11:].strip().lower() == 'ucdavis.edu' and not department:
+                self.add_error('department', 'Please select your deparment.')
     class Meta:
         model=Registration
 #         exclude = ('id','event','price','status')
-        fields = ('first_name','last_name','email','admin_notes')#,'institution','department','special_requests'
+        fields = ('first_name','last_name','email','department','admin_notes')#,'institution','department','special_requests'
         
 class AdminRegistrationForm(forms.ModelForm):
+    department = forms.ChoiceField(choices=[], required=False, help_text='If you are a UCD affiliate, please select your department.')
+    def __init__(self,*args,**kwargs):
+        super(AdminRegistrationForm, self).__init__(*args, **kwargs)
+        try:
+            import json
+            with open(settings.UCD_DEPARTMENTS, 'rb') as choices:
+                choices = json.load(choices)
+            self.fields['department'].choices = choices
+        except:
+            del self.fields['department']
     class Meta:
         model=Registration
-        fields = ('first_name','last_name','email','admin_notes')
+        fields = ('first_name','last_name','email','department','admin_notes')
 
 class AdminRegistrationStatusForm(forms.ModelForm):
     email = forms.CheckboxInput()
@@ -160,7 +213,11 @@ class PriceForm(forms.Form):
         self.fields['price'].queryset = self.get_price_queryset()
         if self.fields['price'].queryset.count() == 0:
             self.fields['price'].help_text = 'There are no available prices. This event may not be currently open for registration or may be sold out.  Please contact the event coordinator for details.'
-        self.fields['payment_method'].queryset = self.get_payment_method_queryset() 
+        self.fields['payment_method'].queryset = self.get_payment_method_queryset()
+        # Hacky way to expose which prices are free to template.  Used by javascript to hide payment methods in template.
+        for p in self.fields['price'].queryset.all():
+            if p.amount == 0:
+                self.fields['price'].widget.attrs.update({'free':p.id})
     def setup_coupons(self):
         self.data = self.data.copy() #POST querydict is immutable, need to be able to overwrite price for coupon code
         self.coupon_price = None
@@ -172,7 +229,7 @@ class PriceForm(forms.Form):
                 self.coupon_price = self.available_prices_queryset(include_coupons=True).filter(coupon_code=coupon_code).first()
                 if self.coupon_price:
                     self.data[self.add_prefix('price')]=self.coupon_price.id
-                    if self.coupon_price.amount == 0:
+                    if self.coupon_price.amount == 0: #this may no longer be needed due to clean methods
                         self.fields['payment_method'].required = False
 #                         del self.fields['payment_method']
     def get_payment_method_queryset(self):
@@ -203,7 +260,14 @@ class PriceForm(forms.Form):
     def clean_price(self):
         if self.coupon_price:
             self.cleaned_data['price'] = self.coupon_price
+        if self.cleaned_data['price'].amount == 0:
+            self.fields['payment_method'].required = False
         return self.cleaned_data['price']
+    def clean_payment_method(self):
+        if self.cleaned_data.get('price', None) and self.cleaned_data['price'].amount == 0:
+            return None
+        else:
+            return self.cleaned_data['payment_method']
     def clean_coupon_code(self):
         coupon_code = self.cleaned_data['coupon_code']
         if coupon_code and not self.coupon_price:

@@ -1,0 +1,22 @@
+<h3>Billing summary for events ending between {{start|date:'M j, Y'}} - {{end|date:'M j, Y'}}</h3>
+<h3>Organizer: {{organizer}}</h3>
+<h3>Admins:</h3>
+<ul>
+{% for u in admins %}
+<li>{{u.first_name}} {{u.last_name}}: {{u.email}}</li>
+{% endfor %}
+</ul>
+<ul>
+{% for e in events %}
+<li><a href="{{SITE_URL}}{% url 'manage_event' event=e.id %}">{{e}}</a>: {{e.start_time|date:'M j, Y'}} - {{e.end_time|date:'M j, Y'}}
+<ul>
+    <li>Total revenue: {{e.service_charges_text}}</li>
+    <li>Credit revenue: {{e.credit_card_charges_text}}</li>
+    <li>Total charges = ${{e.total_charges}}</li>
+	<li>Billing account: {% if e.bill_to_account %}{{e.bill_to_account}}{% else %}None provided{% endif %}</li>
+</ul>
+</li>
+{% endfor %}
+<p>
+<b>Total = ${{total}}</b>
+</p>

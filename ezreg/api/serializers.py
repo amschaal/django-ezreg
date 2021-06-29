@@ -107,7 +107,7 @@ class RefundSerializer(serializers.ModelSerializer):
     def get_paid(self, obj):
         return getattr(getattr(obj.registration,'payment',None),'amount',None)
     def get_registrant(self, obj):
-        return '{}, {} ({})'.format(obj.registration.last_name,obj.registration.first_name,obj.registration.email)
+        return u'{}, {} ({})'.format(obj.registration.last_name,obj.registration.first_name,obj.registration.email)
     def get_admin(self, obj):
         return obj.admin.display() if obj.admin else ''
     def get_requester(self, obj):

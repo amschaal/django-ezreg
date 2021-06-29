@@ -84,7 +84,9 @@ def copy_event(request,event):
     tstamp = timezone.now().strftime("%Y_%m_%d__%H_%M")
     event.slug = 'copy_of_%s_%s'%(event.slug,tstamp)
     event.title = 'Copy of %s %s'%(event.title,tstamp)
-    event.active = event.advertise = False
+    event.active = event.advertise = event.billed = False
+    event.billed_on = None
+    event.billed_by = None
     event.save()
     for processor in copied.payment_processors.all():
         EventProcessor.objects.create(event=event,processor=processor)
@@ -358,7 +360,7 @@ def export_registrations(request, event):
     import re, tablib
     registrations = event.registrations.filter(id__in=request.POST.getlist('selection')).prefetch_related('payment','payment__processor').order_by('registered')
     data = format_registration_data(event, registrations)
-    fields = ['registered','id','first_name','last_name','email','admin_notes','status']
+    fields = ['registered','id','first_name','last_name','email', 'department','admin_notes','status']
     if event.form_fields:
         fields += [field['name'] for field in event.form_fields if 'layout' not in field['type'] and field['name'] in request.POST.getlist('custom_fields')]
     fields += request.POST.getlist('payment_fields')

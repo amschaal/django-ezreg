@@ -20,7 +20,7 @@ class EventsFeed(Feed):
     def link(self):
         return getattr(settings,'SITE_URL')
     def item_title(self,item):
-        return item.title
+        return '{} - {}'.format(item.start_time.strftime('%B %Y'), item.title)
     def item_pubdate(self, item):
         return item.start_time
     def item_description(self,item):
@@ -35,7 +35,7 @@ class EventsFeed(Feed):
 class UpcomingEventsFeed(EventsFeed):
     description = 'Upcoming events'
     def items(self, obj):
-        return Event.objects.filter(organizer=obj,start_time__gte=timezone.now(),advertise=True,active=True).order_by('-start_time')
+        return Event.objects.filter(organizer=obj,start_time__gte=timezone.now(),advertise=True,active=True).order_by('start_time')
 
 class PastEventsFeed(EventsFeed):
     description = 'Past events'
