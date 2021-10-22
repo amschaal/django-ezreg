@@ -120,9 +120,9 @@ class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
                 lowered = dict([(k.lower(), ', '.join(v) if isinstance(v, list) else v) for k,v in data.items()])
                 row += [lowered.get(field,'') for field in form_fields]
             dataset.append(row)
-        filetype = request.query_params.get('export_format','xls')
-        filetype = filetype if filetype in ['xls','xlsx','csv','tsv','json'] else 'xls'
-        content_types = {'xls':'application/vnd.ms-excel','tsv':'text/tsv','csv':'text/csv','json':'text/json','xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
+        filetype = request.query_params.get('export_format','xlsx')
+        filetype = filetype if filetype in ['xlsx','csv','tsv','json'] else 'xlsx'
+        content_types = {'tsv':'text/tsv','csv':'text/csv','json':'text/json','xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
         response_kwargs = {
                 'content_type': content_types[filetype]
             }
