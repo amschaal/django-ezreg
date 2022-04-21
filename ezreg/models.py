@@ -37,8 +37,8 @@ class OrganizerUserPermission(models.Model):
     PERMISSION_MANAGE_PROCESSORS = 'manage_processors'
     PERMISSION_VIEW = 'view'
     PERMISSION_CHOICES=((PERMISSION_ADMIN,'Administer'),(PERMISSION_VIEW,'View registrations'),(PERMISSION_MANAGE_PROCESSORS,'Manage payment processors'))
-    organizer = models.ForeignKey(Organizer,related_name="user_permissions")
-    user = models.ForeignKey(User)
+    organizer = models.ForeignKey(Organizer,related_name="user_permissions", on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     permission = models.CharField(max_length=25,choices=PERMISSION_CHOICES)
     class Meta:
         unique_together = (('organizer','user','permission'))
@@ -84,7 +84,7 @@ class Event(models.Model):
     billed = models.BooleanField(default=False)
     billing_notes = models.TextField(null=True, blank=True)
     billed_on = models.DateTimeField(null=True, blank=True)
-    billed_by = models.ForeignKey(User, null=True, blank=True)
+    billed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.PROTECT)
     config = postgres_fields.JSONField(default=dict)
     @property
     def slug_or_id(self):
@@ -198,7 +198,7 @@ def event_logo_path(instance, filename):
     return 'logos/{0}/{1}'.format(instance.organizer.id, filename)
    
 class EventPage(models.Model):
-    event = models.ForeignKey('Event',related_name='pages')
+    event = models.ForeignKey('Event',related_name='pages', on_delete=models.CASCADE)
     index = models.IntegerField(null=True, blank=True)
     slug = models.SlugField(max_length=50,blank=True,null=True)
     heading = models.CharField(max_length=40)
@@ -219,7 +219,7 @@ class EventPage(models.Model):
 #         unique_together = (('event','type'))
 
 class Price(models.Model):
-    event = models.ForeignKey('Event',related_name='prices')
+    event = models.ForeignKey('Event',related_name='prices', on_delete=models.CASCADE)
     order = models.PositiveSmallIntegerField(null=True,blank=True)
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=250,blank=True)
@@ -260,7 +260,7 @@ class Registration(models.Model):
     id = models.CharField(max_length=10,default=id_generator,primary_key=True)
     key = models.CharField(max_length=10,default=id_generator)
     status = models.CharField(max_length=25,choices=STATUSES,null=True,blank=True)
-    event = models.ForeignKey('Event',related_name='registrations')
+    event = models.ForeignKey('Event',related_name='registrations', on_delete=models.CASCADE)
     registered = models.DateTimeField(auto_now_add=True)
     first_name = models.CharField(max_length=50,null=True,blank=True)
     last_name = models.CharField(max_length=50,null=True,blank=True)
@@ -333,7 +333,7 @@ class Payment(models.Model):
     processor = models.ForeignKey('PaymentProcessor',null=True,blank=True,on_delete=models.PROTECT)
     status = models.CharField(max_length=20,default=STATUS_UNPAID,choices=STATUS_CHOICES)
     paid_at = models.DateTimeField(blank=True,null=True)
-    registration = models.OneToOneField(Registration,related_name='payment')
+    registration = models.OneToOneField(Registration,related_name='payment', on_delete=models.PROTECT)
     amount = models.DecimalField(decimal_places=2,max_digits=7)
     refunded = models.DecimalField(decimal_places=2,max_digits=7,null=True,blank=True)
     external_id = models.CharField(max_length=50,null=True,blank=True)
@@ -363,13 +363,13 @@ class Refund(models.Model):
     STATUS_COMPLETED = 'completed'
     STATUS_CHOICES = ((STATUS_PENDING,STATUS_PENDING),(STATUS_CANCELLED,STATUS_CANCELLED),(STATUS_COMPLETED,STATUS_COMPLETED))
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    registration = models.ForeignKey(Registration, related_name="refunds")
-    requester = models.ForeignKey(User, related_name="requested_refunds")
+    registration = models.ForeignKey(Registration, related_name="refunds", on_delete=models.CASCADE)
+    requester = models.ForeignKey(User, related_name="requested_refunds", on_delete=models.PROTECT)
     notes = models.TextField(null=True, blank=True)
     requested = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=10, default=STATUS_PENDING, choices=STATUS_CHOICES)
     amount = models.DecimalField(decimal_places=2,max_digits=7)
-    admin = models.ForeignKey(User, null=True, blank=True, related_name="approved_refunds")
+    admin = models.ForeignKey(User, null=True, blank=True, related_name="approved_refunds", on_delete=models.PROTECT)
     updated = models.DateTimeField(null=True, blank=True)
     class Meta:
         ordering = ('-requested',)
@@ -419,8 +419,8 @@ class PaymentProcessor(models.Model):
         return self.name
 
 class EventProcessor(models.Model):
-    event = models.ForeignKey('Event')
-    processor = models.ForeignKey('PaymentProcessor')
+    event = models.ForeignKey('Event', on_delete=models.CASCADE)
+    processor = models.ForeignKey('PaymentProcessor', on_delete=models.CASCADE)
 
 
 

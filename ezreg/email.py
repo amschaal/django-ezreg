@@ -51,8 +51,6 @@ def send_email(to,from_addr,subject,template,html_template=None,context={},cc=[]
         
 def send_ical_email(event,to,from_addr,subject,template,html_template=None,context={},cc=None,bcc=None,registration=None):
     msg = generate_email(to, from_addr, subject, template, html_template=html_template, context=context, bcc=bcc,registration=registration)
-    print 'Event ical'
-    print event.ical
     if event.ical:
         from django.core.files import File
         ical = File(open(event.ical, "r"))

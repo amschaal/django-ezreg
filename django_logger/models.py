@@ -26,7 +26,7 @@ class Log(models.Model):
         return Log.objects.filter(**kwargs)
 
 class LogRelated(models.Model):
-    log = models.ForeignKey(Log,related_name='related_objects')
+    log = models.ForeignKey(Log,related_name='related_objects', on_delete=models.CASCADE)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.CharField(max_length=25)
     content_object = GenericForeignKey('content_type', 'object_id')

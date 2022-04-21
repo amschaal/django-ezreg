@@ -1,7 +1,7 @@
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from ezreg.models import OrganizerUserPermission
+from django.urls.base import reverse
 class event_access_decorator(object):
 
     def __init__(self, perms,event_param='event',require_all=True):

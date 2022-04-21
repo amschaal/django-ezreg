@@ -186,5 +186,5 @@ CREDIT_CARD_CHARGE_PERCENT = 2.75
 
 MESSAGES = []
 
-from config import *
+from ezreg.config import *
 

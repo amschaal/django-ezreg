@@ -1,4 +1,3 @@
-from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
@@ -16,6 +15,7 @@ from ezreg.exceptions import RegistrationClosedException
 from django.http.response import HttpResponseForbidden
 from django.utils import timezone
 from django.http import Http404
+from django.urls import reverse
 
 def show_payment_form_condition(wizard):
     if wizard.registration:
@@ -199,7 +199,7 @@ class RegistrationWizard(SessionWizardView):
         self.event.delete_expired_registrations()
         try:
             existing_registration = self.get_registration()
-        except Registration.DoesNotExist, e:
+        except Registration.DoesNotExist as e:
             return render(request, 'ezreg/registration/doesnotexist.html', {'event':self.event})
         if existing_registration:
             self.render_goto_step(self.steps.first)
@@ -242,7 +242,7 @@ class RegistrationWizard(SessionWizardView):
             if not data and self.registration:
                 if self.registration.data:
                     data = self.registration.data
-            print fields
+            print(fields)
             if data:
                 form = JSONForm(data,fields=fields)
             else:

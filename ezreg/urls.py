@@ -22,7 +22,7 @@ from django_json_forms import urls as json_form_urls
 from ezreg import views
 from ezreg.api import views as api_views
 from cas import views as cas_views
-from ezreg.jsutils import jsurls
+# from ezreg.jsutils import jsurls
 from ezreg.api.views import PriceViewset, PaymentProcessorViewset, \
     EventPageViewset, RegistrationViewset, MailerMessageViewset, EventViewset,\
     RefundViewset
@@ -87,7 +87,7 @@ urlpatterns = [
     url(r'^feeds/events/upcoming/(?P<organizer_slug>[A-Za-z0-9_\-]{3,})/rss/$', UpcomingEventsFeed()),
     url(r'^feeds/events/past/(?P<organizer_slug>[A-Za-z0-9_\-]{3,})/rss/$', PastEventsFeed()),
     url(r'^json_forms/', include(json_form_urls.urlpatterns)),
-    url(r'^jsurls.js$', jsurls, {}, 'jsurls'), 
+#     url(r'^jsurls.js$', jsurls, {}, 'jsurls'), 
     # CAS
     url(r'^accounts/login/$', cas_views.login, name='login'),
     url(r'^accounts/logout/$', cas_views.logout, name='logout'),
@@ -100,7 +100,7 @@ if hasattr(settings, 'PAYMENT_PROCESSOR_URLS'):
         try:
 #             mod = import_module(processor_urls)
             urlpatterns += [url(r'^processors/',include(processor_urls))]
-        except Exception, e:
-            print e 
+        except Exception as e:
+            print(e) 
 
 handler403 = 'ezreg.error_views.handler403'
