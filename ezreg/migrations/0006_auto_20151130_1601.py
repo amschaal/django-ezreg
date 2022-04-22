@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='event',
             name='organizer',
-            field=models.ForeignKey(related_name='events', to='ezreg.Organizer'),
+            field=models.ForeignKey(related_name='events', to='ezreg.Organizer', on_delete=models.PROTECT),
         ),
         migrations.AlterField(
             model_name='event',

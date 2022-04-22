@@ -48,14 +48,14 @@ class Migration(migrations.Migration):
                 ('slug', models.SlugField(blank=True)),
                 ('heading', models.CharField(max_length=40)),
                 ('body', models.TextField()),
-                ('event', models.ForeignKey(related_name='pages', to='ezreg.Event')),
+                ('event', models.ForeignKey(related_name='pages', to='ezreg.Event', on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
             name='EventProcessor',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('event', models.ForeignKey(to='ezreg.Event')),
+                ('event', models.ForeignKey(to='ezreg.Event', on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -72,8 +72,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('permission', models.CharField(max_length=10, choices=[(b'admin', b'Administer'), (b'view', b'View registrations')])),
-                ('organizer', models.ForeignKey(related_name='user_permissions', to='ezreg.Organizer')),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('organizer', models.ForeignKey(related_name='user_permissions', to='ezreg.Organizer', on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -95,7 +95,7 @@ class Migration(migrations.Migration):
                 ('description', models.TextField(blank=True)),
                 ('hidden', models.BooleanField(default=False)),
                 ('config', jsonfield.fields.JSONField()),
-                ('organizer', models.ForeignKey(to='ezreg.Organizer')),
+                ('organizer', models.ForeignKey(to='ezreg.Organizer', on_delete=models.PROTECT)),
             ],
         ),
         migrations.CreateModel(
@@ -107,7 +107,7 @@ class Migration(migrations.Migration):
                 ('amount', models.DecimalField(max_digits=7, decimal_places=2)),
                 ('start_date', models.DateField(null=True, blank=True)),
                 ('end_date', models.DateField(null=True, blank=True)),
-                ('event', models.ForeignKey(related_name='prices', to='ezreg.Event')),
+                ('event', models.ForeignKey(related_name='prices', to='ezreg.Event', on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -122,29 +122,29 @@ class Migration(migrations.Migration):
                 ('test', models.BooleanField(default=False)),
                 ('data', jsonfield.fields.JSONField(null=True, blank=True)),
                 ('email_messages', models.ManyToManyField(related_name='registrations', to='mailqueue.MailerMessage')),
-                ('event', models.ForeignKey(related_name='registrations', to='ezreg.Event')),
-                ('price', models.ForeignKey(blank=True, to='ezreg.Price', null=True)),
+                ('event', models.ForeignKey(related_name='registrations', to='ezreg.Event', on_delete=models.PROTECT)),
+                ('price', models.ForeignKey(blank=True, to='ezreg.Price', null=True, on_delete=models.PROTECT)),
             ],
         ),
         migrations.AddField(
             model_name='payment',
             name='processor',
-            field=models.ForeignKey(blank=True, to='ezreg.PaymentProcessor', null=True),
+            field=models.ForeignKey(blank=True, to='ezreg.PaymentProcessor', null=True, on_delete=models.PROTECT),
         ),
         migrations.AddField(
             model_name='payment',
             name='registration',
-            field=models.OneToOneField(related_name='payment', to='ezreg.Registration'),
+            field=models.OneToOneField(related_name='payment', to='ezreg.Registration', on_delete=models.PROTECT),
         ),
         migrations.AddField(
             model_name='eventprocessor',
             name='processor',
-            field=models.ForeignKey(to='ezreg.PaymentProcessor'),
+            field=models.ForeignKey(to='ezreg.PaymentProcessor', on_delete=models.PROTECT),
         ),
         migrations.AddField(
             model_name='event',
             name='organizer',
-            field=models.ForeignKey(to='ezreg.Organizer'),
+            field=models.ForeignKey(to='ezreg.Organizer', on_delete=models.PROTECT),
         ),
         migrations.AddField(
             model_name='event',

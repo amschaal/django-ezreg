@@ -19,6 +19,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='paymentprocessor',
             name='organizer',
-            field=models.ForeignKey(related_name='payment_processors', to='ezreg.Organizer'),
+            field=models.ForeignKey(related_name='payment_processors', to='ezreg.Organizer',on_delete=models.PROTECT),
         ),
     ]

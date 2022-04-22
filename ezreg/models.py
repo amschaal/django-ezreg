@@ -190,7 +190,7 @@ class Event(models.Model):
     class Meta:
         permissions = (
             ('admin_event', 'Can modify event'),
-            ('view_event', 'Can view event details and registrations'),
+#             ('view_event', 'Can view event details and registrations'),
             ('bill_event', 'Can bill events')
         )
 def event_logo_path(instance, filename):
