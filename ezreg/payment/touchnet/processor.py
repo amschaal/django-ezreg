@@ -26,7 +26,7 @@ class TouchnetPaymentProcessor(BasePaymentProcessor):
                 'CANCEL_LINK': settings.SITE_URL + reverse('event',kwargs={'slug_or_id':payment.registration.event.slug_or_id}),
                 'AMT': payment.amount
                 }
-        m.update(posting_key+data['EXT_TRANS_ID']+str(data['AMT']))
+        m.update((posting_key+data['EXT_TRANS_ID']+str(data['AMT'])).encode('utf-8'))
         data['VALIDATION_KEY']=base64.encodestring(m.digest())
         form = TouchnetPostForm(initial=data)
         form.action = settings.TOUCHNET_TEST_URL if payment.registration.test else settings.TOUCHNET_PRODUCTION_URL

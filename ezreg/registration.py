@@ -47,7 +47,7 @@ class RegistrationWizard(SessionWizardView):
     condition_dict={'payment_form': show_payment_form_condition,'price_form':show_price_form_condition,'registration_form_custom':registration_form_custom_condition}
     
     def done(self, form_list, **kwargs):
-        registration = RegistrationForm(form_list[0].cleaned_data,event=self.event,instance=self.registration).save(commit=False)
+        registration = RegistrationForm(list(form_list)[0].cleaned_data,event=self.event,instance=self.registration).save(commit=False)
         custom_data = self.get_cleaned_data_for_step('registration_form_custom') or None
         if custom_data:
             registration.data = custom_data

@@ -29,7 +29,7 @@ class Organizer(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField()
     config = postgres_fields.JSONField(default=dict)
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 class OrganizerUserPermission(models.Model):
@@ -42,7 +42,7 @@ class OrganizerUserPermission(models.Model):
     permission = models.CharField(max_length=25,choices=PERMISSION_CHOICES)
     class Meta:
         unique_together = (('organizer','user','permission'))
-    def __unicode__(self):
+    def __str__(self):
         return '%s - %s: %s'%(self.organizer,self.permission,self.user)
 
 class Event(models.Model):
@@ -185,7 +185,7 @@ class Event(models.Model):
     @property
     def total_charges(self):
         return round(self.service_charges + self.credit_card_charges, 2)
-    def __unicode__(self):
+    def __str__(self):
         return self.title
     class Meta:
         permissions = (
@@ -229,7 +229,7 @@ class Price(models.Model):
     end_date = models.DateField(null=True,blank=True)
     quantity = models.PositiveIntegerField(null=True)
     disable = models.BooleanField(default=False)
-    def __unicode__(self):
+    def __str__(self):
         return mark_safe('<span title="%s"><b>$%s</b> - %s</span>' % (self.description,str(self.amount),self.name))
     class Meta:
         ordering = ('order',)
@@ -415,7 +415,7 @@ class PaymentProcessor(models.Model):
             return PaymentProcessor.objects.all()
         OUPs = OrganizerUserPermission.objects.filter(user=user,permission=OrganizerUserPermission.PERMISSION_MANAGE_PROCESSORS)
         return PaymentProcessor.objects.filter(organizer__in=[oup.organizer_id for oup in OUPs])
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 class EventProcessor(models.Model):

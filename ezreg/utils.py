@@ -58,6 +58,6 @@ def format_registration_data(event,registrations,encode_utf8=True):
                 data.update({'payment.amount':r.price.amount})
         if encode_utf8:
             for key, val in data.items():
-                data[key] = unicode(form_value(val)).encode("utf-8") if val is not None else None
+                data[key] = str(form_value(val)) if val is not None else None
         reg_data['data'].append(data)
     return reg_data
