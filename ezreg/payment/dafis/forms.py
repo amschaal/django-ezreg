@@ -2,7 +2,7 @@ from django import forms
 from ezreg.payment.base import BasePaymentForm
 from django.conf import settings
 import json
-import urllib2
+from urllib.request import urlopen
 from ezreg.config import KFS_CHART_OPTIONS
 class DafisConfigurationForm(forms.Form):
     destination_dafis = forms.CharField(required=False)
@@ -34,9 +34,10 @@ class PaymentForm(BasePaymentForm):
         valid = None
         if URL:
             try:
-                valid = json.load(urllib2.urlopen(URL))
+                response = urlopen(URL).read()
+                valid = json.loads(response.decode())
                 cleaned_data['validated']=valid
-            except Exception, e:
+            except Exception as e:
                 valid = True
                 cleaned_data['validated']=valid # If request fails, don't hold up registration
             if valid != True:

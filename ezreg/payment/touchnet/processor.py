@@ -1,7 +1,8 @@
 from ezreg.payment.base import BasePaymentProcessor
 from ezreg.payment.touchnet.forms import TouchnetConfigurationForm, TouchnetPostForm
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
+
 class TouchnetPaymentProcessor(BasePaymentProcessor):
     id = 'touchnet_payment_processor'
     name = 'Touchnet Payment Processor'
