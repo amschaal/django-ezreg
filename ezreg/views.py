@@ -367,7 +367,7 @@ def export_registrations(request, event):
         fields += request.POST.getlist('processor_%d'%processor.id)
     
     #get rid of fields that aren't available
-    fields = [field for field in fields if data['fields'].has_key(field)]
+    fields = [field for field in fields if field in data['fields']]
     
     #add headers
     dataset = tablib.Dataset(headers=[data['fields'][field].get('label',field) for field in fields])

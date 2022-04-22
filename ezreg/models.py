@@ -277,7 +277,7 @@ class Registration(models.Model):
     def get_form_value(self,name):
         if not self.data:
             return None
-        return self.data[name] if self.data.has_key(name) else None
+        return self.data[name] if name in self.data else None
     def get_registration_fields(self):
         fields = [
                   {'name':'first_name','label':'First name','value':self.first_name},
@@ -287,8 +287,8 @@ class Registration(models.Model):
                  ]
         if self.data:
             for field in self.event.form_fields:
-                if field.has_key('name'):
-                    if self.data.has_key(field['name']):
+                if 'name' in field:
+                    if field['name'] in self.data:
                         fields.append({'name':field['name'],'label':field['label'],'value':self.data[field['name']]})
         return fields
     @property

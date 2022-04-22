@@ -190,7 +190,7 @@ def event_payment_processors(request, event):
         if request.method == 'POST':
             processors = request.data.get('processors')
             EventProcessor.objects.filter(event=event).delete()
-            for id, processor in processors.iteritems():
+            for id, processor in processors.items():
                 if processor['enabled']:
                     EventProcessor.objects.create(processor_id=id,event=event)
         event_processors = EventProcessor.objects.filter(event=event)
@@ -222,7 +222,7 @@ def update_event_form(request, event):
     if request.data.get('form_fields'):
         event.form_fields = request.data.get('form_fields')
         for i, field in enumerate(event.form_fields):
-            if field.has_key('html'):
+            if 'html' in field:
                 event.form_fields[i]['html'] = bleach.clean(event.form_fields[i]['html'], **get_bleach_default_options())#removetags(event.form_fields[i]['html'], 'script style')
         event.save()
     return Response({'status':'success'})

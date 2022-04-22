@@ -105,7 +105,7 @@ class RegistrationWizard(SessionWizardView):
         if hasattr(self, 'registration_instance'):
             return self.registration_instance
         #A registration id was passed as part of the URL
-        if self.kwargs.has_key('registration_id'):
+        if 'registration_id' in self.kwargs:
             self.registration_instance = Registration.objects.get(id=self.kwargs['registration_id'],status__in=[Registration.STATUS_WAITLIST_PENDING,Registration.STATUS_APPLIED_ACCEPTED])
         elif self.get_session_registration_id():
             self.registration_instance = Registration.objects.filter(id=self.get_session_registration_id()).first()
@@ -127,7 +127,7 @@ class RegistrationWizard(SessionWizardView):
                 raise Http404('Registration not found')
         return self.event_instance
     def get_session_registration_id(self):
-            return self.storage.data['registration_id'] if self.storage.data.has_key('registration_id') else None
+            return self.storage.data['registration_id'] if 'registration_id' in self.storage.data else None
     def set_session_registration_id(self,id):
             self.storage.data['registration_id'] = id
     def create_registration(self):
@@ -204,7 +204,7 @@ class RegistrationWizard(SessionWizardView):
         if existing_registration:
             self.render_goto_step(self.steps.first)
         
-        self.test = request.GET.has_key('test')
+        self.test = 'test' in request.GET
         if kwargs.get('admin',False):
             if not (request.user.is_authenticated and request.user.is_staff) and not OrganizerUserPermission.objects.filter(user=request.user,permission=OrganizerUserPermission.PERMISSION_ADMIN,organizer=self.event.organizer):
                 return HttpResponseForbidden('Only event admininstrators may register participants')
