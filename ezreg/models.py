@@ -333,7 +333,7 @@ class Payment(models.Model):
     processor = models.ForeignKey('PaymentProcessor',null=True,blank=True,on_delete=models.PROTECT)
     status = models.CharField(max_length=20,default=STATUS_UNPAID,choices=STATUS_CHOICES)
     paid_at = models.DateTimeField(blank=True,null=True)
-    registration = models.OneToOneField(Registration,related_name='payment', on_delete=models.PROTECT)
+    registration = models.OneToOneField(Registration,related_name='payment', on_delete=models.CASCADE)
     amount = models.DecimalField(decimal_places=2,max_digits=7)
     refunded = models.DecimalField(decimal_places=2,max_digits=7,null=True,blank=True)
     external_id = models.CharField(max_length=50,null=True,blank=True)
