@@ -7,7 +7,7 @@ django-bleach==2.0.0
 django-cas-client==1.5.3
 django-compressor==2.2
 django-crispy-forms
-django-datetime-widget==0.9.3
+django-datetime-widget2==0.9.5
 django-filter==21.1
 django-formtools==2.1
 django-guardian==2.4.0

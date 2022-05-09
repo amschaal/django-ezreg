@@ -10,7 +10,7 @@ from ezreg.models import Event, Price, Registration, PaymentProcessor, Organizer
 from ezreg.payment import PaymentProcessorManager
 from django.forms.widgets import  TextInput
 from django.db.models.query_utils import Q
-# from datetimewidget.widgets import DateTimeWidget, DateWidget
+from datetimewidget.widgets import DateTimeWidget, DateWidget
 from django.conf import settings
 from django.utils import timezone
 
@@ -122,10 +122,10 @@ class EventForm(forms.ModelForm):
             'billed': 'Beware, once an event is billed, it may not be unbilled.'
         }
         widgets = {
-#                       'open_until':DateWidget(attrs={'id':"open_until"}, usel10n = True, bootstrap_version=3),
+                    'open_until':DateWidget(attrs={'id':"open_until"}, usel10n = True, bootstrap_version=3),
                         #Use localization and bootstrap 3
-#                         'start_time': DateTimeWidget(attrs={'id':"start_time"},options={'format': 'yyyy-mm-dd hh:ii','minuteStep':15}, usel10n = False, bootstrap_version=3),
-#                         'end_time': DateTimeWidget(attrs={'id':"end_time"}, options={'format': 'yyyy-mm-dd hh:ii','minuteStep':15}, usel10n = False, bootstrap_version=3)
+                        'start_time': DateTimeWidget(attrs={'id':"start_time"},options={'format': 'yyyy-mm-dd hh:ii','minuteStep':15}, usel10n = False, bootstrap_version=3),
+                        'end_time': DateTimeWidget(attrs={'id':"end_time"}, options={'format': 'yyyy-mm-dd hh:ii','minuteStep':15}, usel10n = False, bootstrap_version=3)
                    }
         
 class PaymentProcessorForm(forms.ModelForm):
