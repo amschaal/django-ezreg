@@ -4,7 +4,7 @@ Pillow
 PyYAML==5.4
 bleach==4.1.0
 django-bleach==2.0.0
-django-cas-client==1.4.0
+django-cas-client==1.5.3
 django-compressor==2.2
 django-crispy-forms
 django-datetime-widget==0.9.3
