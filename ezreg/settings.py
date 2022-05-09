@@ -124,22 +124,27 @@ FILES_ROOT = os.path.join(BASE_DIR,'files')
 DJANGO_JSON_FORMS_UPLOAD_DIRECTORY = os.path.join(FILES_ROOT,'form_files') 
 # DJANGO_JSON_FORMS_GET_UPLOAD_PATH
 
-# TINYMCE_DEFAULT_CONFIG = {
-# #     'theme' : 'advanced',
-#     'theme': 'silver',
-# #     'theme_advanced_buttons1' : 'bold,italic,underline,separator,bullist,numlist,separator,link,unlink,header1,header2',
-# #     'theme_advanced_buttons2' : '',
-# #     'theme_advanced_buttons3' : '',
-#     'theme_advanced_toolbar_location' : 'top',
-#     'theme_advanced_toolbar_align': 'left',
-#     'paste_text_sticky': True,
-#     'paste_text_sticky_default' : True,
-# #     'valid_styles' : 'font-weight,font-style,text-decoration,text-align', #text-align doesn't seem to work, so I'm commenting out the whole line.
-#     'relative_urls': False,
-#     'plugins': "table",
-#     'theme_advanced_buttons3_add' : "tablecontrols",
-#     'theme_advanced_resizing': True
-# }
+TINYMCE_DEFAULT_CONFIG = {
+    "theme": "silver",
+    "height": 500,
+    "menubar": False,
+    "plugins": "advlist,autolink,lists,link,image,charmap,print,preview,anchor,"
+    "searchreplace,visualblocks,code,fullscreen,insertdatetime,media,table,paste,"
+    "code,help,wordcount",
+    "toolbar": "undo redo | formatselect | "
+    "bold italic backcolor | alignleft aligncenter "
+    "alignright alignjustify | bullist numlist outdent indent | "
+    "removeformat | help",
+    "plugins": [
+        'advlist autolink link image lists charmap print preview hr anchor pagebreak',
+        'searchreplace wordcount visualblocks code fullscreen insertdatetime media nonbreaking',
+        'table emoticons template paste help'
+    ],
+  "toolbar": 'undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullscreen | forecolor backcolor emoticons | help',
+  "menubar": 'file edit view insert format tools table help',
+  "content_style": 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+}
+
 
 ANONYMOUS_USER_ID = None
 
