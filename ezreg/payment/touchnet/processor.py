@@ -27,7 +27,7 @@ class TouchnetPaymentProcessor(BasePaymentProcessor):
                 'AMT': payment.amount
                 }
         m.update((posting_key+data['EXT_TRANS_ID']+str(data['AMT'])).encode('utf-8'))
-        data['VALIDATION_KEY']=base64.encodestring(m.digest())
+        data['VALIDATION_KEY']=base64.encodestring(m.digest()).decode("utf-8").strip()
         form = TouchnetPostForm(initial=data)
         form.action = settings.TOUCHNET_TEST_URL if payment.registration.test else settings.TOUCHNET_PRODUCTION_URL
         return form
