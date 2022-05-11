@@ -3,5 +3,5 @@
 	url = git@github.com:amschaal/angular-remote-table.git
 [submodule "django_json_forms"]
 	path = django_json_forms
-	url = git@bitbucket.org:amschaal/django_json_forms.git
-	branch = layout-forms
+	url = git@github.com:amschaal/django_json_forms.git
+	branch = main

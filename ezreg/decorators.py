@@ -1,7 +1,7 @@
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from ezreg.models import OrganizerUserPermission
+from django.urls.base import reverse
 class event_access_decorator(object):
 
     def __init__(self, perms,event_param='event',require_all=True):
@@ -25,7 +25,7 @@ class event_access_decorator(object):
             event = Event.objects.get(id=kwargs[self.event_param])
             kwargs[self.event_param]=event
             request = args[0]
-            if not request.user.is_authenticated():
+            if not request.user.is_authenticated:
                 if not request.is_ajax():
 #                     @todo: use correct url
                     url = reverse('home') + '?next=%s' % request.get_full_path()
@@ -66,7 +66,7 @@ class generic_permission_decorator(object):
         def wrapped_f(*args,**kwargs):
             request = args[0]
             
-            if not request.user.is_authenticated():
+            if not request.user.is_authenticated:
                 if not request.is_ajax():
 #                     @todo: use correct url
                     url = reverse('home') + '?next=%s' % request.get_full_path()
@@ -103,7 +103,7 @@ class has_permissions(object):
 #         print "Inside __call__()"
         def wrapped_f(*args,**kwargs):
             request = args[0]
-            if not request.user.is_authenticated():
+            if not request.user.is_authenticated:
                 if not request.is_ajax():
                     url = reverse('home') + '?next=%s' % request.get_full_path()
                     return redirect(url)

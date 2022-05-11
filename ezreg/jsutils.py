@@ -18,7 +18,7 @@ def jsurls(request):
         Load the module and output all of the patterns
         Recurse on the included modules
         """
-        if isinstance(module_name, basestring):
+        if isinstance(module_name, str):
             __import__(module_name)
             root_urls = sys.modules[module_name]
             patterns = root_urls.urlpatterns

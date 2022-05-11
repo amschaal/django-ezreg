@@ -1,5 +1,6 @@
-from django.conf.urls import  url
+# from django.conf.urls import  url
 from ezreg.payment.touchnet import views
+from django.urls.conf import re_path
 urlpatterns = [
-    url(r'^touchnet/postback/', views.postback,name='touchnet_postback'),
+    re_path(r'^touchnet/postback/', views.postback,name='touchnet_postback'),
 ]

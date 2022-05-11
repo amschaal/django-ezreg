@@ -29,7 +29,7 @@ def format_registration_data(event,registrations,encode_utf8=True):
     
     for processor in event.payment_processors.all():
         exportable_fields = processor.get_processor().exportable_fields
-        for name,label in exportable_fields.iteritems():
+        for name,label in exportable_fields.items():
             reg_data['fields']['processor_%d_%s'%(processor.id,name)] = {'label':label}
     
     for r in registrations:
@@ -47,7 +47,7 @@ def format_registration_data(event,registrations,encode_utf8=True):
             #Add selected payment processor fields
             for processor in event.payment_processors.all():
                 exportable_fields = processor.get_processor().exportable_fields
-                for name,label in exportable_fields.iteritems():
+                for name,label in exportable_fields.items():
                     if payment.data:
                         val = payment.data.get(name,None)
                         if val:
@@ -57,7 +57,7 @@ def format_registration_data(event,registrations,encode_utf8=True):
             if True:#r.price.amount == 0:
                 data.update({'payment.amount':r.price.amount})
         if encode_utf8:
-            for key, val in data.iteritems():
-                data[key] = unicode(form_value(val)).encode("utf-8") if val is not None else None
+            for key, val in data.items():
+                data[key] = str(form_value(val)) if val is not None else None
         reg_data['data'].append(data)
     return reg_data

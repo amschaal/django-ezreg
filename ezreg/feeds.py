@@ -1,6 +1,6 @@
 from django.contrib.syndication.views import Feed
 from django.urls import reverse
-from models import Event, Organizer
+from ezreg.models import Event, Organizer
 from django.conf import settings
 from django.utils import timezone
     

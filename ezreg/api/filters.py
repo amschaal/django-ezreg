@@ -12,8 +12,6 @@ class MultiFilter(filters.BaseFilterBackend):
         filters = {}
         for mf in multi_filters:
             val = view.request.query_params.getlist(mf,None)
-            print mf
-            print val
             if val:
                 filters[mf]=val
         if len(filters):

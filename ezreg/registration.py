@@ -1,4 +1,3 @@
-from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
@@ -16,6 +15,7 @@ from ezreg.exceptions import RegistrationClosedException
 from django.http.response import HttpResponseForbidden
 from django.utils import timezone
 from django.http import Http404
+from django.urls import reverse
 
 def show_payment_form_condition(wizard):
     if wizard.registration:
@@ -47,7 +47,7 @@ class RegistrationWizard(SessionWizardView):
     condition_dict={'payment_form': show_payment_form_condition,'price_form':show_price_form_condition,'registration_form_custom':registration_form_custom_condition}
     
     def done(self, form_list, **kwargs):
-        registration = RegistrationForm(form_list[0].cleaned_data,event=self.event,instance=self.registration).save(commit=False)
+        registration = RegistrationForm(list(form_list)[0].cleaned_data,event=self.event,instance=self.registration).save(commit=False)
         custom_data = self.get_cleaned_data_for_step('registration_form_custom') or None
         if custom_data:
             registration.data = custom_data
@@ -105,7 +105,7 @@ class RegistrationWizard(SessionWizardView):
         if hasattr(self, 'registration_instance'):
             return self.registration_instance
         #A registration id was passed as part of the URL
-        if self.kwargs.has_key('registration_id'):
+        if 'registration_id' in self.kwargs:
             self.registration_instance = Registration.objects.get(id=self.kwargs['registration_id'],status__in=[Registration.STATUS_WAITLIST_PENDING,Registration.STATUS_APPLIED_ACCEPTED])
         elif self.get_session_registration_id():
             self.registration_instance = Registration.objects.filter(id=self.get_session_registration_id()).first()
@@ -127,7 +127,7 @@ class RegistrationWizard(SessionWizardView):
                 raise Http404('Registration not found')
         return self.event_instance
     def get_session_registration_id(self):
-            return self.storage.data['registration_id'] if self.storage.data.has_key('registration_id') else None
+            return self.storage.data['registration_id'] if 'registration_id' in self.storage.data else None
     def set_session_registration_id(self,id):
             self.storage.data['registration_id'] = id
     def create_registration(self):
@@ -199,14 +199,14 @@ class RegistrationWizard(SessionWizardView):
         self.event.delete_expired_registrations()
         try:
             existing_registration = self.get_registration()
-        except Registration.DoesNotExist, e:
+        except Registration.DoesNotExist as e:
             return render(request, 'ezreg/registration/doesnotexist.html', {'event':self.event})
         if existing_registration:
             self.render_goto_step(self.steps.first)
         
-        self.test = request.GET.has_key('test')
+        self.test = 'test' in request.GET
         if kwargs.get('admin',False):
-            if not (request.user.is_authenticated() and request.user.is_staff) and not OrganizerUserPermission.objects.filter(user=request.user,permission=OrganizerUserPermission.PERMISSION_ADMIN,organizer=self.event.organizer):
+            if not (request.user.is_authenticated and request.user.is_staff) and not OrganizerUserPermission.objects.filter(user=request.user,permission=OrganizerUserPermission.PERMISSION_ADMIN,organizer=self.event.organizer):
                 return HttpResponseForbidden('Only event admininstrators may register participants')
             self.admin = True
         test_redirect_parameter = '?test' if self.test else ''
@@ -242,7 +242,7 @@ class RegistrationWizard(SessionWizardView):
             if not data and self.registration:
                 if self.registration.data:
                     data = self.registration.data
-            print fields
+            print(fields)
             if data:
                 form = JSONForm(data,fields=fields)
             else:

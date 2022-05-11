@@ -79,7 +79,7 @@ def postback(request):
 #             payment.delete()
 #             registration.delete()
         return JsonResponse({'status':'ok','payment_status':payment.status})
-    except Exception, e:
+    except Exception as e:
         # Get an instance of a logger
         payment.status = Payment.STATUS_ERROR
         payment.save()
