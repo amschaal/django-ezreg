@@ -127,7 +127,7 @@ class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
                 'content_type': content_types[filetype]
             }
         filename = "registrations_%s.%s"%(timezone.now().strftime("%Y_%m_%d__%H_%M"),filetype)
-        response = HttpResponse(getattr(dataset, filetype), **response_kwargs)
+        response = HttpResponse(dataset.export(filetype), **response_kwargs)
         response['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
         return response
 
