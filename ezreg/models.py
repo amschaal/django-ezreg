@@ -4,7 +4,6 @@ import random
 from django.contrib.auth.models import Group, User
 from django.utils.safestring import mark_safe
 from distutils.command.config import config
-from jsonfield import JSONField
 from django.db.models.signals import pre_save
 from ezreg.payment import PaymentProcessorManager
 from datetime import datetime, timedelta
@@ -17,7 +16,7 @@ from ezreg.fields import EmailListField
 from django.core.validators import MinLengthValidator
 from django_bleach.models import BleachField
 from django.utils import timezone
-from django.contrib.postgres import fields as postgres_fields
+from django.contrib.postgres.fields import JSONField
 import uuid
 
 
@@ -28,7 +27,7 @@ class Organizer(models.Model):
     slug = models.SlugField(max_length=50,unique=True)
     name = models.CharField(max_length=50)
     description = models.TextField()
-    config = postgres_fields.JSONField(default=dict)
+    config = JSONField(default=dict)
     def __str__(self):
         return self.name
 
@@ -85,7 +84,7 @@ class Event(models.Model):
     billing_notes = models.TextField(null=True, blank=True)
     billed_on = models.DateTimeField(null=True, blank=True)
     billed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.PROTECT)
-    config = postgres_fields.JSONField(default=dict)
+    config = JSONField(default=dict)
     @property
     def slug_or_id(self):
         return self.slug if self.slug else self.id
