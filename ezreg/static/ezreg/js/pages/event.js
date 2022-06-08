@@ -21,7 +21,6 @@ function PriceController($scope,$http,growl,Price,PaymentProcessor) {
 		$scope.prices = Price.query({event:$scope.event_id,page_size:100});
 		$scope.processors = PaymentProcessor.query({organizer:$scope.organizer});
 		$http.get(event_processors_url).then(function(response){
-// 			console.log('proc',response.data);
 			$scope.selected_processors = response.data.processors;
 		});
 	}
@@ -60,7 +59,6 @@ function PriceController($scope,$http,growl,Price,PaymentProcessor) {
 			});
 	}
 	$scope.saveProcessors = function(){
-// 		console.log(event_processors_url,{'processors':$scope.selected_processors});
 		$http.post(event_processors_url,{'processors':$scope.selected_processors}).then(
 				function(response){
 					growl.success("Payment processors updated",{ttl: 5000});
@@ -82,12 +80,16 @@ function PriceController($scope,$http,growl,Price,PaymentProcessor) {
 }
 
 function EventPageController($scope,$http,growl,EventPage) {
+	//$scope.tinymceOptions = {'foobar':'baz'};
 	var errorMessageHandler = function(response){
 		growl.error(response.data.error ,{ttl: 5000});
 	}
 	$scope.init = function(params){
 		$scope.event_id = params.event_id;
 		$scope.getPages();
+		$scope.$watchCollection('pages', function(pages) {
+			console.log('pages', pages);
+		});
 	}
 	$scope.getPages = function(){
 	    $scope.pages = EventPage.query({event:$scope.event_id});

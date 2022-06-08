@@ -31,14 +31,10 @@ function EventEmailsController($scope,$http,growl,NgTableParams) {
 	      filterDelay: 0,
 		  	getData: function(params) {
 		  		var url = params.url();
-		  		
-		  		console.log(params);
-		  		console.log(url);
 		  	var query_params = {registrations__event:$scope.event_id,page:url.page,page_size:url.count,ordering:params.orderBy().join(',').replace('+','')};
 		  	angular.extend(query_params, params.filter());
 	        // ajax request to api
 		  	return $http.get('/api/emails/',{params:query_params}).then(function(response){
-		  		console.log(response.data);
 		  		params.total(response.data.count);
 		  		return response.data.results;
 		  	});
