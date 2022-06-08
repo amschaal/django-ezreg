@@ -1,35 +1,39 @@
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ''
+SECRET_KEY = 'SOMETHINGLONGANDSECRET'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost','127.0.0.1']
 
+# You could hard code this or use environment variables, etc depending on how you deploy
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'ezreg',
-        'USER': 'username',
-        'PASSWORD': 'password',
+        'USER': 'dev',
+        'PASSWORD': 'dev',
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }
 }
 
-SITE_URL='http://myregistrationsite.com'
-FROM_EMAIL = 'no-reply@myregistrationsite.com'
+SITE_URL='http://127.0.0.1:8000'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.ucdavis.edu'
+FROM_EMAIL = 'no-reply@yoursite.com'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.yoursite.com' # set this when using SMTP backend
 
 # We use CAS, you might not
-USE_CAS=True
+USE_CAS=False
 if USE_CAS:
-    CAS_SERVER_URL = "https://cas.ucdavis.edu/cas/"
+    CAS_SERVER_URL = "https://dev.cas.yoursite.com/cas/"
     CAS_VERSION = '2'
     CAS_LOGOUT_COMPLETELY = True
     CAS_PROVIDE_URL_TO_LOGOUT = True
@@ -39,20 +43,41 @@ if USE_CAS:
     )
     CAS_AUTO_CREATE_USER = False
 
-TOUCHNET_PRODUCTION_URL = 'https://secure.touchnet.com......'
-TOUCHNET_TEST_URL = 'https://test.secure.touchnet.com......'
-TOUCHNET_SITES = {
-    'site1':{
-         'label':'Registration',
-         'production':{'site_id':8,'posting_key':'secretpassword'},
-         'test':{'site_id':57,'posting_key':'secretpassword'}
-     },
-    'site2':{
-         'label':'Workshops',
-         'production':{'site_id':9,'posting_key':'secretpassword'},
-         'test':{'site_id':57,'posting_key':'secretpassword'}
-     }
-}
+# Use what you need or write a new one
+PAYMENT_PROCESSORS = [
+#    'ezreg.payment.dafis.processor.DafisPaymentProcessor',
+#    'ezreg.payment.touchnet.processor.TouchnetPaymentProcessor',
+    'ezreg.payment.other_payment.processor.OtherPaymentProcessor',
+#    'ezreg.payment.uc.processor.UCPaymentProcessor'
+]
 
-KFS_VALIDATE_SUBACCOUNT_URL = "https://intitute.edu/rest/fau/subaccount/%s/%s/%s/isvalid"
-KFS_VALIDATE_ACCOUNT_URL = "https://intitute.edu/rest/fau/account/%s/%s/isvalid"
+# Extra URLS to register for payment processors
+PAYMENT_PROCESSOR_URLS = [
+#    'ezreg.payment.touchnet.urls',
+]
+
+# KFS account validation, you probably don't need this
+# KFS_VALIDATE_SUBACCOUNT_URL = "https://yoursite.com/fau/subaccount/%s/%s/%s/isvalid"
+# KFS_VALIDATE_ACCOUNT_URL = "https://yoursite.com/fau/account/%s/%s/isvalid"
+# KFS_CHART_OPTIONS = (('1','1 - Unit 1'),('2','2 - Unit 2'),('3','3 - Unit 3'))
+
+COMPRESS_ENABLED = False # Best to have this set to True in production
+
+ADMINS = ['admin@yoursite.com']
+
+REFUND_ADMIN_EMAILS = ['financial@yoursite.com']
+
+# MESSAGES = ['Optional messages that show up at the top of the site. Change these in config.py file.']
+
+# If "VERSION" environment variable is set to "DOCKER", use the database configured in the docker compose file.  This is here just to make it easy to kickstart testing and development.
+if os.environ.get('VERSION') == 'DOCKER':
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "postgres",
+            "USER": "postgres",
+            "PASSWORD": "postgres",
+            "HOST": "db",  # set in docker-compose.yml
+            "PORT": 5432,  # default postgres port
+        }
+    }
