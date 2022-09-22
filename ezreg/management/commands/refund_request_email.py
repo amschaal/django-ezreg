@@ -20,7 +20,7 @@ class Command(BaseCommand):
         now = timezone.now()
         since_hours = options.get('since_hours')
         since = now - timedelta(hours=since_hours)
-        refunds = Refund.objects.filter(requested__gte=since)
+        refunds = Refund.objects.filter(requested__gte=since, status=Refund.STATUS_PENDING)
         if refunds.exists():
             html = render_to_string('ezreg/emails/refunds_requested_email.html', {'since': since, 'since_hours': since_hours, 'refunds': refunds})
-            send_mail('There are {} new refund requests to be processed'.format(refunds.count()), html, settings.FROM_EMAIL, settings.REFUND_ADMIN_EMAILS, fail_silently=False, html_message=html)
+            send_mail('There are {} new pending refund requests to be processed'.format(refunds.count()), html, settings.FROM_EMAIL, settings.REFUND_ADMIN_EMAILS, fail_silently=False, html_message=html)
