@@ -8,12 +8,12 @@ class PaymentProcessorManager:
             p = import_string(processor)
             self.payment_processors[p.id]=p
     def get_processor(self,id):
-        if self.payment_processors.has_key(id):
+        if id in self.payment_processors:
             return self.payment_processors[id]
         return None
     def get_choices(self):
         choices = ()
-        for id, processor in self.payment_processors.iteritems():
+        for id, processor in self.payment_processors.items():
             choices += ((id,processor.name),)
         return choices
         

@@ -23,12 +23,10 @@ function setConfigPhaseSettings(ngTableFilterConfigProvider) {
 
 function RegistrationController($scope,$http,$modal,growl,Registration,NgTableParams) {
 	var defaults={};
-	console.log('wtf');
 	var create_filter_choices = function(choices){
 		filter_choices = [];
 		for(var id in choices)
 			filter_choices.push({id:id,title:choices[id]});
-		console.log(filter_choices);
 		return filter_choices;
 	};
 	$scope.init = function(id,statuses,processors,payment_statuses){
@@ -47,7 +45,6 @@ function RegistrationController($scope,$http,$modal,growl,Registration,NgTablePa
 	$scope.selectAll = function(){
 		if ($scope.select_all)
 			$http.get('/api/registrations/',{params:$scope.registrationParameters}).then(function(response){
-		  		console.log(response.data);
 		  		$scope.checked = {}
 		  		angular.forEach(response.data.results,function(registration,index){
 		  			$scope.checked[registration.id]=true;
@@ -87,9 +84,6 @@ function RegistrationController($scope,$http,$modal,growl,Registration,NgTablePa
 			});
 			return ids;
 		}
-		$scope.update_statuses_old = function(){
-			console.log($scope.getSelected());
-		};
 		
 		$scope.export_registrations = function(){
 			var modalInstance = $modal.open({
@@ -133,7 +127,6 @@ function RegistrationController($scope,$http,$modal,growl,Registration,NgTablePa
 		    });
 
 		    modalInstance.result.then(function () {
-		    	console.log('refresh');
 		    	$scope.tableParams.reload();
 		    }, function () {
 		      $log.info('Modal dismissed at: ' + new Date());
@@ -186,7 +179,6 @@ app.controller('exportCtrl', function ($scope, $http, growl, $modalInstance, eve
 		  $modalInstance.close();
 	  };
 	  $scope.toggleSelect = function(key){
-		  console.log(key,$scope.select_all[key]);
 		  $('.'+key).prop('checked',$scope.select_all[key]);
 	  };
 	  $scope.cancel = function () {
@@ -199,9 +191,7 @@ app.controller('vizCtrl', function ($scope, $http, growl, $modalInstance, event_
 	  $scope.fields = [{label:'Select variable'}];
 	  $scope.data = [];
 	  $http.get($scope.getURL('api_export_registrations',{event:event_id})).then(function(response){
-		  console.log('data',response)
 		  angular.forEach(response.data.fields,function(field,index){
-			console.log(index,field);
 			if (['radio','datetime'].indexOf(field.type) != -1){
 				$scope.fields.push({key:index,label:field.label,type:field.type})
 			}

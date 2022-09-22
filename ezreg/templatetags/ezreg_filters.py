@@ -14,8 +14,6 @@ def form_value(value):
 def event_custom_text(event, id, html=True):
     from django_bleach.templatetags.bleach_tags import bleach_value
 #     return str(event)
-    print event
-    print id
     custom_texts = event.config.get('CUSTOM_TEXTS',{})
     custom_text = custom_texts.get(id,{})
     if html:

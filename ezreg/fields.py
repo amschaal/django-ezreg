@@ -24,7 +24,7 @@ class EmailListField(models.CharField):
         if not value:
             return
         if isinstance(value,list):
-            return ','.join(unicode(s) for s in value)
+            return ','.join(value)#unicode(s) for s in value
         return value
     def value_to_string(self, obj):
         value = self._get_val_from_obj(obj)

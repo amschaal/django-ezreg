@@ -134,7 +134,7 @@ class EventForm(forms.ModelForm):
             'billed': 'Beware, once an event is billed, it may not be unbilled.'
         }
         widgets = {
-                      'open_until':DateWidget(attrs={'id':"open_until"}, usel10n = True, bootstrap_version=3),
+                    'open_until':DateWidget(attrs={'id':"open_until"}, usel10n = True, bootstrap_version=3),
                         #Use localization and bootstrap 3
                         'start_time': DateTimeWidget(attrs={'id':"start_time"},options={'format': 'yyyy-mm-dd hh:ii','minuteStep':15}, usel10n = False, bootstrap_version=3),
                         'end_time': DateTimeWidget(attrs={'id':"end_time"}, options={'format': 'yyyy-mm-dd hh:ii','minuteStep':15}, usel10n = False, bootstrap_version=3)
@@ -175,7 +175,6 @@ class RegistrationForm(forms.ModelForm):
             self.fields[field].required=True
     def clean_email(self):
         email = self.cleaned_data['email']
-        print self.instance.id
         if email and not self.instance.test:
             if Registration.objects.filter(email__iexact=email, event=self.event).exclude(id=self.instance.id).exclude(status__in=[Registration.STATUS_CANCELLED,Registration.STATUS_APPLIED_DENIED]).exclude(test=True).count() != 0:
                 raise ValidationError('A registration with that email already exists.')
@@ -302,9 +301,7 @@ class AdminPaymentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(AdminPaymentForm, self).__init__(*args, **kwargs)
         instance = getattr(self, 'instance', None)
-        print "ADMIN PAYMENT FORM"
         if instance and instance.status == Payment.STATUS_PAID:
-            print "PAID"
             self.fields['status'].disabled = True
             self.fields['status'].help_text = 'A status of PAID may not be changed.  Refunds may be issued, but the original status must remain.'
     class Meta:

@@ -127,7 +127,7 @@ class RegistrationViewset(viewsets.ReadOnlyModelViewSet):
                 'content_type': content_types[filetype]
             }
         filename = "registrations_%s.%s"%(timezone.now().strftime("%Y_%m_%d__%H_%M"),filetype)
-        response = HttpResponse(getattr(dataset, filetype), **response_kwargs)
+        response = HttpResponse(dataset.export(filetype), **response_kwargs)
         response['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
         return response
 
@@ -170,7 +170,7 @@ class RefundViewset(viewsets.ReadOnlyModelViewSet):
         try:
             refund.set_status(Refund.STATUS_COMPLETED,request.user)
             return Response({'status': 'success', 'refund':RefundSerializer(refund).data, 'detail': 'Refund set as complete.'})
-        except Exception, e:
+        except Exception as e:
             return Response({'status': 'error', 'detail': str(e)},status=status.HTTP_400_BAD_REQUEST)
     @action(methods=['POST'], detail=True)
     def cancel(self,request, pk=None):
@@ -180,7 +180,7 @@ class RefundViewset(viewsets.ReadOnlyModelViewSet):
         try:
             refund.set_status(Refund.STATUS_CANCELLED,request.user)
             return Response({'status': 'success', 'refund':RefundSerializer(refund).data, 'detail': 'Refund set as complete.'})
-        except Exception, e:
+        except Exception as e:
             return Response({'status': 'error', 'detail': str(e)},status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST','GET'])
@@ -190,14 +190,12 @@ def event_payment_processors(request, event):
         if request.method == 'POST':
             processors = request.data.get('processors')
             EventProcessor.objects.filter(event=event).delete()
-            for id, processor in processors.iteritems():
-                print id
-                print processor
+            for id, processor in processors.items():
                 if processor['enabled']:
                     EventProcessor.objects.create(processor_id=id,event=event)
         event_processors = EventProcessor.objects.filter(event=event)
         return Response({'processors':{p.processor_id:{'enabled':True} for p in event_processors}})
-    except Exception, e:
+    except Exception as e:
         return Response({'error':str(e)},status=status.HTTP_400_BAD_REQUEST)
 #         EventProcessor.objects.
 #     payment_processors = PaymentProcessor.objects.filter(group=event.group)
@@ -224,7 +222,7 @@ def update_event_form(request, event):
     if request.data.get('form_fields'):
         event.form_fields = request.data.get('form_fields')
         for i, field in enumerate(event.form_fields):
-            if field.has_key('html'):
+            if 'html' in field:
                 event.form_fields[i]['html'] = bleach.clean(event.form_fields[i]['html'], **get_bleach_default_options())#removetags(event.form_fields[i]['html'], 'script style')
         event.save()
     return Response({'status':'success'})

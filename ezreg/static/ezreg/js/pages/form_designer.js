@@ -24,7 +24,6 @@ app.controller('DesignerController', function($scope,$http,Event) {
     };
     $scope.save = function(){
     	var url = django_js_utils.urls.resolve('update_event_form', { event: $scope.event_id })
-    	console.log('posting: ',$scope.event_id, $scope.fields);
     	$http.post(url,{form_fields:$scope.fields})
     	.success(function(){alert('The form has been updated.')})
     	.error(function(){alert('There was an error updating the form.')});
@@ -49,7 +48,6 @@ app.controller('DesignerController', function($scope,$http,Event) {
     }
     $scope.getEvents = function(val) {
         return Event.query({serializer:'detailed',title__icontains:val}).$promise.then(function(response){
-        	console.log('response',response);
         	return response;
         });
     }

@@ -1,7 +1,8 @@
 from ezreg.payment.base import BasePaymentProcessor
 from ezreg.payment.touchnet.forms import TouchnetConfigurationForm, TouchnetPostForm
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
+
 class TouchnetPaymentProcessor(BasePaymentProcessor):
     id = 'touchnet_payment_processor'
     name = 'Touchnet Payment Processor'
@@ -25,8 +26,8 @@ class TouchnetPaymentProcessor(BasePaymentProcessor):
                 'CANCEL_LINK': settings.SITE_URL + reverse('event',kwargs={'slug_or_id':payment.registration.event.slug_or_id}),
                 'AMT': payment.amount
                 }
-        m.update(posting_key+data['EXT_TRANS_ID']+str(data['AMT']))
-        data['VALIDATION_KEY']=base64.encodestring(m.digest())
+        m.update((posting_key+data['EXT_TRANS_ID']+str(data['AMT'])).encode('utf-8'))
+        data['VALIDATION_KEY']=base64.encodestring(m.digest()).decode("utf-8").strip()
         form = TouchnetPostForm(initial=data)
         form.action = settings.TOUCHNET_TEST_URL if payment.registration.test else settings.TOUCHNET_PRODUCTION_URL
         return form

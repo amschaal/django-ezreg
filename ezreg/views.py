@@ -124,7 +124,7 @@ def manage_event(request,event):
 def event(request,slug_or_id):
     try:
         event = Event.objects.get(Q(id=slug_or_id)|Q(slug=slug_or_id))
-    except Event.DoesNotExist, e:
+    except Event.DoesNotExist as e:
         raise Http404('Event not found')
     return render(request, 'ezreg/event.html', {'event':event})
 
@@ -302,7 +302,6 @@ def export_registrations_old(request, event):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="%s_registrations_%s.csv"'%(re.sub('[^0-9a-zA-Z_]+', '', event.title.replace(' ','_')) ,timezone.now().strftime("%Y_%m_%d__%H_%M"))
     writer = csv.writer(response)
-    print request.POST
     form_fields = []
     if event.form_fields:
         form_fields = [field for field in event.form_fields if 'layout' not in field['type'] and field['name'] in request.POST.getlist('custom_fields')]
@@ -368,7 +367,7 @@ def export_registrations(request, event):
         fields += request.POST.getlist('processor_%d'%processor.id)
     
     #get rid of fields that aren't available
-    fields = [field for field in fields if data['fields'].has_key(field)]
+    fields = [field for field in fields if field in data['fields']]
     
     #add headers
     dataset = tablib.Dataset(headers=[data['fields'][field].get('label',field) for field in fields])
@@ -406,6 +405,6 @@ def export_event_revenue(request):
             'content_type': content_types[filetype]
         }
     filename = "event_revenue_%s.%s"%(timezone.now().strftime("%Y_%m_%d__%H_%M"),filetype)
-    response = HttpResponse(getattr(dataset, filetype), **response_kwargs)
+    response = HttpResponse(dataset.export(filetype), **response_kwargs)
     response['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
     return response

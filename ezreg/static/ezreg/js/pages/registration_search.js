@@ -29,7 +29,6 @@ function RegistrationSearchController($scope,$filter,$http,NgTableParams,$httpPa
 		filter_choices = [];
 		for(var id in choices)
 			filter_choices.push({id:id,title:choices[id]});
-		console.log(filter_choices);
 		return filter_choices;
 	};
 	$scope.init = function(statuses,payment_statuses){
@@ -72,7 +71,6 @@ function RegistrationSearchController($scope,$filter,$http,NgTableParams,$httpPa
 		if ($scope.export_custom) {
 		    url += '&export_custom=true';
 		}
-		console.log('url',url);
 		window.location = url;
 	}
   }
