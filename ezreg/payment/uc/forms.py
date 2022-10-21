@@ -21,7 +21,7 @@ UC_PAYMENT_CONFIG = OrderedDict(
         ('UCR', {'name': 'UC Riverside', 'regex': ['([5N])-?(\d{6})?-([a-zA-Z0-9]{6})-(\d{5})-(\d{2})-?([a-zA-Z0-9]{4,5})?-?([a-zA-Z0-9]{4,5})?']}),
         ('UCSB', {'name': 'UC Santa Barbara', 'regex': ['([8Q])-(\d{6})-(\d{5})-(\d{4})-(\d)']}),
         ('UCSC', {'name': 'UC Santa Cruz', 'regex': ['([7P])-(\d{5})-(\d{6})-([a-zA-Z0-9]{6})']}),
-        ('UCSD', {'name': 'UC San Diego', 'regex': ['([6O])-(\d{5})-(\d{5})-(\d{7})-(\d{6})-(\d{3})']}),
+        ('UCSD', {'name': 'UC San Diego', 'regex': ['([6O])-(\d{5})-([\da-zA-Z]{5})-(\d{7})-(\d{6})-(\d{3})']}),
         ('UCSF', {'name': 'UC San Francisco', 'regex': ['([2K])-([a-zA-Z0-9]{5})-(\d{5})-(\d{4})-(\d{6})-([a-zA-Z0-9]{7})-?(\d{2})?-(\d{2})']})
     )
 )
