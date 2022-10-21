@@ -71,6 +71,18 @@ class EventForm(forms.ModelForm):
             self.add_error('start_time', 'Start time should not be later than end time.')
         if active and cleaned_data.get('tentative'):
             self.add_error('tentative', 'Events cannot be in planning while registration is activated.')
+        
+        # For phasing out events
+        MAX_EVENT_DATE = getattr(settings,'MAX_EVENT_DATE',None)
+        if MAX_EVENT_DATE:
+            max_date = datetime.strptime(MAX_EVENT_DATE,'%Y-%m-%d').date()
+            open_until = cleaned_data.get("open_until")
+            if not start_time or start_time.date() > max_date:
+                self.add_error('start_time', 'Start time is required and should not be later than {}.'.format(MAX_EVENT_DATE))
+            if not end_time or end_time.date() > max_date:
+                self.add_error('end_time', 'End time is required and should not be later than {}.'.format(MAX_EVENT_DATE))
+            if not open_until or open_until > max_date:
+                self.add_error('open_until', 'Open until is required and date should not be later than {}.'.format(MAX_EVENT_DATE))
     def save(self, commit=True):
         event = super(EventForm, self).save(commit=False)
         if self.instance and self.instance.id:
