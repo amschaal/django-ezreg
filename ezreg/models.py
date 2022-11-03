@@ -401,7 +401,7 @@ class PaymentProcessor(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField(blank=True)
     hidden = models.BooleanField(default=False)
-    config = JSONField()
+    config = JSONField(default=dict)
     def get_processor(self):
         manager = PaymentProcessorManager()
         return manager.get_processor(self.processor_id)

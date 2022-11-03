@@ -122,7 +122,7 @@
 					{% if processor.get_processor.exportable_fields.keys %}
 					<h4><label><input type="checkbox" ng-model="select_all.processor_{{processor.id}}_fields" ng-change="toggleSelect('processor_{{processor.id}}_fields')"/>{{processor.name}}</label></h4>
 						<fieldset>
-						{% for name,label in processor.get_processor.exportable_fields.iteritems %}
+						{% for name,label in processor.get_processor.exportable_fields.items %}
 							<label><input type="checkbox" class="processor_{{processor.id}}_fields" name="processor_{{processor.id}}" value="processor_{{processor.id}}_{{name}}"/> {{label}}</label>
 						{% endfor %}
 						</fieldset>
