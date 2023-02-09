@@ -67,14 +67,16 @@ class EventForm(forms.ModelForm):
         end_time = cleaned_data.get("end_time")
         billed = cleaned_data.get("billed")
         active = cleaned_data.get("active")
+        organizer = cleaned_data.get("organizer")
         if start_time and end_time and (start_time > end_time):
             self.add_error('start_time', 'Start time should not be later than end time.')
         if active and cleaned_data.get('tentative'):
             self.add_error('tentative', 'Events cannot be in planning while registration is activated.')
         
         # For phasing out events
-        MAX_EVENT_DATE = getattr(settings,'MAX_EVENT_DATE',None)
-        if MAX_EVENT_DATE:
+        MAX_EVENT_DATE = getattr(settings,'MAX_EVENT_DATE',None) # Formatted YYYY-MM-DD
+        MAX_DATE_EXEMPT = getattr(settings,'MAX_DATE_EXEMPT',[]) # A list of organizer slugs who are exempted from the max event date
+        if MAX_EVENT_DATE and organizer and organizer.slug not in MAX_DATE_EXEMPT:
             max_date = datetime.strptime(MAX_EVENT_DATE,'%Y-%m-%d').date()
             open_until = cleaned_data.get("open_until")
             if not start_time or start_time.date() > max_date:
