@@ -72,7 +72,7 @@
 <h3>{[c.title]}</h3>
 <p>{[c.description]}</p>
 <textarea style="width:100%;height:200px;" ui-tinymce ng-model="event.config.CUSTOM_TEXTS[id].html" ng-if="c.html"></textarea>
-<textarea style="width:100%;height:200px;" ng-model="event.config.CUSTOM_TEXTS[id].text" ng-if="c.text"></textarea>
+<input style="width:100%" ng-model="event.config.CUSTOM_TEXTS[id].text" ng-if="c.text"/>
 </div>
 <button class="btn btn-primary" ng-click="save()">Save</button>
 

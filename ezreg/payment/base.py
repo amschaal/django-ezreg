@@ -4,6 +4,7 @@ class BasePaymentProcessor:
     name = 'Base Payment Processor'
     payment_template = 'ezreg/pay.html'
     exportable_fields = {} #IE: {'financial_contact':'Financial contact','account':'Account number'}
+    use_external_url = False
     def __init__(self,config):
         self.config = config
     @staticmethod
@@ -17,6 +18,9 @@ class BasePaymentProcessor:
         pass
     @staticmethod
     def get_post_form(payment):
+        return None
+    @staticmethod
+    def get_additional_email_text(payment):
         return None
 
 class BasePaymentForm(forms.Form):
