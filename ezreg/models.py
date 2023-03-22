@@ -79,6 +79,7 @@ class Event(models.Model):
     form_fields = JSONField(null=True, blank=True)
     department_field = models.BooleanField(default=True)
     outside_url = models.URLField(null=True,blank=True)
+    external_payment_url = models.URLField(null=True,blank=True)
     bill_to_account = models.CharField(null=True, blank=True, max_length=30)
     billed = models.BooleanField(default=False)
     billing_notes = models.TextField(null=True, blank=True)
@@ -355,6 +356,8 @@ class Payment(models.Model):
             return form_class(self.data,event=self.registration.event)
         else:
             return form_class(event=self.registration.event)
+    def get_additional_email_text(self):
+        return self.processor.get_processor().get_additional_email_text(self)
 
 class Refund(models.Model):
     STATUS_PENDING = 'pending'

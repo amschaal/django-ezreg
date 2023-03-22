@@ -21,5 +21,5 @@ class ExternalPaymentProcessor(BasePaymentProcessor):
         payment.registration.save()
     @staticmethod
     def get_additional_email_text(payment):
-        return 'Please ensure that you have paid for your registration at {}.  Any unpaid registrations are subject to cancellation'.format(payment.registration.event.outside_url)
+        return 'Please ensure that you have paid for your registration at {}.  Any unpaid registrations are subject to cancellation'.format(payment.registration.event.external_payment_url)
     

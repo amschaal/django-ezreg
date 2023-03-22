@@ -11,21 +11,19 @@ def form_value(value):
     return value
 
 @register.simple_tag
-def event_custom_text(event, id, html=True):
+def event_custom_text(event, id, html=True, default=''):
     from django_bleach.templatetags.bleach_tags import bleach_value
 #     return str(event)
     custom_texts = event.config.get('CUSTOM_TEXTS',{})
     custom_text = custom_texts.get(id,{})
-    if html:
-        return bleach_value(custom_text.get('html',''))
-    return bleach_value(custom_text.get('text',''))
+    val = bleach_value(custom_text.get('html')) if html else bleach_value(custom_text.get('text'))
+    return val or default
 
 @register.filter
 def has_custom_text(event, id):
     custom_texts = event.config.get('CUSTOM_TEXTS',{})
     custom_text = custom_texts.get(id,{})
     return custom_text.get('html',False) or custom_text.get('text',False) 
-
 
 @register.filter
 def content_type_id(obj):

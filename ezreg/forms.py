@@ -102,7 +102,7 @@ class EventForm(forms.ModelForm):
         model=Event
         fields = ('organizer','title', 'bill_to_account','active','tentative','advertise','enable_waitlist','enable_application','capacity',
                   'slug','logo','hide_header','title','description','body','cancellation_policy','open_until',
-                  'start_time','end_time','contact','display_address','address','department_field','waitlist_message','bcc','from_addr','expiration_time','outside_url','billed', 'billing_notes')
+                  'start_time','end_time','contact','display_address','address','department_field','waitlist_message','bcc','from_addr','expiration_time','outside_url', 'external_payment_url','billed', 'billing_notes')
 #         exclude = ('id','payment_processors','ical','form_fields','group')
         labels = {
                   'start_time': 'Event Start Time',
@@ -132,6 +132,7 @@ class EventForm(forms.ModelForm):
             'logo': 'Optionally upload a logo to replace the default website logo.  Image will be scaled to a maximum height of 100px.',
             'hide_header': 'Hide the header, "{0}", on the upper left of the page.'.format(settings.HEADER_TEXT),
             'outside_url': 'Optionally provide a URL to an outside event.  If this is set, registration through the system will not be possible.',
+            'external_payment_url': 'If using the registration functionality in tandem with an outside registration or payment site, you may enter the URL here.  If not using the registration functionality of this site, you should use the outside URL functionality instead.',
             'tentative': 'If the event is in the planning stages, but lacks definitive dates, you may select this.  Dates will be hidden while checked.',
             'billed': 'Beware, once an event is billed, it may not be unbilled.'
         }
