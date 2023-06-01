@@ -16,5 +16,17 @@ CUSTOM_TEXTS = {
         'description': 'If you would like to override the default application denied email, do so here.  The text entered will be shown right after a greeting.',
         'html': True,
         'text':False
+    },
+    'REGISTRATION_BUTTON_TEXT': {
+        'title': 'Registration Button Text',
+        'description': 'Optionally, override the default button text on the event home page to something other than "Register".',
+        'html': False,
+        'text': True
+    },
+    'EXTERNAL_REGISTRATION_BUTTON_TEXT': {
+        'title': 'External Registration Button Text',
+        'description': 'Optionally, override the default button text on the event home page to something other than "External registration".',
+        'html': False,
+        'text': True
     }
 }

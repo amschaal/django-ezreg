@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load ezreg_filters %}
 {% block content %}
 {% include 'ezreg/partials/event_header.html' %}
 {% if event.display_address and event.address%}
@@ -30,7 +31,10 @@
 	{% elif event.can_apply %}
 		<a href="{% url 'apply' slug_or_id=event.slug_or_id %}" class="btn btn-warning btn">Apply</a>
 	{% elif event.can_register%}
-		<a href="{% url 'register' slug_or_id=event.slug_or_id %}" class="btn btn-warning btn">Register</a>
+		<a href="{% url 'register' slug_or_id=event.slug_or_id %}" class="btn btn-warning btn">{% event_custom_text event 'REGISTRATION_BUTTON_TEXT' False 'Register'%}</a>
+		{% if event.external_payment_url %}
+			<a href="{{event.external_payment_url}}" target="_blank" class="btn btn-warning btn">{% event_custom_text event 'EXTERNAL_REGISTRATION_BUTTON_TEXT' False 'External registration'%}</a>
+		{% endif %}
 	{% elif event.can_waitlist %}
 		<a href="{% url 'waitlist' slug_or_id=event.slug_or_id %}" class="btn btn-warning btn">Waitlist</a>
 	{% elif not event.active or event.registration_closed %}

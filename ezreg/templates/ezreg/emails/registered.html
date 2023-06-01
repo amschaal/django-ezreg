@@ -3,6 +3,9 @@ Dear {{registration.first_name}} {{registration.last_name}},
 <p>
 You have successfully registered for the event, "{{registration.event.title}}".  Your registration details are below:
 </p>
+{% if registration.payment.get_additional_email_text %}
+<p>{{registration.payment.get_additional_email_text}}</p>    
+{% endif %}
 {% include 'ezreg/partials/registration_details.html' %}
 
 {% event_custom_text registration.event 'REGISTRATION_EMAIL' %}
