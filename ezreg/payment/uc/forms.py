@@ -14,15 +14,15 @@ class UCConfigurationForm(forms.Form):
 UC_PAYMENT_CONFIG = OrderedDict(
     (
 #     'UCD': {'name': 'UC Davis', 'regex':['([1J])-(\d{5})-(\d{5})-(5\d{4})-(\d{2})','([1J])-(\d{5})-(\d{5})-(\d{5})']})),
-        ('UCB', {'name': 'UC Berkeley', 'regex': ['([1J])-(\d{5})-(\d{5})-(5\d{4})-(\d{2})','([1J])-(\d{5})-(\d{5})-(\d{5})']}),
-        ('UCI', {'name': 'UC Irvine', 'regex': ['([9R])-([a-zA-Z0-9]{7})-?(\d{5})?-?(\d{2})?-(\d{4})']}),
+        ('UCB', {'name': 'UC Berkeley', 'regex': ['(1J)-(\d{5})-(\d{5})-(5\d{4})-(\d{2})','([1J])-(\d{5})-(\d{5})-(\d{5})']}),
+        ('UCI', {'name': 'UC Irvine', 'regex': ['(9R)-([a-zA-Z0-9]{7})-?(\d{5})?-?(\d{2})?-(\d{4})']}),
         ('UCLA', {'name': 'UC Los Angeles', 'regex': ['(4)-([12][0-9]{5})-?([a-zA-Z0-9]{2})?-([0-9]{5})-?(\w{,6})?-([0-9]{2})-?([0-9]{4})?', '(4)-([0-9]{6})-?([a-zA-Z0-9]{2})?-([0-9]{5})-?(\w{,6})?-([0-9]{2})-([0-9]{4})']}),
-        ('UCM', {'name': 'UC Merced', 'regex': ['([0S])-([0-9]{4})-([0-9]{5})-([a-zA-Z0-9]{7})-([0-9]{6})-([0-9]{2})-?([a-zA-Z0-9]{3})?']}),
-        ('UCR', {'name': 'UC Riverside', 'regex': ['([5N])-?(\d{6})?-([a-zA-Z0-9]{6})-(\d{5})-(\d{2})-?([a-zA-Z0-9]{4,5})?-?([a-zA-Z0-9]{4,5})?']}),
-        ('UCSB', {'name': 'UC Santa Barbara', 'regex': ['([8Q])-(\d{6})-(\d{5})-(\d{4})-(\d)']}),
-        ('UCSC', {'name': 'UC Santa Cruz', 'regex': ['([7P])-(\d{5})-(\d{6})-([a-zA-Z0-9]{6})']}),
-        ('UCSD', {'name': 'UC San Diego', 'regex': ['([6O])-(\d{5})-([\da-zA-Z]{5})-(\d{7})-(\d{6})-(\d{3})']}),
-        ('UCSF', {'name': 'UC San Francisco', 'regex': ['([2K])-([a-zA-Z0-9]{5})-(\d{5})-(\d{4})-(\d{6})-([a-zA-Z0-9]{7})-?(\d{2})?-(\d{2})']})
+        ('UCM', {'name': 'UC Merced', 'regex': ['(0S)-([0-9]{4})-([0-9]{5})-([a-zA-Z0-9]{7})-([0-9]{6})-([0-9]{2})-?([a-zA-Z0-9]{3})?']}),
+        ('UCR', {'name': 'UC Riverside', 'regex': ['(5N)-?(\d{6})?-([a-zA-Z0-9]{6})-(\d{5})-(\d{2})-?([a-zA-Z0-9]{4,5})?-?([a-zA-Z0-9]{4,5})?']}),
+        ('UCSB', {'name': 'UC Santa Barbara', 'regex': ['(8Q)-(\d{6})-(\d{5})-(\d{4})-(\d)']}),
+        ('UCSC', {'name': 'UC Santa Cruz', 'regex': ['(7P)-(\d{5})-(\d{6})-([a-zA-Z0-9]{6})']}),
+        ('UCSD', {'name': 'UC San Diego', 'regex': ['(6O)-(\d{5})-([\da-zA-Z]{5})-(\d{7})-(\d{6})-(\d{3})']}),
+        ('UCSF', {'name': 'UC San Francisco', 'regex': ['(2K)-([a-zA-Z0-9]{5})-(\d{5})-(\d{4})-(\d{6})-([a-zA-Z0-9]{7})-?(\d{2})?-(\d{2})']})
     )
 )
 
