@@ -10,7 +10,7 @@ from collections import OrderedDict
 class UCConfigurationForm(forms.Form):
 #     help_text = forms.CharField(required=False, help_text="If you'd like to override the help text under the \"Account information\" header, you may enter it here.")
     pass
-    
+
 UC_PAYMENT_CONFIG = OrderedDict(
     (
 #     'UCD': {'name': 'UC Davis', 'regex':['([1J])-(\d{5})-(\d{5})-(5\d{4})-(\d{2})','([1J])-(\d{5})-(\d{5})-(\d{5})']})),
@@ -25,6 +25,9 @@ UC_PAYMENT_CONFIG = OrderedDict(
         ('UCSF', {'name': 'UC San Francisco', 'regex': ['(2K)-([a-zA-Z0-9]{5})-(\d{5})-(\d{4})-(\d{6})-([a-zA-Z0-9]{7})-?(\d{2})?-(\d{2})']})
     )
 )
+
+if hasattr(settings, 'UC_PAYMENT_CONFIG'):
+    UC_PAYMENT_CONFIG = settings.UC_PAYMENT_CONFIG
 
 class PaymentForm(BasePaymentForm):
     uc = forms.ChoiceField(required=True, label='Select UC', choices=[[k, v.get('name')] for k,v in UC_PAYMENT_CONFIG.items()])

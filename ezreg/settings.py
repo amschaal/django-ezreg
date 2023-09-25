@@ -192,10 +192,12 @@ CREDIT_CARD_CHARGE_PERCENT = 2.75
 
 MESSAGES = []
 
-DEFAULT_EXCEPTION_REPORTER_FILTER = 'ezreg.debug.LimitedExceptionReporterFilter'
+# DEFAULT_EXCEPTION_REPORTER_FILTER = 'ezreg.debug.LimitedExceptionReporterFilter'
 
 REFUND_ADMIN_EMAILS = []
 
-from config import *
-
+try:
+    from ezreg.config import *
+except:
+    print('No config.py file')
 
