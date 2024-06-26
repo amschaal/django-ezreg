@@ -14,7 +14,7 @@ django-guardian==2.4.0
 django-mail-queue==3.1.4
 django-sendfile==0.3.9
 django-tinymce==3.4.0
-djangorestframework==3.13.1
+djangorestframework==3.15.2
 djangorestframework-filters
 icalendar==3.9.1
 jdcal==1.4
