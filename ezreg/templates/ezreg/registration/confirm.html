@@ -17,7 +17,7 @@
 {{event.cancellation_policy|safe}}
 {% endif %}
 
-<form action="" method="post">{% csrf_token %}
+<form action="" method="post" novalidate>{% csrf_token %}
 {% include 'ezreg/partials/wizard_forms.html' %}
 {% if wizard.steps.prev %}
 <!-- <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.first }}" class="btn btn-primary">{% trans "first step" %}</button> -->

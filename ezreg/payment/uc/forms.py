@@ -79,8 +79,8 @@ class PaymentForm(BasePaymentForm):
         )
     def clean(self):
         cleaned_data = super(PaymentForm, self).clean()
-        uc = cleaned_data.get("uc")
-        account = cleaned_data.get("account")
+        uc = cleaned_data.get("uc","")
+        account = cleaned_data.get("account","")
         config = UC_PAYMENT_CONFIG.get(uc)
         regex = config.get('regex', [])
         for r in regex:
