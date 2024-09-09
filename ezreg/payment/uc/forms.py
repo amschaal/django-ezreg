@@ -52,6 +52,11 @@ class PaymentForm(BasePaymentForm):
                       <a target="_blank" href="https://financeandbusiness.ucdavis.edu/finance/accounting-financial-reporting/intercampus/acct-strings">
                       https://financeandbusiness.ucdavis.edu/finance/accounting-financial-reporting/intercampus/acct-strings
                       </a> for details.</h4>
+                      <h4>For help with updated UC Davis account formats, see 
+                      <a target="_blank" href="https://financeandbusiness.ucdavis.edu/finance/chart-of-accounts/redesign">
+                      https://financeandbusiness.ucdavis.edu/finance/chart-of-accounts/redesign
+                      </a>
+                      </h4>
                     '''
                 ),
                 'uc',
@@ -86,7 +91,7 @@ class PaymentForm(BasePaymentForm):
         for r in regex:
             if re.match(r, account):
                 return cleaned_data
-        error_message = 'Invalid account string.  Please consult your financial contact or reference account string documentation for details on proper formatting.'
+        error_message = 'Invalid account string.  Please consult your financial contact or reference account string documentation for details on proper formatting.  Please note that account string should not contain spaces, and each section should be separated by a dash "-".'
         error_message = config.get('error_message', error_message)
         raise forms.ValidationError({'account': error_message})
 #         raise forms.ValidationError("The account is invalid.  Please ensure that chart, account, and (optionally) sub account refer to a valid account.")
