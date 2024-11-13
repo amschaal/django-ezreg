@@ -52,10 +52,9 @@ class PaymentForm(BasePaymentForm):
                       <a target="_blank" href="https://financeandbusiness.ucdavis.edu/finance/accounting-financial-reporting/intercampus/acct-strings">
                       https://financeandbusiness.ucdavis.edu/finance/accounting-financial-reporting/intercampus/acct-strings
                       </a> for details.</h4>
-                      <h4>For help with updated UC Davis account formats, see 
-                      <a target="_blank" href="https://financeandbusiness.ucdavis.edu/finance/chart-of-accounts/redesign">
-                      https://financeandbusiness.ucdavis.edu/finance/chart-of-accounts/redesign
-                      </a>
+                      <h4>UC Davis accounts should either be in <a target="_blank" href="https://financeandbusiness.ucdavis.edu/finance/chart-of-accounts/redesign">Chart of Accounts (CoA) format</a>, 
+                      or in <a target="_blank" href="https://aggieenterprise.ucdavis.edu/poetaf">POET format</a>.  In either case, be sure to enter the required fields in the order specified by the linked documentation,
+                      ensuring that you separate fields with hyphens (-) and have no additional spaces or characters.
                       </h4>
                     '''
                 ),
