@@ -36,7 +36,7 @@ INSTALLED_APPS = (
     'crispy_forms',
     'rest_framework',
     'django_filters',
-    'rest_framework_filters',
+#    'rest_framework_filters',
     'datetimewidget',
     'mailqueue',
     'django_json_forms',
