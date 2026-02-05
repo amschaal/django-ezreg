@@ -18,13 +18,18 @@ from django.http import Http404
 from django.urls import reverse
 
 def show_payment_form_condition(wizard):
+    print('wizard', wizard.registration)
+    price_data = wizard.get_cleaned_data_for_step('price_form') or None
     if wizard.registration:
-        price_data = wizard.get_cleaned_data_for_step('price_form') or None
+#        price_data = wizard.get_cleaned_data_for_step('price_form') or None
         if price_data and price_data['price'].amount == 0.0:
             return False
         if wizard.registration.is_waitlisted or wizard.registration.is_application or wizard.registration.registered_by:
             return False
+    return True
+    print('wizard 2')
     processor = wizard.get_payment_processor()
+    print('wizard 3', processor)
     if processor:
         return processor.get_form()
     else:
@@ -236,7 +241,7 @@ class RegistrationWizard(SessionWizardView):
         # determine the step if not given
         if step is None:
             step = self.steps.current
-        form = super(RegistrationWizard, self).get_form(step, data, files)
+        form = super().get_form(step=step, data=data, files=files)
         if step == 'registration_form_custom':
             fields = self.event.form_fields if isinstance(self.event.form_fields,list) else []
             if not data and self.registration:
